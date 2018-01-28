@@ -222,16 +222,19 @@ fn (mut p Parser) import_stmt() ast.Import {
 	pos := p.tok.position()
 	mut to_import := p.tok.lit
 	p.check(.string)
+	if to_import.contains(".." + os.path_separator) {
+		p.error_with_pos("las rutas de archivos a importar no pueden ser relativas", pos)
+	}
 	$if windows {
 		to_import = to_import.replace('/', os.path_separator)
 	}
 	to_import = if is_std { os.join_path(parser.stdlib_path, to_import) } else { os.join_path(p.pref.file_dir,
 			to_import) }
 	if to_import.starts_with(parser.builtins_path) && !p.is_builtin {
-		p.error('los archivos builtins no se pueden importar')
+		p.error_with_pos('los archivos builtins no se pueden importar', pos)
 	}
 	if to_import in p.imports {
-		p.error('este archivo ya está importado')
+		p.error_with_pos('este archivo ya está importado', pos)
 	}
 	p.imports << to_import
 	p.check(.semicolon)

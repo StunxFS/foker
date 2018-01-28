@@ -56,8 +56,8 @@ fn (mut b Builder) compile() {
 	// Si el usuario solo quiere checar la sintaxis de su script, pues nos detenemos
 	// de lo contrario seguimos.
 	if !b.pref.only_check_syntax {
-		// Ordenamos el orden de dependencias
-		b.deps_graph()
+		// Resolvemos el orden de las dependencias
+		b.resolve_deps()
 		// Corremos el checker
 		b.checker()
 		// Corremos el generador
@@ -123,14 +123,18 @@ fn (mut b Builder) check_errors() {
 	}
 }
 
-fn (mut b Builder) deps_graph() {
+fn (mut b Builder) resolve_deps() {
 	// resolver dependencias de archivos
 	graph := b.import_graph()
 	deps_resolved := graph.resolve()
+	cycles := deps_resolved.display_cycles()
 	if b.pref.is_verbose {
 		eprintln('------ dependencias de archivos resolvidas ------')
 		eprintln(deps_resolved.display())
 		eprintln('-------------------------------------------------')
+	}
+	if cycles.len > 1 {
+		util.err('se ha detectado un importe circular entre los siguientes archivos: \n' + cycles)
 	}
 	mut mods := []string{}
 	for node in deps_resolved.nodes {
