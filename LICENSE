@@ -1,28 +1,3 @@
-# El lenguaje de scripting FokerScript
-> El nombre del lenguaje se puede abreviar a FScript. \
-> Pero nunca a **FS**. Ya que existe un lenguaje llamado FSharp, cuya abreviación puede ser **FS**.
-
-Bienvenido al repositorio oficial del lenguaje de scripting para los juegos de la 3ra generación de Pokémon en GBA. Si, este lenguaje funciona solo con el binario, si se desea usar un lenguaje parecido o familiar para los proyectos de decompilación, puede recurrir a [Poryscript](https://github.com/huderlem/poryscript), que es desarrollado por el usuario **huderlem**.
-
-## Ejemplo
-```ruby
-script main {
-    msg("¡Hola mundo!");
-    checkgender {
-        boy {
-            msg("Eres un maestro pokémon!");
-        }
-        girl {
-            msg("Eres una estrella pokémon!");
-        }
-    }
-}
-```
-
-## Documentación del lenguaje, especificaciones y documentación de la librería standard
-En [docs.pdf](docs.pdf) se encuentra toda la información, puede descargarlo en su dispositivo o verlo directamente en el navegador.
-
-## Licencia
 Licencia MIT. Copyright 2020 Stunx.
 
 Por la presente se concede permiso, libre de cargos, a cualquier persona que obtenga una copia de este software y de los archivos de documentación asociados (el "Software"), a utilizar el Software sin restricción, incluyendo sin limitación los derechos a usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar, y/o vender copias del Software, y a permitir a las personas a las que se les proporcione el Software a hacer lo mismo, sujeto a las siguientes condiciones:
