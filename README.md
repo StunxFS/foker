@@ -4,6 +4,21 @@
 
 Bienvenido al repositorio oficial del lenguaje de scripting para los juegos de la 3ra generación de Pokémon en GBA. Si, este lenguaje funciona solo con el binario, si se desea usar un lenguaje parecido o familiar para los proyectos de decompilación, puede recurrir a [Poryscript](https://github.com/huderlem/poryscript), que es desarrollado por el usuario **huderlem**.
 
+## Ejemplo
+```ruby
+script main
+	msg("¡Hola mundo!");
+	checkgender
+		boy
+			msg("Eres un maestro pokémon!");
+		end
+		girl
+			msg("Eres una estrella pokémon!");
+		end
+	end
+end
+```
+
 ## Documentación del lenguaje, especificaciones y documentación de la librería standard
 En [docs.pdf](docs.pdf) se encuentra toda la información, puede descargarlo en su dispositivo o verlo directamente en el navegador.
 
