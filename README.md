@@ -6,17 +6,17 @@ Bienvenido al repositorio oficial del lenguaje de scripting para los juegos de l
 
 ## Ejemplo
 ```ruby
-script main
+script main {
     msg("¡Hola mundo!");
-    checkgender
-	    boy
+    checkgender {
+        boy {
             msg("Eres un maestro pokémon!");
-        end
-        girl
+        }
+        girl {
             msg("Eres una estrella pokémon!");
-        end
-    end
-end
+        }
+    }
+}
 ```
 
 ## Documentación del lenguaje, especificaciones y documentación de la librería standard
