@@ -1,0 +1,9 @@
+# Binaries for programs and plugins
+main
+foker
+*.exe
+*.exe~
+*.so
+*.dylib
+*.dll
+*.odt

@@ -1,0 +1,23 @@
+# Por favor, si tú usas este script en Pokémon Ruby y no en Pokémon FireRed
+# asegúrate de tener instalado el módulo "karpty", el cual permite manipular
+# rutinas ASM acompañadas de algunos útiles scripts.
+# Si tienes problemas en usar este script o alguna de sus dependencias, por
+# favor, comunicate con Stunx y el equipo de desarrollo de FokerScript. Ya
+# que Stunx me dijo que este script funciona bien, pues cumple las reglas del
+# lenguaje.
+# Si aún tienes FokerScript v0.1.0.beta.15, por favor actualiza el FokerScript
+# con el siguiente comando:
+#     fokerscript up
+import karpty;
+
+script main {
+	karpty.load_presence();
+	if karpty.status == .RUNNING {
+		msg("Karpty ya está corriendo, por favor espera...");
+		pause_with_time(10 * SEGS);
+	} else {
+		msg("Karpty ha encontrado problemas, saliendo...");
+		return;
+	}
+}
+
