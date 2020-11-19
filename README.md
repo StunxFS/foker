@@ -7,15 +7,15 @@ Bienvenido al repositorio oficial del lenguaje de scripting para los juegos de l
 ## Ejemplo
 ```ruby
 script main
-	msg("¡Hola mundo!");
-	checkgender
-		boy
-			msg("Eres un maestro pokémon!");
-		end
-		girl
-			msg("Eres una estrella pokémon!");
-		end
-	end
+    msg("¡Hola mundo!");
+    checkgender
+	    boy
+            msg("Eres un maestro pokémon!");
+        end
+        girl
+            msg("Eres una estrella pokémon!");
+        end
+    end
 end
 ```
 
