@@ -61,5 +61,5 @@ Si quiere más ejemplos, vaya a la carpeta [ejemplos](/ejemplos/).
 ## Documentación y especificaciones del lenguaje
 En [docs.pdf](docs.pdf) se encuentra toda la información, puede descargarlo en su dispositivo o verlo directamente en el navegador.
 
-## Enlaces varios
+## Enlaces
 **Server de Discord:** [FokerScript's Discord server](https://discord.gg/pnvcap7WYT)
