@@ -1,8 +1,6 @@
 # FokerScript
 Bienvenidos al repositorio oficial del lenguaje de scripting para los juegos de la 3ra generación de Pokémon en GBA. Yeah, este lenguaje funciona solo con el binario, si se desea usar un lenguaje parecido o familiar para los proyectos de decompilación, puede recurrir a [Poryscript](https://github.com/huderlem/poryscript), que es desarrollado por el usuario [**huderlem**](https://github.com/huderlem).
 
-**Server de Discord:** [Entrar al servidor](https://discord.gg/pnvcap7WYT)
-
 ## ¿Qué es esto?
 **FokerScript** es un nuevo intento de facilitar el desarrollo de scripts en el ROMHacking binario del Pokémon Advance de 3ra Gen. Este lenguaje está inspirado en gran parte por su contraparte para el decomp, **Poryscript**. Este lenguaje transpila el código dado por el usuario al scripting del **XSE (desarrollado por HackMew)**.
 
@@ -63,11 +61,5 @@ Si quiere más ejemplos, vaya a la carpeta [ejemplos](/ejemplos/).
 ## Documentación y especificaciones del lenguaje
 En [docs.pdf](docs.pdf) se encuentra toda la información, puede descargarlo en su dispositivo o verlo directamente en el navegador.
 
-## Licencia MIT
-Copyright 2020 Stunx.
-
-Por la presente se concede permiso, libre de cargos, a cualquier persona que obtenga una copia de este software y de los archivos de documentación asociados (el "Software"), a utilizar el Software sin restricción, incluyendo sin limitación los derechos a usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar, y/o vender copias del Software, y a permitir a las personas a las que se les proporcione el Software a hacer lo mismo, sujeto a las siguientes condiciones:
-
-El aviso de copyright anterior y este aviso de permiso se incluirán en todas las copias o partes sustanciales del Software.
-
-EL SOFTWARE SE PROPORCIONA "COMO ESTÁ", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA, INCLUYENDO PERO NO LIMITADO A GARANTÍAS DE COMERCIALIZACIÓN, IDONEIDAD PARA UN PROPÓSITO PARTICULAR E INCUMPLIMIENTO. EN NINGÚN CASO LOS AUTORES O PROPIETARIOS DE LOS DERECHOS DE AUTOR SERÁN RESPONSABLES DE NINGUNA RECLAMACIÓN, DAÑOS U OTRAS RESPONSABILIDADES, YA SEA EN UNA ACCIÓN DE CONTRATO, AGRAVIO O CUALQUIER OTRO MOTIVO, DERIVADAS DE, FUERA DE O EN CONEXIÓN CON EL SOFTWARE O SU USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
+## Enlaces varios
+**Server de Discord:** [FokerScript's Discord server](https://discord.gg/pnvcap7WYT)
