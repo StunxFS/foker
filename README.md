@@ -1,8 +1,4 @@
-<center>
-FokerScript
-===
-</center>
-
+# El lenguaje de scripting FokerScript
 Bienvenidos al repositorio oficial del lenguaje de scripting para los juegos de la 3ra generación de Pokémon en GBA. Yeah, este lenguaje funciona solo con el binario, si se desea usar un lenguaje parecido o familiar para los proyectos de decompilación, puede recurrir a [Poryscript](https://github.com/huderlem/poryscript), que es desarrollado por el usuario [**huderlem**](https://github.com/huderlem).
 
 ## ¿Qué es esto?
