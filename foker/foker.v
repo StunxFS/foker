@@ -45,4 +45,3 @@ fn main() {
 	
 	os.write_file("${script.name}.rbh", script.generate_script())?
 }
-

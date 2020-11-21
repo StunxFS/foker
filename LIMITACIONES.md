@@ -1,5 +1,5 @@
-Limitaciones del lenguaje de scripting FokerScript.
-===================================================
+# Limitaciones del lenguaje de scripting FokerScript
+
 El lenguaje de scripting FokerScript, al estar basado en el bytecode del ROMHacking binario, tiene,
 lamentablemente, algunas limitaciones que serán explicadas a continuación:
 
