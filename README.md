@@ -55,7 +55,7 @@ Actualmente este es el estado de implementación de los backends en FokerScript:
 | FireRed/LeafGreen |         |               |
 | Emerald           |         |               |
 
-Las ROMs aquí mencionadas son soportadas tanto en inglés y español.
+Las ROMs aquí mencionadas son soportadas tanto en inglés como en español.
 
 * * *
 
