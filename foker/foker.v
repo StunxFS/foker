@@ -3,11 +3,42 @@
 // that can be found in the LICENSE file.
 module main
 
+import os
 import compiler.about
+//import gen
+//import gen.bin
 //import compiler.token
 //import compiler.prefs
-import generation
-import os
+
+fn main() {
+	println("FokerScript v${about.version}
+Uso:
+    ${os.args[0]} [opciones] [argumentos]
+")
+	//println(token.Token{.name, 'foker_name', 2, 122, 10})
+	
+	/*mut script := bin.new_fscript("main")
+	script.add_string("stunx", "Me llamo stunx")
+	
+	mut block := bin.new_fblock("main")
+		block.add_cmd("msgbox", ["@stunx", "0x2"])
+		block.add_cmd("msgbox", ["@"+script.add_tmp_string("String temporal"), "0x2"])
+		block.end()
+	script.add_block(block)
+	
+	block = bin.new_fblock("main_2")
+		block.add_cmd("msgbox", ["@stunx", "0x2"])
+		block.add_cmd("msgbox", ["@"+script.add_tmp_string("String temporal"), "0x2"])
+		block.end()
+	script.add_block(block)*/
+	
+	//os.write_file("${script.name}.rbh", script.generate_script())?
+
+	//println(to_hex(100, .byte))
+	//gen.make_new_fvf_file()?
+	//fvf := gen.new_fvf("fvf.txt")?
+	//println(fvf)
+}
 
 enum HexOutput {
 	byte  = 255
@@ -16,32 +47,8 @@ enum HexOutput {
 }
 
 fn to_hex(val int, output HexOutput) string {
-	/*
-	byte_max  := int(HexOutput.byte)
+	/*byte_max  := int(HexOutput.byte)
 	word_max  := int(HexOutput.word)
-	dword_max := int(HexOutput.dword)
-	*/
+	dword_max := int(HexOutput.dword)*/
 	return "0x${val.hex().str().to_upper()}"
-}
-
-fn main() {
-	println("FokerScript v${about.version}")
-	//println(token.Token{.name, 'foker_name', 2, 122, 10})
-	
-	mut script := generation.new_fscript("main")
-	script.add_string("stunx", "Me llamo stunx")
-	
-	mut block := generation.new_fblock("main")
-		block.add_cmd("msgbox", ["@stunx", "0x2"])
-		block.add_cmd("msgbox", ["@"+script.add_tmp_string("String temporal"), "0x2"])
-		block.end()
-	script.add_block(block)
-	
-	block = generation.new_fblock("main_2")
-		block.add_cmd("msgbox", ["@stunx", "0x2"])
-		block.add_cmd("msgbox", ["@"+script.add_tmp_string("String temporal"), "0x2"])
-		block.end()
-	script.add_block(block)
-	
-	os.write_file("${script.name}.rbh", script.generate_script())?
 }

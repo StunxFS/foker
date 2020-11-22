@@ -1,26 +1,34 @@
 <div align="center">
 
+<p>
+    <img width="80" src="https://raw.githubusercontent.com/StunxFS/foker/master/dist/logo.png?sanitize=true">
+</p>
+
+<!--- ![FokerScript's logo](logo.png) --->
+
 <h1>El lenguaje de scripting FokerScript</h1>
 
 [Documentación](/docs/docs.pdf) |
 [Changelog](CHANGELOG.md) |
 [Limitaciones](LIMITACIONES.md) |
-[Código de conducta](CODE_OF_CONDUCT.md)
-
-</div>
-<div align="center">
+[Código de conducta](CODE_OF_CONDUCT.md) |
+[Contribuciones](CONTRIBUTING.md)
 
 [![Discord][DiscordBadge]][DiscordUrl]
 
+Bienvenido al repositorio oficial del lenguaje de scripting para los juegos de la 3ra generación de Pokémon en GBA. Yeah, este lenguaje funciona solo con el binario (por ahora), si se desea usar un lenguaje parecido o familiar para los proyectos de decompilación, puede recurrir a [Poryscript](https://github.com/huderlem/poryscript), que es desarrollado por el usuario [huderlem](https://github.com/huderlem).
+
 </div>
 
-Bienvenido al repositorio oficial del lenguaje de scripting para los juegos de la 3ra generación de Pokémon en GBA. Yeah, este lenguaje funciona solo con el binario, si se desea usar un lenguaje parecido o familiar para los proyectos de decompilación, puede recurrir a [Poryscript](https://github.com/huderlem/poryscript), que es desarrollado por el usuario [huderlem](https://github.com/huderlem).
+* * *
 
 ## ¿Qué es esto?
 
 **FokerScript** es un nuevo intento de facilitar el desarrollo de scripts en el ROMHacking binario del Pokémon Advance de 3ra Gen. Este lenguaje está inspirado en gran parte por su contraparte para el decomp, **Poryscript**. Este lenguaje transpila el código dado por el usuario al scripting del **XSE (desarrollado por HackMew)**.
 
 A lo largo de estos años, todos los ROMHackers, que han llegado recientemente a este mundillo, han tenido que lidiarse con el scripting del XSE. Debido a su dificultad de escritura, el scripting de XSE ***semi-facilita*** las cosas, por eso, este proyecto intenta quitar ese **semi** de ahí y dejar solo el **facilita**.
+
+* * *
 
 ## Objetivos
 
@@ -36,6 +44,8 @@ También tiene otro objetivo que está en estado tentativo:
 
 Con este objetivo tentativo deseamos que cualquier script hecho con FokerScript pueda funcionar tanto en el binario como en decompilación, con tan solo algunos ajustes.
 
+* * *
+
 ## Backends
 
 Actualmente este es el estado de implementación de los backends en FokerScript:
@@ -46,6 +56,8 @@ Actualmente este es el estado de implementación de los backends en FokerScript:
 | Emerald           |         |               |
 
 Las ROMs aquí mencionadas son soportadas tanto en inglés y español.
+
+* * *
 
 ## Compilación e Instalación
 
@@ -78,7 +90,15 @@ v -prod build foker
 
 ¡Listo! Ya tienes compilado FokerScript, ahora ejecuta ``./fokerscript`` (o en Windows: ``.\fokerscript``), si te muestra algún mensaje de ayuda todo está correcto.
 
+* * *
+
 ## Ejemplos de FokerScript
+
+```cs
+// Así declaramos los comandos que se usan en el scripting.
+extern cmd msgbox(msg: string, type: int = 0x2);
+alias msg = msgbox;
+```
 
 ```cs
 script main {
@@ -109,14 +129,14 @@ script main {
 }
 ```
 
-Por ejemplo, el output del ejemplo anterior quedaría a:
+Por ejemplo, y debido a que algunos me han dicho que no entienden lo anterior, aquí dejo lo que sería la salida posible del ejemplo anterior:
 
 ```llvm
 #define MIRUTINA_ESPECIAL 0x80AB24D
 
 #org @main
 callasm MIRUTINA_ESPCIAL
-compare 0x80ABC 0xhex(100)
+compare 0x80ABC 0x64
 if 0x1 goto @main__if1
 clearvar 0x80AB
 end
@@ -129,13 +149,43 @@ end
 = ¡La rutina ha funcionado correctamente!
 ```
 
+Aquí otro ejemplo de lo que sería el soporte de generar scripts tanto para decompilación como binario:
+
+```c++
+#if BINARY // si se usa el generador para binario
+const RUTINA2 = 0x80ABCD2F;
+#else // entonces, si se usa el generador de decomp
+extern script script_RUTINA2;
+#endif
+
+script main {
+#if BINARY
+    callasm(RUTINA2);
+#else
+    script_RUTINA2();
+#endif
+}
+```
+
+El ejemplo anterior se pudiera compilar así: ``fokerscript -g <gen> gen_script.foker``, donde ``<gen>`` pudiera ser ``decomp`` o ``binary``. Ejemplo:
+
+```bash
+fokerscript -g decomp gen_script.foker
+fokerscript -g binary gen_script.foker
+```
+
 Si quiere más ejemplos, vaya a la carpeta [ejemplos](/ejemplos/).
+
+* * *
 
 ## Documentación y especificaciones del lenguaje
 
-En [docs.pdf](docs.pdf) se encuentra toda la información, puede descargarlo en su dispositivo o verlo directamente en el navegador.
+En [docs.md](docs/docs.md) y [docs.html](docs/docs.html) se encuentra toda la información, puede descargarlo en su dispositivo o verlo directamente en el navegador.
+
+* * *
+
+> Copyright (C) 2020 Stunx. Todos los derechos reservados.
 
 <!--- Utilidades --->
 [DiscordBadge]: https://img.shields.io/discord/592103645835821068?label=Discord&logo=discord&logoColor=white
-
 [DiscordUrl]: https://discord.gg/pnvcap7WYT
