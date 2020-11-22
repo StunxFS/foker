@@ -1,0 +1,8 @@
+/*
+* Relampago.foker
+*/
+
+script main {
+	msg(0xABCDEFG, 12345);
+}
+

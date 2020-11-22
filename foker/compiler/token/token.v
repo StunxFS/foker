@@ -66,6 +66,8 @@ pub enum Kind {
 	dotdot // ..
 	ellipsis // ...
 
+	comment
+
 	// keywords (palabras reservadas)
 	keyword_beg
 	key_and
