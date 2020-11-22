@@ -187,5 +187,5 @@ En [docs.md](docs/docs.md) y [docs.html](docs/docs.html) se encuentra toda la in
 > Copyright (C) 2020 Stunx. Todos los derechos reservados.
 
 <!--- Utilidades --->
-[DiscordBadge]: https://img.shields.io/discord/592103645835821068?label=Discord&logo=discord&logoColor=white
+[DiscordBadge]: https://img.shields.io/discord/779007353185239070?label=Discord&logo=Discord&logoColor=white
 [DiscordUrl]: https://discord.gg/pnvcap7WYT
