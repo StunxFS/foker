@@ -1,7 +1,7 @@
 <div align="center">
 
 <p>
-    <img width="80" src="https://raw.githubusercontent.com/StunxFS/foker/master/dist/logo.png?sanitize=true">
+    <img width="80" src="https://github.com/StunxFS/foker/blob/master/logo.png?raw=true">
 </p>
 
 <!--- ![FokerScript's logo](logo.png) --->
