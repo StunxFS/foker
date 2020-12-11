@@ -184,6 +184,13 @@ En [docs.md](docs/docs.md) y [docs.html](docs/docs.html) se encuentra toda la in
 
 * * *
 
+## Créditos
+
+Buena parte del código fuente de FokerScript está tomado del código fuente del compilador del lenguaje V.
+Créditos a Alexander Medvednikov (Creador del lenguaje V) y a todo el equipo de desarrollo del lenguaje V.
+
+* * *
+
 > Copyright (C) 2020 Pizcofy. Todos los derechos reservados.
 
 <!--- Utilidades --->
