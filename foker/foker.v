@@ -1,38 +1,51 @@
-// Copyright (c) 2020 Stunx. All rights reserved.
+// Copyright (c) 2020 Pizcofy. All rights reserved.
 // Use of this source code is governed by an MIT license
 // that can be found in the LICENSE file.
 module main
 
 import os
-import compiler.about
+import about
 import compiler.prefs
-import compiler.scanner
+import compiler.ast
+import compiler.parser
 
 fn main() {
+    _ := (fn()string{
+        println('hello')
+        return ""
+    }())
+
 	if os.args.len == 1 || (os.args.len == 2 && os.args[1] in ["-h", "help", "ayuda"]) {
 		help()
 		exit(1)
 	}
-	pref := prefs.parse_args_and_get_prefs()
-	mut scan := scanner.new_scanner_file("foker/foker_test.foker", .skip_comments, pref)
-	for tok := scan.scan(); tok.kind != .eof; tok = scan.scan() {
-		println(tok)
-	}
-	println(scan.errors)
-	println(scan.warnings)
+
+	prefs := prefs.parse_args_and_get_prefs()
+    parsed_file := parser.parse_file('foker_test.foker', &ast.Table{}, prefs, &ast.Scope{})
+    println(parsed_file)
 }
 
 fn help() {
 	program := os.args[0]
-	println("FokerScript v${about.version} | Mensaje de Ayuda
+	println("=================================================
+FokerScript | Mensaje de Ayuda | Work In Progress
+=================================================
+Autor: Pizcofy (Jose Mendoza)
+Fecha de compilación: 23/11/2020
 
 Uso:
     ${program} [opciones] [argumentos]
+
+Información Básica:
+    Versión del compilador: ${about.version}
+    Versión del backend de binario: ${about.gen_bin_version}
+    Versión del backend de decomp: Aún no disponible [TODO].
 
 Descripción:
     Bienvenido al compilador oficial del proyecto FokerScript. Este compilador, actualmente,
     convierte el código que se le pasa a un único archivo auto-contenido de script de XSE,
     el cual está listo para ser compilado con XSE e insertado en la ROM.
+    Este compilador aún está bajo desarrollo, es decir, que todavía es un trabajo en progreso.
 
 Argumentos:
     archivos
@@ -63,12 +76,12 @@ Opciones:
     -r, -rom
         Esta opción le especifica al compilador que ROM se usará para el script, por defecto
         se usa 'frlf' como el valor default.
-        Actualmente -g soporta los siguientes valores:
+        Actualmente -r soporta los siguientes valores:
             rs, rubysapphire: Pokémon Ruby/Sapphire
             frlf, fireredleafgreen: Pokémon FireRed/LeafGreen
             e, emerald: Pokémon Emerald
         Ejemplo de uso:
-            ${program} -g fr miarchivo.foker
+            ${program} -r fr miarchivo.foker
 
     -fast, -debug
         Estas opciones le dicen al compilador que nivel de optimización debe usar para generar
@@ -77,10 +90,19 @@ Opciones:
         Ejemplo de uso:
             ${program} -fast miarchivo.foker
             ${program} -debug miarchivo.foker
+    
+    -warn-are-errors
+        Esta opción le dice al compilador que trate las advertencias como errores.
+        Ejemplo de uso:
+            ${program} -warn-are-errors
 
-Ejemplo de uso de las opciones anteriores:
-    ${program} -o mi_script_perron.inc -r rs -b decomp mi_script_para_el_concurso.foker
-")
+    -skip-warnings
+        Esta opción hace que el compilador no muestre advertencias.
+        Ejemplo de uso:
+            ${program} -skip-warnings
+
+Ejemplo de uso del programa:
+    ${program} -o mi_script_perron.inc -r rs -b decomp mi_script.foker")
 }
 
 /*enum HexOutput {
@@ -100,16 +122,16 @@ fn to_hex(val int, output HexOutput) string {
 //println(token.Token{.name, 'foker_name', 2, 122, 10})
 	
 	/*mut script := bin.new_fscript("main")
-	script.add_string("stunx", "Me llamo stunx")
+	script.add_string("Pizcofy", "Me llamo Pizcofy")
 	
 	mut block := bin.new_fblock("main")
-		block.add_cmd("msgbox", ["@stunx", "0x2"])
+		block.add_cmd("msgbox", ["@Pizcofy", "0x2"])
 		block.add_cmd("msgbox", ["@"+script.add_tmp_string("String temporal"), "0x2"])
 		block.end()
 	script.add_block(block)
 	
 	block = bin.new_fblock("main_2")
-		block.add_cmd("msgbox", ["@stunx", "0x2"])
+		block.add_cmd("msgbox", ["@Pizcofy", "0x2"])
 		block.add_cmd("msgbox", ["@"+script.add_tmp_string("String temporal"), "0x2"])
 		block.end()
 	script.add_block(block)*/

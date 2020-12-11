@@ -1,15 +1,11 @@
-// Copyright (c) 2020 Stunx. All rights reserved.
+// Copyright (c) 2020 Pizcofy. All rights reserved.
 // Use of this source code is governed by an MIT license
 // that can be found in the LICENSE file.
 module prefs
 
 import os
-import term
 import os.cmdline
-
-const (
-	err_header = term.red(term.bold("FokerScript CLI Error:"))
-)
+import compiler.util
 
 pub enum ROM {
 	firered_leafgreen
@@ -40,10 +36,13 @@ pub mut:
 	output			string   // nombre de salida del script
 	output_dir 		string   // nombre del directorio de salida
 	optlevel		Optlevel = .debug
+	skip_warnings	bool	// saltarse las advertencias
+	warns_are_errors bool	// tratar las advertencias como errores
 	files			[]string // los archivos a compilar
 }
 
 pub fn parse_args_and_get_prefs() &Preferences {
+	app := os.args[0]
 	args := os.args[1..]
 	mut res := &Preferences{}
 	for i := 0; i < args.len; i++ {
@@ -61,7 +60,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 						res.backend = .decomp
 					}
 					else {
-						err('la opción ${arg} solo soporta los valores: binary o decomp')
+						util.err("la opción ${arg} solo soporta los valores 'binary' o 'decomp'")
 					}
 				}
 				i++
@@ -84,7 +83,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 						res.rom = .emerald
 					}
 					else {
-						err('la opción ${arg} solo soporta los valores: rs, rubysapphire, frlf, fireredleafgreen, e, emerald')
+						util.err('la opción ${arg} solo soporta los valores: rs, rubysapphire, frlf, fireredleafgreen, e, emerald')
 					}
 				}
 				i++
@@ -95,19 +94,24 @@ pub fn parse_args_and_get_prefs() &Preferences {
 			'-debug' {
 				res.optlevel = .debug
 			}
+			'-skip-warnings' {
+				res.skip_warnings = true
+			}
+			'-warn-are-errors' {
+				res.warns_are_errors = true
+			}
 			else {
 				if arg.ends_with(".foker") || arg.ends_with(".fkr") {
 					res.files << arg
 				} else {
-					err("no se reconoce el comando ${arg}")
+					util.err("no se reconoce la opción ${arg}, por favor use '${app} ayuda' para ver las opciones disponibles")
 				}
 			}
 		}
 	}
+	// TODO: Remover esto cuando el backend de decomp esté completo.
+	if res.backend == .decomp {
+        util.err('aún no está soportado el backend de decompilación')
+    }
 	return res
-}
-
-fn err(msg string) {
-	eprintln("${err_header} ${msg}")
-	exit(1)
 }

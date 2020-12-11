@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Stunx. All rights reserved.
+// Copyright (c) 2020 Pizcofy. All rights reserved.
 // Use of this source code is governed by an MIT license
 // that can be found in the LICENSE file.
 module util
@@ -8,10 +8,10 @@ pub fn is_name_char(c byte) bool {
 	return (c >= `a` && c <= `z`) || (c >= `A` && c <= `Z`) || c == `_`
 }
 
-[inline]
+/*[inline]
 pub fn is_func_char(c byte) bool {
 	return (c >= `a` && c <= `z`) || (c >= `A` && c <= `Z`) || c == `_` || c.is_digit()
-}
+}*/
 
 [inline]
 pub fn is_nl(c byte) bool {

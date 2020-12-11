@@ -1,0 +1,1 @@
+EL compilador cree que el carácter \0 está dentro de un literal de cadena cuando en verdad está en un comentario multiínea.

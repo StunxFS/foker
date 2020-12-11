@@ -1,7 +1,7 @@
 <div align="center">
 
 <p>
-    <img width="80" src="https://github.com/StunxFS/foker/blob/master/logo.png?raw=true">
+    <img width="80" src="https://github.com/Pizcofy/foker/blob/master/logo.png?raw=true">
 </p>
 
 <!--- ![FokerScript's logo](logo.png) --->
@@ -83,7 +83,7 @@ Ahora si estás en Linux ejecuta: ``./v symlink``, si estás en Windows usa: ``.
 ¡Eso es todo! Ya tienes instalado V en tu computadora, ahora solo toca hacer lo mismo con este repositorio:
 
 ```bash
-git clone https://github.com/StunxFS/foker
+git clone https://github.com/Pizcofy/foker
 cd foker
 v -prod build foker
 ```
@@ -184,7 +184,7 @@ En [docs.md](docs/docs.md) y [docs.html](docs/docs.html) se encuentra toda la in
 
 * * *
 
-> Copyright (C) 2020 Stunx. Todos los derechos reservados.
+> Copyright (C) 2020 Pizcofy. Todos los derechos reservados.
 
 <!--- Utilidades --->
 [DiscordBadge]: https://img.shields.io/discord/779007353185239070?label=Discord&logo=Discord&logoColor=white

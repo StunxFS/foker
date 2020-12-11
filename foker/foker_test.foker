@@ -1,8 +1,19 @@
-/*
-* Relampago.foker
-*/
+import (
+	pizcofy.fire_red.boom_scripts
+	pizcofy.shared as sharedX3
+	pizcofy.fokersecrets.kernel
+)
 
-script main {
-	msg(0xABCDEFG, 12345);
+const ()
+
+/*pub script main {
+	question "¿Quieres comer pepitos?" {
+		yes {
+			msgbox("A su fruta, tenga una mancuerna.");
+		}
+		no {
+			call submodule.ayudame;
+		}
+	}
 }
-
+*/
