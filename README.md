@@ -85,10 +85,10 @@ Ahora si estás en Linux ejecuta: ``./v symlink``, si estás en Windows usa: ``.
 ```bash
 git clone https://github.com/Pizcofy/foker
 cd foker
-v -prod build foker
+make
 ```
 
-¡Listo! Ya tienes compilado FokerScript, ahora ejecuta ``./fokerscript`` (o en Windows: ``.\fokerscript``), si te muestra algún mensaje de ayuda todo está correcto.
+¡Listo! Ya tienes compilado FokerScript, ahora ejecuta ``./fokerscript`` (o en Windows: ``.\fokerscript.exe``), si te muestra algún mensaje de ayuda todo está correcto.
 
 * * *
 
