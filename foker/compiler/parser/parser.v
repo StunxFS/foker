@@ -100,7 +100,7 @@ pub fn (mut p Parser) parse() ast.File {
 		p.builtin_mod = true
 	}
 	mut stmts := []ast.Stmt{}
-	for {
+	/*for {
 		if p.tok.kind == .key_import {
 			stmts << p.import_stmts()
 			continue
@@ -109,7 +109,7 @@ pub fn (mut p Parser) parse() ast.File {
 	}
 	for {
 		stmts << p.top_stmt()
-	}
+	}*/
 	
 	p.scope.end_pos = p.tok.pos
 	return ast.File{
@@ -293,7 +293,6 @@ fn (mut p Parser) const_decl() ast.ConstDecl {
 
 // Exprs ====================================================================================
 fn (mut p Parser) string_expr() ast.Expr {
-	mut node := ast.Expr{}
 	val := p.tok.lit
 	pos := p.tok.position()
 	p.next()

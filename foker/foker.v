@@ -10,18 +10,13 @@ import compiler.ast
 import compiler.parser
 
 fn main() {
-    _ := (fn()string{
-        println('hello')
-        return ""
-    }())
-
 	if os.args.len == 1 || (os.args.len == 2 && os.args[1] in ["-h", "help", "ayuda"]) {
 		help()
 		exit(1)
 	}
 
 	prefs := prefs.parse_args_and_get_prefs()
-    parsed_file := parser.parse_file('foker_test.foker', &ast.Table{}, prefs, &ast.Scope{})
+    parsed_file := parser.parse_file('foker_test.foker', &ast.Table{}, prefs, 0)
     println(parsed_file)
 }
 
