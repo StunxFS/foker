@@ -78,7 +78,7 @@ cd v
 make # si usas Windows intenta con make.bat
 ```
 
-Ahora si estás en Linux ejecuta: ``./v symlink``, si estás en Windows usa: ``.\v symlink``
+Ahora si estás en Linux ejecuta: ``./v symlink``, si estás en Windows usa: ``.\v.exe symlink``
 
 ¡Eso es todo! Ya tienes instalado V en tu computadora, ahora solo toca hacer lo mismo con este repositorio:
 
