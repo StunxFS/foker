@@ -217,18 +217,28 @@ fn (mut p Parser) import_stmt() ast.Import {
 pub fn (mut p Parser) top_stmt() ast.Stmt {
 	for {
 		match p.tok.kind {
-			.key_import { p.error_with_pos("'import ()' solo se puede usar al principio del archivo",
-					p.tok.position()) }
-			.key_pub { match p.peek_tok.kind {
+			.key_import {
+				p.error_with_pos("'import ()' solo se puede usar al principio del archivo",
+					p.tok.position())
+			}
+			.key_pub { 
+				match p.peek_tok.kind {
 					.key_const { return p.const_decl() }
 					else { p.error('mal uso de la palabra clave `pub`') }
-				} }
-			.key_extern { match p.peek_tok.kind {
+				}
+			}
+			.key_extern {
+				match p.peek_tok.kind {
 					.key_script {}
 					else { p.error("la palabra clave 'extern' solo se puede usar en conjunto a 'script'") }
-				} }
-			.key_const { return p.const_decl() }
-			else { p.error('declaración de alto nivel "' + p.tok.lit + '" desconocido') }
+				}
+			}
+			.key_const {
+				return p.const_decl()
+			}
+			else {
+				p.error('declaración de alto nivel "' + p.tok.lit + '" desconocido')
+			}
 		}
 	}
 	return ast.Stmt{}
