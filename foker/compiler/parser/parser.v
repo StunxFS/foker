@@ -1,6 +1,5 @@
-// Copyright (c) 2020 Pizcofy. All rights reserved.
-// Use of this source code is governed by an MIT license
-// that can be found in the LICENSE file.
+// Copyright (c) 2020 StunxFS. All rights reserved. Use of this source code is
+// governed by an MIT license that can be found in the LICENSE file.
 module parser
 
 import os
@@ -52,9 +51,8 @@ mut:
 }*/
 
 pub fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
-	s := scanner.new_scanner(text, pref)
 	mut p := Parser{
-		scanner: s
+		scanner: scanner.new_scanner(text, pref)
 		file_name: path
 		file_base: os.base(path)
 		file_name_dir: os.dir(path)
@@ -100,16 +98,16 @@ pub fn (mut p Parser) parse() ast.File {
 		p.builtin_mod = true
 	}
 	mut stmts := []ast.Stmt{}
-	/*for {
+	for p.tok.kind != .eof {
 		if p.tok.kind == .key_import {
-			stmts << p.import_stmts()
+			stmts << p.import_stmt()
 			continue
 		}
 		break
 	}
-	for {
+	for p.tok.kind != .eof {
 		stmts << p.top_stmt()
-	}*/
+	}
 	
 	p.scope.end_pos = p.tok.pos
 	return ast.File{
@@ -150,19 +148,28 @@ fn (mut p Parser) next() {
 }
 
 fn (mut p Parser) check(expected token.Kind) {
+	expected_str := match expected {
+		.name { "un identificador" }
+		.number { "un literal numérico" }
+		.string { "un literal de cadena" }
+		else { "'"+expected.str()+"'" }
+	}
 	if p.tok.kind != expected {
 		match p.tok.kind {
 			.name {
-				p.error("'${p.tok.lit}' inesperado, se esperaba '${expected.str()}'")
+				p.error("'${p.tok.lit}' inesperado, se esperaba '${expected_str}")
 			}
 			.number {
-				p.error("no se esperaba un literal númerico, se esperaba '${expected.str()}'")
+				p.error("no se esperaba un literal numérico, se esperaba ${expected_str}")
 			}
 			.string {
-				p.error("no se esperaba un literal de cadena, se esperaba '${expected.str()}'")
+				p.error("no se esperaba un literal de cadena, se esperaba ${expected_str}")
+			}
+			.eof {
+				p.error("no se esperaba el final del archivo, se esperaba ${expected_str}")
 			}
 			else {
-				p.error("'${p.tok.kind.str()}' inesperado, se esperaba '${expected.str()}'")
+				p.error("'${p.tok.kind.str()}' inesperado, se esperaba ${expected_str}")
 			}
 		}
 	}
@@ -176,38 +183,44 @@ fn (mut p Parser) check_name() string {
 	return name
 }
 
-fn (mut p Parser) import_stmts() []ast.Import {
+fn (mut p Parser) import_stmt() ast.Import {
 	p.check(.key_import)
 	pos := p.tok.position()
+	mut fields := []ast.ImportField{}
 	p.check(.lparen)
-	mut imports := []ast.Import{}
 	for p.tok.kind != .rparen {
+		mut mod_pos := p.tok.position()
 		mut mod_name := p.check_name()
 		mut mod_alias := mod_name
 		for p.tok.kind == .dot {
 			p.next()
 			if p.tok.kind != .name {
-				p.error_with_pos("error en la sintáxis de uso de módulo, por favor usar 'x.y.z'", pos)
+				p.error_with_pos("error en la sintáxis de uso de módulo, por favor usar 'x.y.z'", p.tok.position())
 			}
 			submod_name := p.check_name()
 			mod_name += '.' + submod_name
 			mod_alias = submod_name
+			mod_pos = mod_pos.extend(p.tok.position())
 		}
 		if p.tok.kind == .key_as {
 			p.next()
 			mod_alias = p.check_name()
 			if mod_alias == mod_name.split('.').last() {
-				p.error_with_pos("import alias '${mod_name} as ${mod_alias}' is redundant", p.prev_tok.position())
+				p.error_with_pos("aquí hay un alias redundante", mod_pos.extend(p.prev_tok.position()))
 			}
+			mod_pos = mod_pos.extend(p.tok.position())
 		}
-		imports << ast.Import{
-			pos: pos
+		fields << ast.ImportField{
+			pos: mod_pos
 			mod: mod_name
 			alias: mod_alias
 		}
 	}
 	p.check(.rparen)
-	return imports
+	return ast.Import{
+		pos: pos
+		fields: fields
+	}
 }
 
 pub fn (mut p Parser) top_stmt() ast.Stmt {
@@ -269,7 +282,7 @@ fn (mut p Parser) const_decl() ast.ConstDecl {
 		pos := p.tok.position()
 		name := p.check_name()
 		if !util.contains_capital(name) {
-			p.warn_with_pos('los nombres de las constantes deben incluir puras mayúsculas', pos)
+			p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas', pos)
 		}
 		full_name := p.prepend_mod(name)
 		p.check(.assign)
@@ -292,6 +305,10 @@ fn (mut p Parser) const_decl() ast.ConstDecl {
 }
 
 // Exprs ====================================================================================
+fn (mut p Parser) expr(precedence int) {
+	// TODO: Make an good expr function
+}
+
 fn (mut p Parser) string_expr() ast.Expr {
 	val := p.tok.lit
 	pos := p.tok.position()
@@ -320,15 +337,6 @@ fn (mut p Parser) dot_expr(left ast.Expr) ast.Expr {
 		expr: left
 		field_name: field_name
 		pos: name_pos
-	}
-}
-
-fn (mut p Parser) enum_val() ast.EnumVal {
-	p.check(.dot)
-	val := p.check_name()
-	return ast.EnumVal{
-		val: val
-		pos: p.tok.position()
 	}
 }
 

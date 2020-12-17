@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Pizcofy. All rights reserved. Use of this source code
+// Copyright (c) 2020 StunxFS. All rights reserved. Use of this source code
 // is governed by an MIT license that can be found in the LICENSE file.
 module scanner
 
@@ -197,7 +197,7 @@ fn (mut s Scanner) end_of_file() token.Token {
 		s.line_nr--
 		panic('the end of file `$s.file_path` has been reached 50 times already, the FokerScript parser is probably stuck.\n' +
 			'This should not happen. Please report the bug here, and include the last 2-3 lines of your source code:\n' +
-			'https://github.com/PizcofyFS/foker/issues/new?labels=Bug')
+			'https://github.com/StunxFSFS/foker/issues/new?labels=Bug')
 	}
 	if s.pos != s.text.len && s.eofs == 1 {
 		s.inc_line_number()

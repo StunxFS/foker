@@ -1,19 +1,10 @@
 import (
-	pizcofy.fire_red.boom_scripts
-	pizcofy.shared as sharedX3
-	pizcofy.fokersecrets.kernel
+    StunxFS.library.cool as cool
+    loquendo
 )
 
-const ()
+const (
+    NAME = 2
+)
 
-/*pub script main {
-	question "¿Quieres comer pepitos?" {
-		yes {
-			msgbox("A su fruta, tenga una mancuerna.");
-		}
-		no {
-			call submodule.ayudame;
-		}
-	}
-}
-*/
+

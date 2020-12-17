@@ -1,6 +1,5 @@
-// Copyright (c) 2020 Pizcofy. All rights reserved.
-// Use of this source code is governed by an MIT license
-// that can be found in the LICENSE file.
+// Copyright (c) 2020 StunxFS. All rights reserved. Use of this source code is
+// governed by an MIT license that can be found in the LICENSE file.
 module ast
 
 import compiler.token
@@ -56,12 +55,19 @@ pub mut:
 pub type ScopeObject = ConstField | Var
 
 // Statements
-pub type Stmt = ExprStmt | EnumDecl | ConstDecl | AssignStmt | QuestionStmt | Import | ForStmt | ForInStmt | GotoStmt
+pub type Stmt = ExprStmt | EnumDecl | ConstDecl | AssignStmt | QuestionStmt
+				| Import | ForStmt | ForInStmt | GotoStmt
 
-pub struct Import {
+pub struct ImportField {
+pub:
 	pos		token.Position
 	mod		string
 	alias	string
+}
+
+pub struct Import {
+	pos		token.Position
+	fields	[]ImportField
 }
 
 pub struct ExprStmt {
@@ -188,7 +194,7 @@ pub:
 
 // Expressions
 pub type Expr = IntegerLiteral | StringLiteral | BoolLiteral | MatchExpr | InfixExpr | PrefixExpr | PostfixExpr | Ident |
-				ParExpr | SelectorExpr | EnumVal
+				ParExpr | SelectorExpr | BinaryExpr
 
 pub struct SelectorExpr {
 pub:
@@ -305,6 +311,14 @@ pub:
 	pos		token.Position
 }
 
+pub struct BinaryExpr {
+pub:
+	left	Expr
+	op		token.Kind
+	right 	Expr
+	pos		token.Position
+}
+
 pub struct IfBranch {
 pub:
 	cond		Expr
@@ -331,14 +345,4 @@ pub:
 	stmts			[]Stmt
 	pos				token.Position
 	is_else			bool
-}
-
-pub struct EnumVal {
-pub:
-	enum_name	string
-	val			string
-	mod			string
-	pos			token.Position
-pub mut:
-	typ			Type
 }

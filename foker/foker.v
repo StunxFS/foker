@@ -1,6 +1,5 @@
-// Copyright (c) 2020 Pizcofy. All rights reserved.
-// Use of this source code is governed by an MIT license
-// that can be found in the LICENSE file.
+// Copyright (c) 2020 StunxFS. All rights reserved. Use of this source code is
+// governed by an MIT license that can be found in the LICENSE file.
 module main
 
 import os
@@ -16,8 +15,8 @@ fn main() {
 	}
 
 	prefs := prefs.parse_args_and_get_prefs()
-    parsed_file := parser.parse_file('foker_test.foker', &ast.Table{}, prefs, 0)
-    println(parsed_file)
+    _ := parser.parse_file('foker_test.foker', &ast.Table{}, prefs, &ast.Scope{parent: 0})
+    //println(parsed_file)
 }
 
 fn help() {
@@ -25,7 +24,7 @@ fn help() {
 	println("=================================================
 FokerScript | Mensaje de Ayuda | Work In Progress
 =================================================
-Autor: Pizcofy (Jose Mendoza)
+Autor: StunxFS
 Fecha de compilación: 23/11/2020
 
 Uso:
@@ -100,33 +99,31 @@ Ejemplo de uso del programa:
     ${program} -o mi_script_perron.inc -r rs -b decomp mi_script.foker")
 }
 
+fn to_hex(val int) string {
+	/*byte_max  := int(HexOutput.byte)
+	word_max  := int(HexOutput.word)
+	dword_max := int(HexOutput.dword)*/
+	return "0x${val.hex().str().to_upper()}"
+}
+
 /*enum HexOutput {
 	byte  = 255
 	word  = 510
 	dword = 1020
 }
-
-fn to_hex(val int, output HexOutput) string {
-	/*byte_max  := int(HexOutput.byte)
-	word_max  := int(HexOutput.word)
-	dword_max := int(HexOutput.dword)*/
-	return "0x${val.hex().str().to_upper()}"
-}*/
-
-
-//println(token.Token{.name, 'foker_name', 2, 122, 10})
+*/
 	
 	/*mut script := bin.new_fscript("main")
-	script.add_string("Pizcofy", "Me llamo Pizcofy")
+	script.add_string("StunxFS", "Me llamo StunxFS")
 	
 	mut block := bin.new_fblock("main")
-		block.add_cmd("msgbox", ["@Pizcofy", "0x2"])
+		block.add_cmd("msgbox", ["@StunxFS", "0x2"])
 		block.add_cmd("msgbox", ["@"+script.add_tmp_string("String temporal"), "0x2"])
 		block.end()
 	script.add_block(block)
 	
 	block = bin.new_fblock("main_2")
-		block.add_cmd("msgbox", ["@Pizcofy", "0x2"])
+		block.add_cmd("msgbox", ["@StunxFS", "0x2"])
 		block.add_cmd("msgbox", ["@"+script.add_tmp_string("String temporal"), "0x2"])
 		block.end()
 	script.add_block(block)*/
