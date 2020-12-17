@@ -3,6 +3,7 @@
 module main
 
 import os
+import time
 import about
 import compiler.prefs
 import compiler.ast
@@ -21,17 +22,18 @@ fn main() {
 
 fn help() {
 	program := os.args[0]
+    current_day := time.now().str().all_before_last(' ')
 	println("=================================================
 FokerScript | Mensaje de Ayuda | Work In Progress
 =================================================
 Autor: StunxFS
-Fecha de compilación: 23/11/2020
+Fecha de compilación: ${current_day}
+Versión: ${about.version}
 
 Uso:
     ${program} [opciones] [argumentos]
 
-Información Básica:
-    Versión del compilador: ${about.version}
+Información básica de los backends:
     Versión del backend de binario: ${about.gen_bin_version}
     Versión del backend de decomp: Aún no disponible [TODO].
 

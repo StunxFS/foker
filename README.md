@@ -51,9 +51,9 @@ Con este objetivo tentativo deseamos que cualquier script hecho con FokerScript 
 Actualmente este es el estado de implementación de los backends en FokerScript:
 | Juego             | Binario | Decompilación |
 | :---              | :---:   | :---:         |
-| Ruby/Sapphire     |         |               |
-| FireRed/LeafGreen |         |               |
-| Emerald           |         |               |
+| Ruby/Sapphire     |  [ X ]  |               |
+| FireRed/LeafGreen |  [ X ]  |               |
+| Emerald           |  [ X ]  |               |
 
 Las ROMs aquí mencionadas son soportadas tanto en inglés como en español.
 
