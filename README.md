@@ -189,6 +189,7 @@ Por ahora está disponible un PDF llamado [docs.pdf](docs/docs.pdf), lo malo es 
 ## Créditos
 
 Buena parte del código fuente de FokerScript está tomado del código fuente del compilador del lenguaje V.
+
 Créditos a Alexander Medvednikov (Creador del lenguaje V) y a todo el equipo de desarrollo del lenguaje V.
 
 * * *
