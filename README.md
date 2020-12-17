@@ -180,7 +180,9 @@ Si quiere más ejemplos, vaya a la carpeta [ejemplos](/ejemplos/).
 
 ## Documentación y especificaciones del lenguaje
 
-En [docs.md](docs/docs.md) y [docs.html](docs/docs.html) se encuentra toda la información, puede descargarlo en su dispositivo o verlo directamente en el navegador.
+**Muy pronto:** en [docs.md](docs/docs.md) y [docs.html](docs/docs.html) se encuentra toda la información, puede descargarlo en su dispositivo o verlo directamente en el navegador.
+
+Por ahora está disponible un PDF llamado [docs.pdf](docs/docs.pdf), lo malo es que este documento está incompleto y habla sobre una versión muy antigua de FokerScript.
 
 * * *
 
