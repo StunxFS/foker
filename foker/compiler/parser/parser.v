@@ -2,38 +2,39 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module parser
 
+// import compiler.errors
 import os
 import compiler.token
 import compiler.prefs
 import compiler.util
-//import compiler.errors
 import compiler.scanner
 import compiler.ast
 
 pub struct Parser {
-	file_base		string // "hello.v"
-	file_name		string // /home/user/hello.v
-	file_name_dir	string // home/user
-	pref			&prefs.Preferences
+	file_base     string // "hello.v"
+	file_name     string // /home/user/hello.v
+	file_name_dir string // home/user
+	pref          &prefs.Preferences
 mut:
-	scanner			&scanner.Scanner
-	tok				token.Token
-	prev_tok		token.Token
-	peek_tok		token.Token
-	peek_tok2		token.Token
-	peek_tok3		token.Token
-	table			&ast.Table
-	builtin_mod		bool // estamos en el modulo 'builtin'?
-	mod				string // current module name
-	expr_mod		string
-	scope			&ast.Scope
-	global_scope	&ast.Scope
-	imports			map[string]string // alias => mod_name
-	ast_imports		[]ast.Import // mod_names
-	used_imports	[]string // alias
+	scanner       &scanner.Scanner
+	tok           token.Token
+	prev_tok      token.Token
+	peek_tok      token.Token
+	peek_tok2     token.Token
+	peek_tok3     token.Token
+	table         &ast.Table
+	builtin_mod   bool // estamos en el modulo 'builtin'?
+	mod           string // current module name
+	expr_mod      string
+	scope         &ast.Scope
+	global_scope  &ast.Scope
+	imports       map[string]string // alias => mod_name
+	ast_imports   []ast.Import // mod_names
+	used_imports  []string // alias
 }
 
-/*pub fn parse_stmt(text string, table &ast.Table, scope &ast.Scope) ast.Stmt {
+/*
+pub fn parse_stmt(text string, table &ast.Table, scope &ast.Scope) ast.Stmt {
 	pref := &prefs.Preferences{}
 	s := scanner.new_scanner(text, pref)
 	mut p := Parser{
@@ -48,8 +49,8 @@ mut:
 	}
 	p.read_first_token()
 	return p.stmt(false)
-}*/
-
+}
+*/
 pub fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
 	mut p := Parser{
 		scanner: scanner.new_scanner(text, pref)
@@ -108,7 +109,6 @@ pub fn (mut p Parser) parse() ast.File {
 	for p.tok.kind != .eof {
 		stmts << p.top_stmt()
 	}
-	
 	p.scope.end_pos = p.tok.pos
 	return ast.File{
 		path: p.file_name
@@ -149,28 +149,18 @@ fn (mut p Parser) next() {
 
 fn (mut p Parser) check(expected token.Kind) {
 	expected_str := match expected {
-		.name { "un identificador" }
-		.number { "un literal numérico" }
-		.string { "un literal de cadena" }
-		else { "'"+expected.str()+"'" }
+		.name { 'un identificador' }
+		.number { 'un literal numérico' }
+		.string { 'un literal de cadena' }
+		else { "'" + expected.str() + "'" }
 	}
 	if p.tok.kind != expected {
 		match p.tok.kind {
-			.name {
-				p.error("'${p.tok.lit}' inesperado, se esperaba '${expected_str}")
-			}
-			.number {
-				p.error("no se esperaba un literal numérico, se esperaba ${expected_str}")
-			}
-			.string {
-				p.error("no se esperaba un literal de cadena, se esperaba ${expected_str}")
-			}
-			.eof {
-				p.error("no se esperaba el final del archivo, se esperaba ${expected_str}")
-			}
-			else {
-				p.error("'${p.tok.kind.str()}' inesperado, se esperaba ${expected_str}")
-			}
+			.name { p.error("'$p.tok.lit' inesperado, se esperaba '$expected_str") }
+			.number { p.error('no se esperaba un literal numérico, se esperaba $expected_str') }
+			.string { p.error('no se esperaba un literal de cadena, se esperaba $expected_str') }
+			.eof { p.error('no se esperaba el final del archivo, se esperaba $expected_str') }
+			else { p.error("'$p.tok.kind.str()' inesperado, se esperaba $expected_str") }
 		}
 	}
 	p.next()
@@ -178,7 +168,7 @@ fn (mut p Parser) check(expected token.Kind) {
 
 fn (mut p Parser) check_name() string {
 	name := p.tok.lit
-	//if p.peek_tok.kind == .dot && name in p.imports {}
+	// if p.peek_tok.kind == .dot && name in p.imports {}
 	p.check(.name)
 	return name
 }
@@ -195,7 +185,8 @@ fn (mut p Parser) import_stmt() ast.Import {
 		for p.tok.kind == .dot {
 			p.next()
 			if p.tok.kind != .name {
-				p.error_with_pos("error en la sintáxis de uso de módulo, por favor usar 'x.y.z'", p.tok.position())
+				p.error_with_pos("error en la sintáxis de uso de módulo, por favor usar 'x.y.z'",
+					p.tok.position())
 			}
 			submod_name := p.check_name()
 			mod_name += '.' + submod_name
@@ -206,7 +197,7 @@ fn (mut p Parser) import_stmt() ast.Import {
 			p.next()
 			mod_alias = p.check_name()
 			if mod_alias == mod_name.split('.').last() {
-				p.error_with_pos("aquí hay un alias redundante", mod_pos.extend(p.prev_tok.position()))
+				p.error_with_pos('aquí hay un alias redundante', mod_pos.extend(p.prev_tok.position()))
 			}
 			mod_pos = mod_pos.extend(p.tok.position())
 		}
@@ -226,33 +217,18 @@ fn (mut p Parser) import_stmt() ast.Import {
 pub fn (mut p Parser) top_stmt() ast.Stmt {
 	for {
 		match p.tok.kind {
-			.key_import {
-				p.error_with_pos("'import ()' solo se puede usar al principio del archivo", p.tok.position())
-			}
-			.key_pub {
-				match p.peek_tok.kind {
-					.key_const {
-						return p.const_decl()
-					}
-					else {
-						p.error('mal uso de la palabra clave `pub`')
-					}
-				}
-			}
-			.key_extern {
-				match p.peek_tok.kind {
+			.key_import { p.error_with_pos("'import ()' solo se puede usar al principio del archivo",
+					p.tok.position()) }
+			.key_pub { match p.peek_tok.kind {
+					.key_const { return p.const_decl() }
+					else { p.error('mal uso de la palabra clave `pub`') }
+				} }
+			.key_extern { match p.peek_tok.kind {
 					.key_script {}
-					else {
-						p.error("la palabra clave 'extern' solo se puede usar en conjunto a 'script'")
-					}
-				}
-			}
-			.key_const {
-				return p.const_decl()
-			}
-			else {
-				p.error('declaración de alto nivel "' + p.tok.lit + '" desconocido')
-			}
+					else { p.error("la palabra clave 'extern' solo se puede usar en conjunto a 'script'") }
+				} }
+			.key_const { return p.const_decl() }
+			else { p.error('declaración de alto nivel "' + p.tok.lit + '" desconocido') }
 		}
 	}
 	return ast.Stmt{}
@@ -282,7 +258,8 @@ fn (mut p Parser) const_decl() ast.ConstDecl {
 		pos := p.tok.position()
 		name := p.check_name()
 		if !util.contains_capital(name) {
-			p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas', pos)
+			p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas',
+				pos)
 		}
 		full_name := p.prepend_mod(name)
 		p.check(.assign)
@@ -305,8 +282,9 @@ fn (mut p Parser) const_decl() ast.ConstDecl {
 }
 
 // Exprs ====================================================================================
-fn (mut p Parser) expr(precedence int) {
+fn (mut p Parser) expr(precedence int) ast.Expr {
 	// TODO: Make an good expr function
+	return ast.Expr{}
 }
 
 fn (mut p Parser) string_expr() ast.Expr {

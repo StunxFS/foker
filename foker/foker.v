@@ -22,18 +22,18 @@ fn main() {
 
 fn help() {
 	program := os.args[0]
-    current_day := time.now().str().all_before_last(' ')
+    current_time := time.now().str()
 	println("=================================================
 FokerScript | Mensaje de Ayuda | Work In Progress
 =================================================
 Autor: StunxFS
-Fecha de compilación: ${current_day}
+Fecha de compilación: ${current_time}
 Versión: ${about.version}
 
 Uso:
     ${program} [opciones] [argumentos]
 
-Información básica de los backends:
+Información básica sobre los backends:
     Versión del backend de binario: ${about.gen_bin_version}
     Versión del backend de decomp: Aún no disponible [TODO].
 
