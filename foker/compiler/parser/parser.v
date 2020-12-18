@@ -238,7 +238,7 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 				}
 				match p.peek_tok.kind {
 					.key_script { return p.script_stmt() }
-					else { p.error("la palabra clave 'extern' solo se puede usar en conjunto a 'script'") }
+					else { p.error("la palabra clave 'extern' solo se puede usar en conjunto a 'script': extern script xxx") }
 				}
 			}
 			.key_const {

@@ -4,4 +4,4 @@ import (
 
 pub script main {}
 pub extern script loquendo;
-extern script caco;
+script caco {}
