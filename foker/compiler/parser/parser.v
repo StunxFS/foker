@@ -271,13 +271,16 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 
 	if is_extern { // extern script name; | extern script name2 at 0x90034;
 		mut extern_offset := ''
-		if p.tok.kind == .key_at {
+		if p.pref.backend == .binary && p.tok.kind == .key_at {
 			p.next()
 			if p.tok.kind != .number {
 				p.error('se esperaba un offset/dirección')
 			}
 			extern_offset = p.tok.lit
 			p.next()
+		} else {
+			p.error_with_pos('esta utilidad solo está disponible para el backend de binario',
+				p.tok.position().extend(p.peek_tok.position()))
 		}
 		p.check(.semicolon)
 		return ast.ScriptDecl{
