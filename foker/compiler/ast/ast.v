@@ -110,7 +110,7 @@ pub:
 	extern_offset 	string
 	pos				token.Position
 	body_pos		token.Position
-	file			string
+	//file			string
 pub mut:
 	stmts			[]Stmt
 }

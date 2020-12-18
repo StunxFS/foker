@@ -3,6 +3,5 @@ import (
 )
 
 pub script main {}
-pub extern script loquendo;
+pub extern script loquendo at 0x90ABFC;
 script caco {}
-extern const

@@ -264,25 +264,39 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	if is_extern {
 		p.next()
 	}
+	script_pos := p.tok.position()
 	p.check(.key_script)
+	name_pos := p.tok.position()
 	script_name := p.check_name()
 
-	if !is_extern {
-		p.check(.lbrace)
-		p.check(.rbrace)
-	} else {
-		/* TODO: Implementar soporte para offsets nombrados: extern script mi_script at 0x80010101010;
+	if is_extern { // extern script name; | extern script name2 at 0x90034;
+		mut extern_offset := ''
 		if p.tok.kind == .key_at {
-			// TODO
-		}*/
-
+			p.next()
+			if p.tok.kind != .number {
+				p.error('se esperaba un offset/dirección')
+			}
+			extern_offset = p.tok.lit
+			p.next()
+		}
 		p.check(.semicolon)
+		return ast.ScriptDecl{
+			name: script_name
+			mod: p.mod
+			is_pub: is_pub
+			is_extern: is_extern
+			extern_offset: extern_offset
+			pos: script_pos.extend(p.prev_tok.position())
+		}
 	}
-
+	p.check(.lbrace)
+	p.check(.rbrace)
 	return ast.ScriptDecl{
 		name: script_name
+		mod: p.mod
 		is_pub: is_pub
 		is_extern: is_extern
+		pos: script_pos.extend(name_pos)
 	}
 }
 

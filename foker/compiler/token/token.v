@@ -104,6 +104,7 @@ pub enum Kind {
 	key_yes
 	key_no
 	key_as
+	key_at
 
 	key_true
 	key_false
@@ -141,6 +142,7 @@ pub const (
 		"yes": Kind.key_yes,
 		"no": Kind.key_no,
 		"as": Kind.key_as,
+		"at": Kind.key_at,
 
 		"true": Kind.key_true,
 		"false": Kind.key_false
@@ -215,6 +217,7 @@ fn build_tokenstr() []string {
 	k[Kind.key_yes] = "yes"
 	k[Kind.key_no] = "no"
 	k[Kind.key_as] = "as"
+	k[Kind.key_at] = "at"
 
 	k[Kind.key_true] = "true"
 	k[Kind.key_false] = "false"
