@@ -5,3 +5,4 @@ import (
 pub script main {}
 pub extern script loquendo;
 script caco {}
+extern const

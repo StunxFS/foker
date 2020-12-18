@@ -225,7 +225,7 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 			.key_pub { 
 				match p.peek_tok.kind {
 					.key_const { return p.const_decl() }
-					.key_script, .key_extern { return p.script_stmt() }
+					.key_extern, .key_script { return p.script_stmt() }
 					else { p.error("mal uso de la palabra clave 'pub'") }
 				}
 			}
@@ -234,7 +234,7 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 			}
 			.key_extern {
 				if p.peek_tok.kind == .key_pub {
-					p.error_with_pos("no se puede usar 'extern' seguido con un 'pub'", p.peek_tok.position())
+					p.error_with_pos("no se puede usar 'extern' seguido de un 'pub'", p.peek_tok.position())
 				}
 				match p.peek_tok.kind {
 					.key_script { return p.script_stmt() }

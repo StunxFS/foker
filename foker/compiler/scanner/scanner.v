@@ -104,12 +104,12 @@ fn (mut s Scanner) ident_hex_number() string {
 	start_pos := s.pos
 	s.pos += 2 // skip '0x'
 	if s.text[s.pos] == num_sep {
-		s.error('separator `_` is only valid between digits in a numeric literal')
+		s.error('el separador `_` solo es válido entre dígitos en un literal numérico')
 	}
 	for s.pos < s.text.len {
 		c := s.text[s.pos]
 		if c == num_sep && s.text[s.pos + 1] == num_sep {
-			s.error('cannot use `_` consecutively')
+			s.error('no se puede usar `_` consecutivamente')
 		}
 		if !c.is_hex_digit() && c != num_sep {
 			if !c.is_letter() {
@@ -123,13 +123,13 @@ fn (mut s Scanner) ident_hex_number() string {
 		s.pos++
 	}
 	if s.text[s.pos - 1] == num_sep {
-		s.error('cannot use `_` at the end of a numeric literal')
+		s.error('no se puede utilizar `_` al final de un literal numérico')
 	} else if start_pos + 2 == s.pos {
 		s.pos-- // adjust error position
-		s.error('number part of this hexadecimal is not provided')
+		s.error('no se proporciona parte del número de este hexadecimal')
 	} else if has_wrong_digit {
 		s.pos = first_wrong_digit_pos // adjust error position
-		s.error('this hexadecimal number has unsuitable digit `$first_wrong_digit.str()`')
+		s.error('este número hexadecimal tiene un dígito inadecuado: `$first_wrong_digit.str()`')
 	}
 	number := filter_num_sep(s.text.str, start_pos, s.pos)
 	s.pos--
@@ -145,7 +145,7 @@ fn (mut s Scanner) ident_dec_number() string {
 	for s.pos < s.text.len {
 		c := s.text[s.pos]
 		if c == num_sep && s.text[s.pos + 1] == num_sep {
-			s.error('cannot use `_` consecutively')
+			s.error('no se puede usar `_` consecutivamente')
 		}
 		if !c.is_digit() && c != num_sep {
 			if !c.is_letter() {
@@ -159,12 +159,12 @@ fn (mut s Scanner) ident_dec_number() string {
 		s.pos++
 	}
 	if s.text[s.pos - 1] == num_sep {
-		s.error('cannot use `_` at the end of a numeric literal')
+		s.error('no se puede utilizar `_` al final de un literal numérico')
 	}
 	if has_wrong_digit {
 		// error check: wrong digit
 		s.pos = first_wrong_digit_pos // adjust error position
-		s.error('this number has unsuitable digit `$first_wrong_digit.str()`')
+		s.error('este número hexadecimal tiene un dígito inadecuado: `$first_wrong_digit.str()`')
 	}
 	number := filter_num_sep(s.text.str, start_pos, s.pos)
 	s.pos--
@@ -195,8 +195,8 @@ fn (mut s Scanner) end_of_file() token.Token {
 	s.eofs++
 	if s.eofs > 50 {
 		s.line_nr--
-		panic('the end of file `$s.file_path` has been reached 50 times already, the FokerScript parser is probably stuck.\n' +
-			'This should not happen. Please report the bug here, and include the last 2-3 lines of your source code:\n' +
+		panic('el final del archivo `$s.file_path` ya se ha alcanzado 50 veces, el analizador de FokerScript probablemente esté bloqueado.\n' +
+			'Esto no debería suceder. Informe el error aquí e incluya las últimas 2-3 líneas de su código fuente:\n' +
 			'https://github.com/StunxFSFS/foker/issues/new?labels=Bug')
 	}
 	if s.pos != s.text.len && s.eofs == 1 {
@@ -403,7 +403,7 @@ pub fn (mut s Scanner) scan() token.Token {
 				return s.end_of_file()
 			}
 		}
-		s.error("invalid character '${c.str()}'")
+		s.error("carácter inválido '${c.str()}'")
 		break
 	}
 	return s.end_of_file()
@@ -436,7 +436,7 @@ fn (mut s Scanner) ident_string() string {
 	for {
 		s.pos++
 		if s.pos >= s.text.len {
-			s.error('unfinished string literal')
+			s.error('literal de cadena sin terminar')
 		}
 		c := s.text[s.pos]
 		prevc := s.text[s.pos - 1]
