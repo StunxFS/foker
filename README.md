@@ -154,11 +154,11 @@ end
 Aquí otro ejemplo de lo que sería el soporte para generar scripts tanto para decompilación como para binario:
 
 ```c++
-#if BINARY // si se usa el generador para binario
+#if BINARY // si se usa el backend para binario
     const (
         RUTINA2 = 0x80ABCD2F;
     )
-#else // entonces, si se usa el generador de decomp
+#else // de lo contrario, se está usando el backend de decomp
     extern script script_RUTINA2;
 #endif
 
