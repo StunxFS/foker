@@ -95,10 +95,13 @@ pub fn parse_files(paths []string, table &ast.Table, pref &prefs.Preferences, gl
 
 pub fn (mut p Parser) parse() ast.File {
 	p.read_first_token()
-	if p.file_name.starts_with('builtin') {
-		// esto para archivos como: builtin.foker, builtin_binario.foker, etc.
+	mod_name := p.file_name.all_before_last('.')
+	p.mod = p.table.qualify_module(mod_name, p.file_name)
+	if p.mod == 'builtin' {
 		p.builtin_mod = true
 	}
+	println("---- Parsing module: ${p.mod}")
+
 	mut stmts := []ast.Stmt{}
 	for p.tok.kind != .eof {
 		if p.tok.kind == .key_import {
@@ -114,7 +117,7 @@ pub fn (mut p Parser) parse() ast.File {
 	return ast.File{
 		path: p.file_name
 		mod: ast.Module{
-			name: p.file_name.all_before_last('.')
+			name: p.mod
 			stmts: stmts
 			scope: p.scope
 		}
@@ -279,6 +282,7 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	return ast.ScriptDecl{
 		name: script_name
 		is_pub: is_pub
+		is_extern: is_extern
 	}
 }
 

@@ -549,4 +549,3 @@ pub fn (mut s Scanner) codegen(newtext string) {
 		eprintln('scanner.codegen:\n $newtext')
 	}
 }
-

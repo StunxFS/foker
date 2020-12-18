@@ -16,7 +16,7 @@ fn main() {
 	}
 
 	prefs := prefs.parse_args_and_get_prefs()
-    _ := parser.parse_file('foker_test.foker', &ast.Table{}, prefs, &ast.Scope{parent: 0})
+    _ := parser.parse_file('foker_test.fkr', &ast.Table{}, prefs, &ast.Scope{parent: 0})
     //println(parsed_file)
 }
 
@@ -45,10 +45,10 @@ Descripción:
 
 Argumentos:
     archivos
-        Este argumento no se declara, sino que recibe archivos que serán compilados a un único
-        archivo de script de XSE.
+        Este argumento no se declara, sino que recibe los archivos que serán compilados, estos
+        archivos deben tener la extensión .fkr
         Ejemplo de uso:
-            ${program} miarchivo.foker otroarchivo.foker
+            ${program} miarchivo.foker otroarchivo.fkr
 
 Opciones:
     -h, help, ayuda
@@ -56,7 +56,7 @@ Opciones:
 
     -b, -backend
         Esta opción se usa para especificarle a FokerScript que backend debe usar para generar
-        el archivo único de script XSE, por defecto se usa 'binary' como valor.
+        el archivo único de script XSE, por defecto se usa el valor 'binary'.
         Este acepta los siguientes valores:
             binary
             decomp
@@ -71,7 +71,7 @@ Opciones:
 
     -r, -rom
         Esta opción le especifica al compilador que ROM se usará para el script, por defecto
-        se usa 'frlf' como el valor default.
+        se usa el valor 'frlf'.
         Actualmente -r soporta los siguientes valores:
             rs, rubysapphire: Pokémon Ruby/Sapphire
             frlf, fireredleafgreen: Pokémon FireRed/LeafGreen
@@ -98,7 +98,7 @@ Opciones:
             ${program} -skip-warnings
 
 Ejemplo de uso del programa:
-    ${program} -o mi_script_perron.inc -r rs -b decomp mi_script.foker")
+    ${program} -o mi_script_perron.inc -r rs -b decomp mi_script.fkr")
 }
 
 fn to_hex(val int) string {

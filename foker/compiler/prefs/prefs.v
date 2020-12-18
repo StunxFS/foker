@@ -100,7 +100,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 				res.warns_are_errors = true
 			}
 			else {
-				if arg.ends_with(".foker") || arg.ends_with(".fkr") {
+				if arg.ends_with(".fkr") {
 					res.files << arg
 				} else {
 					util.err("no se reconoce la opción ${arg}, por favor use '${app} ayuda' para ver las opciones disponibles")
