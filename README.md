@@ -131,7 +131,7 @@ script main {
 }
 ```
 
-Por ejemplo, y debido a que algunos me han dicho que no entienden lo anterior, aquí dejo lo que sería la salida posible del ejemplo anterior:
+Por ejemplo, y debido a que algunos me han dicho que no entienden lo anterior, aquí dejo lo que sería la salida posible del ejemplo:
 
 ```llvm
 #define MIRUTINA_ESPECIAL 0x80AB24D
@@ -151,7 +151,7 @@ end
 = ¡La rutina ha funcionado correctamente!
 ```
 
-Aquí otro ejemplo de lo que sería el soporte de generar scripts tanto para decompilación como binario:
+Aquí otro ejemplo de lo que sería el soporte para generar scripts tanto para decompilación como para binario:
 
 ```c++
 #if BINARY // si se usa el generador para binario
