@@ -56,7 +56,7 @@ pub type ScopeObject = ConstField | Var
 
 // Statements
 pub type Stmt = ExprStmt | EnumDecl | ConstDecl | AssignStmt | QuestionStmt
-				| Import | ForStmt | ForInStmt | GotoStmt
+				| Import | ForStmt | ForInStmt | GotoStmt | ScriptDecl
 
 pub struct ImportField {
 pub:

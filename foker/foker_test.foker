@@ -1,8 +1,7 @@
 import (
-    StunxFS.library.cool as cool
-    loquendo
+    StunxFS.library.cool
 )
 
-const (
-    NAME = 2
-)
+pub script main {}
+pub extern script loquendo;
+extern script caco;

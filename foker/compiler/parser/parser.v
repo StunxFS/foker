@@ -96,6 +96,7 @@ pub fn parse_files(paths []string, table &ast.Table, pref &prefs.Preferences, gl
 pub fn (mut p Parser) parse() ast.File {
 	p.read_first_token()
 	if p.file_name.starts_with('builtin') {
+		// esto para archivos como: builtin.foker, builtin_binario.foker, etc.
 		p.builtin_mod = true
 	}
 	mut stmts := []ast.Stmt{}
@@ -224,12 +225,19 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 			.key_pub { 
 				match p.peek_tok.kind {
 					.key_const { return p.const_decl() }
-					else { p.error('mal uso de la palabra clave `pub`') }
+					.key_script, .key_extern { return p.script_stmt() }
+					else { p.error("mal uso de la palabra clave 'pub'") }
 				}
 			}
+			.key_script {
+				return p.script_stmt()
+			}
 			.key_extern {
+				if p.peek_tok.kind == .key_pub {
+					p.error_with_pos("no se puede usar 'extern' seguido con un 'pub'", p.peek_tok.position())
+				}
 				match p.peek_tok.kind {
-					.key_script {}
+					.key_script { return p.script_stmt() }
 					else { p.error("la palabra clave 'extern' solo se puede usar en conjunto a 'script'") }
 				}
 			}
@@ -242,6 +250,36 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 		}
 	}
 	return ast.Stmt{}
+}
+
+fn (mut p Parser) script_stmt() ast.Stmt {
+	is_pub := p.tok.kind == .key_pub
+	if is_pub {
+		p.next()
+	}
+	is_extern := p.tok.kind == .key_extern
+	if is_extern {
+		p.next()
+	}
+	p.check(.key_script)
+	script_name := p.check_name()
+
+	if !is_extern {
+		p.check(.lbrace)
+		p.check(.rbrace)
+	} else {
+		/* TODO: Implementar soporte para offsets nombrados: extern script mi_script at 0x80010101010;
+		if p.tok.kind == .key_at {
+			// TODO
+		}*/
+
+		p.check(.semicolon)
+	}
+
+	return ast.ScriptDecl{
+		name: script_name
+		is_pub: is_pub
+	}
 }
 
 fn (mut p Parser) const_decl() ast.ConstDecl {
@@ -268,8 +306,7 @@ fn (mut p Parser) const_decl() ast.ConstDecl {
 		pos := p.tok.position()
 		name := p.check_name()
 		if !util.contains_capital(name) {
-			p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas',
-				pos)
+			p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas', pos)
 		}
 		full_name := p.prepend_mod(name)
 		p.check(.assign)
