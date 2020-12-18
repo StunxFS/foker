@@ -96,8 +96,8 @@ v run make.v
 
 ```cs
 // Así declaramos los comandos que se usan en el scripting.
-extern cmd msgbox(msg: string, type: int = 0x2);
-alias msg = msgbox;
+cmd msgbox(msg: string, type: int = 0x2);
+alias msg = msgbox; // se puede usar tanto msg, como msgbox
 ```
 
 ```cs
@@ -115,13 +115,15 @@ script main {
 ```
 
 ```cpp
-const MIRUTINA_ESPECIAL = 0x80AB24DF;
+const (
+    MIRUTINA_ESPECIAL = 0x80AB24DF
+)
 
 script main {
     callasm(MIRUTINA_ESPECIAL);
     // Esta sintaxis se usa para declarar variables que, por ejemplo, una rutina utiliza.
-    var mirutina_especial_var_usada: long at 0x8013;
-    if mirutina_especial_var_usada == 100 or mirutina_especial_var_usada > 200 {
+    var mirutina_especial_var_usada at 0x8013: int;
+    if mirutina_especial_var_usada == 100 {
         msg("¡La rutina ha funcionado correctamente!");
     }
      // liberamos la variable utilizada.
@@ -136,7 +138,7 @@ Por ejemplo, y debido a que algunos me han dicho que no entienden lo anterior, a
 
 #org @main
 callasm MIRUTINA_ESPCIAL
-compare 0x80ABC 0x64
+compare 0x8013 0x64
 if 0x1 goto @main__if1
 clearvar 0x80AB
 end
@@ -153,25 +155,27 @@ Aquí otro ejemplo de lo que sería el soporte de generar scripts tanto para dec
 
 ```c++
 #if BINARY // si se usa el generador para binario
-const RUTINA2 = 0x80ABCD2F;
+    const (
+        RUTINA2 = 0x80ABCD2F;
+    )
 #else // entonces, si se usa el generador de decomp
-extern script script_RUTINA2;
+    extern script script_RUTINA2;
 #endif
 
 script main {
 #if BINARY
     callasm(RUTINA2);
 #else
-    script_RUTINA2();
+    call script_RUTINA2;
 #endif
 }
 ```
 
-El ejemplo anterior se pudiera compilar así: ``fokerscript -g <gen> gen_script.foker``, donde ``<gen>`` pudiera ser ``decomp`` o ``binary``. Ejemplo:
+El ejemplo anterior se pudiera compilar así: ``fokerscript -b <backend> gen_script.foker``, donde ``<backend>`` pudiera ser ``decomp`` o ``binary``. Ejemplo:
 
 ```bash
-fokerscript -g decomp gen_script.foker
-fokerscript -g binary gen_script.foker
+fokerscript -b decomp gen_script.fkr
+fokerscript -b binary gen_script.fkr
 ```
 
 Si quiere más ejemplos, vaya a la carpeta [ejemplos](/ejemplos/).
