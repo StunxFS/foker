@@ -303,13 +303,18 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 			pos: script_pos.extend(p.prev_tok.position())
 		}
 	}
+	mut stmts := []ast.Stmt{}
 	p.check(.lbrace)
+	for p.tok.kind != .rbrace {
+		stmts << p.local_stmt()
+	}
 	p.check(.rbrace)
 	return ast.ScriptDecl{
 		name: script_name
 		mod: p.mod
 		is_pub: is_pub
 		is_extern: is_extern
+		stmts: stmts
 		pos: script_pos.extend(name_pos)
 	}
 }
@@ -358,6 +363,31 @@ fn (mut p Parser) const_decl() ast.ConstDecl {
 		fields: fields
 		is_pub: is_pub
 	}
+}
+
+// Local Statements =========================================================================
+fn (mut p Parser) local_stmt() ast.Stmt {
+	for {
+		match p.tok.kind {
+			.key_var {
+				return p.parse_var_stmt()
+			}
+			else {
+				p.error('declaración de nivel local "' + p.tok.lit + '" desconocido')
+			}
+		}
+	}
+	return ast.Stmt{}
+}
+
+fn (mut p Parser) parse_var_stmt() ast.Stmt {
+	p.check(.key_var)
+	name := p.check_name()
+	p.check(.assign)
+	expr := p.expr(0)
+	p.check(.semicolon)
+	println('Var stmt: "${name}", expr: ${expr}')
+	return ast.Stmt{}
 }
 
 // Exprs ====================================================================================

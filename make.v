@@ -4,15 +4,17 @@ module main
 
 import os
 
-// Script de compilación de FokerScript
-fn main() {
-	$if macos {
-		panic('lo sentimos, macOS todavía no es soportado.')
+const (
+	exe_name = $if windows {
+		'foker.exe'
 	} $else {
-		mut exe_name := 'foker'
-		$if windows {
-			exe_name += '.exe'
-		}
-		os.system('v -prod -o ${exe_name} foker')
+		'foker'
 	}
+)
+
+// Script de compilación de FokerScript
+$if macos {
+	panic('lo sentimos, macOS todavía no es soportado.')
+} $else {
+	os.system('v -prod -o ${exe_name} foker')
 }

@@ -11,8 +11,10 @@ const (
     boolean_expr = fmt("Recoge estas maletas broder!")
     expr_con_constantes = numero + numero_neg
     d = "d"+"d"
-    constante_a_base_de_otro = cool.mi_constante
+    constante_a_base_de_otro = cool.mi_constante++
 )
 
 script main {
+    var name = "Stunx";
+    var name2 = 1 + 2;
 }
