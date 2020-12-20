@@ -16,7 +16,7 @@ fn main() {
 	}
 
 	prefs := prefs.parse_args_and_get_prefs()
-    _ := parser.parse_file('foker_test.fkr', &ast.Table{}, prefs, &ast.Scope{parent: 0})
+    _ := parser.parse_files(prefs.files, &ast.Table{}, prefs, &ast.Scope{parent: 0})
     //println(parsed_file)
 }
 

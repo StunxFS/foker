@@ -1,7 +1,0 @@
-import (
-    StunxFS.library.cool
-)
-
-pub script main {
-    var statement = 2;
-}

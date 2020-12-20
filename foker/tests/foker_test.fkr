@@ -1,0 +1,6 @@
+import (
+    StunxFS.library.cool
+)
+
+script main {
+}
