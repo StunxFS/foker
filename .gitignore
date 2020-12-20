@@ -5,8 +5,6 @@
 *.dylib
 *.dll
 *.odt
-COMMITS.txt
 foker/foker
 foker/foker.exe
-foker/BUGS-V.txt
 ejemplos/example.foker

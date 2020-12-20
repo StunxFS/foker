@@ -18,6 +18,7 @@ pub:
 	name	string
 	pos		token.Position
 	stmts	[]Stmt
+	is_main bool // es esto el modulo principal?
 pub mut:
 	scope	Scope
 }
@@ -267,13 +268,11 @@ pub struct Ident {
 pub:
 	tok_kind	token.Kind
 	pos			token.Position
-	mut_pos		token.Position
 pub mut:
 	obj			ScopeObject
 	mod			string
 	name		string
 	kind		IdentKind
-	is_mut		bool
 }
 
 // left op right

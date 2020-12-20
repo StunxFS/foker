@@ -2,5 +2,17 @@ import (
     StunxFS.library.cool
 )
 
+const (
+    message = "Stunx es real"
+    numero = 2
+    numero_neg = -1
+    booleano = true
+    expr_entre_parentesis = 2 + (2 / -4)
+    boolean_expr = fmt("Recoge estas maletas broder!")
+    expr_con_constantes = numero + numero_neg
+    d = "d"+"d"
+    constante_a_base_de_otro = cool.mi_constante
+)
+
 script main {
 }
