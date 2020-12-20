@@ -2,6 +2,6 @@ import (
     StunxFS.library.cool
 )
 
-pub script main {}
-pub extern script loquendo at 0x90ABFC;
-script caco {}
+pub script main {
+    var statement = 2;
+}
