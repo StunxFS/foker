@@ -49,11 +49,11 @@ Con este objetivo tentativo deseamos que cualquier script hecho con FokerScript 
 ## :pencil2: Backends
 
 Actualmente este es el estado de implementación de los backends en FokerScript:
-| Juego             | Binario | Decompilación |
-| :---              | :---:   | :---:         |
-| Ruby/Sapphire     |  [ X ]  |               |
-| FireRed/LeafGreen |  [ X ]  |               |
-| Emerald           |  [ X ]  |               |
+| Juego             | Binario                    | Decompilación |
+| :---              | :---:                      | :---:         |
+| Ruby/Sapphire     |  :heavy_multiplication_x:  |               |
+| FireRed/LeafGreen |  :heavy_multiplication_x:  |               |
+| Emerald           |  :heavy_multiplication_x:  |               |
 
 Las ROMs aquí mencionadas son soportadas tanto en inglés como en español.
 
