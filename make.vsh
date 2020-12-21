@@ -5,6 +5,9 @@
 // Especial para compilar el compilador y el administrador de proyectos FPM
 //
 
+$if macos {
+	panic('lo sentimos, macOS todavía no es soportado.')
+}
 
 exe_name := $if windows {
 	'foker.exe'
@@ -17,10 +20,6 @@ fpm_exe_name := $if windows {
 	'foker'
 }
 
-$if macos {
-	panic('lo sentimos, macOS todavía no es soportado.')
-}
-
 if !exists('bin') {
 	mkdir('bin')
 }
@@ -28,5 +27,10 @@ if !exists('bin') {
 foker_bin_path := join_path('bin', exe_name)
 fpm_bin_path := join_path('bin', fpm_exe_name)
 
-system('v -prod -o ${foker_bin_path} foker/')
+if !exists(exe_name) {
+	println('- Compilando el compilador de FokerScript...')
+	system('v -prod -o ${foker_bin_path} foker/')
+} else {
+	println('- Saltando compilación del compilador de FokerScript, esto ya está compilado...)
+}
 //system('v -prod -o ${fpm_bin_path} fpm/')
