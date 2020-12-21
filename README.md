@@ -22,7 +22,7 @@ Bienvenido al repositorio oficial del lenguaje de scripting para los juegos de l
 
 * * *
 
-## ¿Qué es esto?
+## :question: ¿Qué es esto?
 
 **FokerScript** es un nuevo intento de facilitar el desarrollo de scripts en el ROMHacking binario del Pokémon Advance de 3ra Gen. Este lenguaje está inspirado en gran parte por su contraparte para el decomp, **Poryscript**. Este lenguaje transpila el código dado por el usuario al scripting del **XSE (desarrollado por HackMew)**.
 
@@ -30,7 +30,7 @@ A lo largo de estos años, todos los ROMHackers, que han llegado recientemente a
 
 * * *
 
-## Objetivos
+## :clipboard: Objetivos
 
 FokerScript tiene como objetivos los siguientes puntos:
 
@@ -46,7 +46,7 @@ Con este objetivo tentativo deseamos que cualquier script hecho con FokerScript 
 
 * * *
 
-## Backends
+## :pencil2: Backends
 
 Actualmente este es el estado de implementación de los backends en FokerScript:
 | Juego             | Binario | Decompilación |
@@ -59,7 +59,7 @@ Las ROMs aquí mencionadas son soportadas tanto en inglés como en español.
 
 * * *
 
-## Compilación e Instalación
+## :hammer_and_wrench: Compilación e Instalación
 
 Bien, en este apartado nos dedicaremos al proceso de compilación e instalación de FokerScript en nuestras computadoras o laptops. Una cosa debo dejar claro y es que FokerScript solo soporta **Windows** y **Linux** por ahora, **macOS** está por verse en un futuro.
 
@@ -92,7 +92,7 @@ v run make.v
 
 * * *
 
-## Ejemplos de FokerScript
+## :blue_book: Ejemplos de FokerScript
 
 ```cs
 // Así declaramos los comandos que se usan en el scripting.
@@ -144,10 +144,10 @@ clearvar 0x80AB
 end
 
 #org @main__if1
-msgbox @msg 0x2
+msgbox @str1 0x2
 end
 
-#org @msg
+#org @str1
 = ¡La rutina ha funcionado correctamente!
 ```
 
@@ -182,7 +182,7 @@ Si quiere más ejemplos, vaya a la carpeta [ejemplos](/ejemplos/).
 
 * * *
 
-## Documentación y especificaciones del lenguaje
+## :card_index_dividers: Documentación y especificaciones del lenguaje
 
 **Muy pronto:** en [docs.md](docs/docs.md) y [docs.html](docs/docs.html) se encuentra toda la información, puede descargarlo en su dispositivo o verlo directamente en el navegador.
 
@@ -190,7 +190,7 @@ Por ahora está disponible un PDF llamado [docs.pdf](docs/docs.pdf), lo malo es 
 
 * * *
 
-## Créditos
+## :spiral_notepad: Créditos
 
 Buena parte del código fuente de FokerScript está tomado del código fuente del compilador del lenguaje V.
 
