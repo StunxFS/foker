@@ -48,12 +48,14 @@ Con este objetivo tentativo deseamos que cualquier script hecho con FokerScript 
 
 ## :pencil2: Backends
 
+<!-- :heavy_check_mark: = check | :x: = equis -->
+
 Actualmente este es el estado de implementación de los backends en FokerScript:
-| Juego             | Binario                    | Decompilación |
-| :---              | :---:                      | :---:         |
-| Ruby/Sapphire     |  :heavy_multiplication_x:  |               |
-| FireRed/LeafGreen |  :heavy_multiplication_x:  |               |
-| Emerald           |  :heavy_multiplication_x:  |               |
+| Juego             | Binario              | Decompilación |
+| :---              | :---:                | :---:         |
+| Ruby/Sapphire     |  :heavy_check_mark:  |               |
+| FireRed/LeafGreen |  :heavy_check_mark:  |               |
+| Emerald           |  :heavy_check_mark:  |               |
 
 Las ROMs aquí mencionadas son soportadas tanto en inglés como en español.
 
