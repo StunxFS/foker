@@ -18,9 +18,7 @@ if !exists('bin') {
 	mkdir('bin')
 }
 
-const (
-    foker_bin_path = join_path('bin', exe_name)
-)
+foker_bin_path := join_path('bin', exe_name)
 
 if !exists(foker_bin_path) {
 	println('- Compilando el compilador de FokerScript...')
