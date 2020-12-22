@@ -80,17 +80,17 @@ cd v
 make # si usas Windows intenta con make.bat
 ```
 
-Ahora si estás en Linux ejecuta: ``./v symlink``, si estás en Windows usa: ``.\v.exe symlink``
+Ahora si estás en Linux ejecuta: ``sudo ./v symlink``, si estás en Windows, abre un `cmd.exe` con permisos de administrador y usa: ``.\v.exe symlink``
 
 ¡Eso es todo! Ya tienes instalado V en tu computadora, ahora solo toca hacer lo mismo con este repositorio:
 
 ```bash
 git clone https://github.com/StunxFS/foker
 cd foker
-v run make.v
+v run make.vsh
 ```
 
-¡Listo! Ya tienes compilado FokerScript, ahora ejecuta ``./fokerscript`` (o en Windows: ``.\fokerscript.exe``), si te muestra algún mensaje de ayuda todo está correcto.
+¡Listo! Ya tienes compilado FokerScript, ahora ejecuta ``./foker`` (o en Windows: ``.\foker.exe``), si te muestra algún mensaje de ayuda todo está correcto.
 
 * * *
 
@@ -133,9 +133,9 @@ script main {
 }
 ```
 
-Por ejemplo, y debido a que algunos me han dicho que no entienden lo anterior, aquí dejo lo que sería la salida posible del ejemplo:
+Aquí dejo lo que sería la salida posible del ejemplo:
 
-```llvm
+```nim
 #define MIRUTINA_ESPECIAL 0x80AB24D
 
 #org @main
@@ -173,11 +173,11 @@ script main {
 }
 ```
 
-El ejemplo anterior se pudiera compilar así: ``fokerscript -b <backend> gen_script.foker``, donde ``<backend>`` pudiera ser ``decomp`` o ``binary``. Ejemplo:
+El ejemplo anterior se pudiera compilar así: ``foker -b <backend> gen_script.fkr``, donde ``<backend>`` pudiera ser ``decomp`` o ``binary``. Ejemplo:
 
 ```bash
-fokerscript -b decomp gen_script.fkr
-fokerscript -b binary gen_script.fkr
+foker -b decomp gen_script.fkr
+foker -b binary gen_script.fkr
 ```
 
 Si quiere más ejemplos, vaya a la carpeta [ejemplos](/ejemplos/).
