@@ -16,13 +16,15 @@ fn main() {
 	}
 
 	prefs := prefs.parse_args_and_get_prefs()
-    _ := parser.parse_files(prefs.files, &ast.Table{}, prefs, &ast.Scope{parent: 0})
-    //println(parsed_file)
+    	_ := parser.parse_files(prefs.files, &ast.Table{}, prefs, &ast.Scope{parent: 0})
+    	//println(parsed_file)
 }
 
+// TODO: Cambiar la opción '-rom' por '-game', e implementar el soporte para inyecciones de scripts directamente
+// en la ROM.
 fn help() {
 	program := os.args[0]
-    current_time := time.now().str()
+	current_time := time.now().str()
 	println("=================================================
 FokerScript | Mensaje de Ayuda | Work In Progress
 =================================================
@@ -67,7 +69,7 @@ Opciones:
     -o, -output
         Esta opción le especifica al compilador cómo debería llamarse el archivo de salida
         Ejemplo de uso:
-            ${program} -o micarpeta/miarchivo.rbh miarchivo.foker
+            ${program} -o micarpeta/miarchivo.rbh miarchivo.fkr
 
     -r, -rom
         Esta opción le especifica al compilador que ROM se usará para el script, por defecto
@@ -77,15 +79,15 @@ Opciones:
             frlf, fireredleafgreen: Pokémon FireRed/LeafGreen
             e, emerald: Pokémon Emerald
         Ejemplo de uso:
-            ${program} -r fr miarchivo.foker
+            ${program} -r fr miarchivo.fkr
 
     -fast, -debug
         Estas opciones le dicen al compilador que nivel de optimización debe usar para generar
         el script, esto permite realizar un script que pueda ser feo y lento (-debug), o uno rápido
         y limpio (-fast). Por defecto el valor es -debug
         Ejemplo de uso:
-            ${program} -fast miarchivo.foker
-            ${program} -debug miarchivo.foker
+            ${program} -fast miarchivo.fkr
+            ${program} -debug miarchivo.fkr
     
     -warn-are-errors
         Esta opción le dice al compilador que trate las advertencias como errores.
@@ -98,7 +100,9 @@ Opciones:
             ${program} -skip-warnings
 
 Ejemplo de uso del programa:
-    ${program} -o mi_script_perron.inc -r rs -b decomp mi_script.fkr")
+    ${program} -o mi_script_perron.inc -r rs -b decomp mi_script.fkr
+    ${program} -fast -skip-warnings -r rs mi_script.fkr
+    ${program} -debug -warn-are-errors -r rs mi_script.fkr")
 }
 
 fn to_hex(val int) string {
@@ -108,31 +112,31 @@ fn to_hex(val int) string {
 	return "0x${val.hex().str().to_upper()}"
 }
 
-/*enum HexOutput {
+/* TODO: Retirar esto de aquí
+enum HexOutput {
 	byte  = 255
 	word  = 510
 	dword = 1020
 }
-*/
-	
-	/*mut script := bin.new_fscript("main")
-	script.add_string("StunxFS", "Me llamo StunxFS")
-	
-	mut block := bin.new_fblock("main")
-		block.add_cmd("msgbox", ["@StunxFS", "0x2"])
-		block.add_cmd("msgbox", ["@"+script.add_tmp_string("String temporal"), "0x2"])
-		block.end()
-	script.add_block(block)
-	
-	block = bin.new_fblock("main_2")
-		block.add_cmd("msgbox", ["@StunxFS", "0x2"])
-		block.add_cmd("msgbox", ["@"+script.add_tmp_string("String temporal"), "0x2"])
-		block.end()
-	script.add_block(block)*/
-	
-	//os.write_file("${script.name}.rbh", script.generate_script())?
 
-	//println(to_hex(100, .byte))
-	//gen.make_new_fvf_file()?
-	//fvf := gen.new_fvf("fvf.txt")?
-	//println(fvf)
+mut script := bin.new_fscript("main")
+script.add_string("StunxFS", "Me llamo StunxFS")
+	
+mut block := bin.new_fblock("main")
+	block.add_cmd("msgbox", ["@StunxFS", "0x2"])
+	block.add_cmd("msgbox", ["@"+script.add_tmp_string("String temporal"), "0x2"])
+	block.end()
+script.add_block(block)
+	
+block = bin.new_fblock("main_2")
+	block.add_cmd("msgbox", ["@StunxFS", "0x2"])
+	block.add_cmd("msgbox", ["@"+script.add_tmp_string("String temporal"), "0x2"])
+	block.end()
+script.add_block(block)
+	
+os.write_file("${script.name}.rbh", script.generate_script())?
+
+println(to_hex(100, .byte))
+gen.make_new_fvf_file()?
+fvf := gen.new_fvf("fvf.txt")?
+println(fvf)*/
