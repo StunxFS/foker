@@ -139,4 +139,5 @@ os.write_file("${script.name}.rbh", script.generate_script())?
 println(to_hex(100, .byte))
 gen.make_new_fvf_file()?
 fvf := gen.new_fvf("fvf.txt")?
-println(fvf)*/
+println(fvf)
+https://www.tmohentai.com/reader/5fdab3d2b2bb9/paginated/92?*/
