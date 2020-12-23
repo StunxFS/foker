@@ -45,7 +45,7 @@ pub fn (mut fs FScript) add_string(name string, str string) {
 }
 
 pub fn (fs FScript) generate_script() string {
-	mut code := ["; Generate with Foker v${about.version}", "#dynamic ${fs.dynamic}", ""]
+	mut code := ["; Generate with FokerScript v${about.version}", "#dynamic ${fs.dynamic}", ""]
 	for block in fs.blocks {
 		for code_ in block.code {
 			code << code_

@@ -1,0 +1,14 @@
+; Generate with FokerScript v0.1.0a0
+#dynamic 800000
+
+#org @main
+msgbox StunxFS, 0x6
+msgbox @str0, 0x6
+end
+
+; strings init
+#org @StunxFS
+= Me llaman kalawus
+
+#org @str0
+= Corriendo!

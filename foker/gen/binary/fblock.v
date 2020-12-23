@@ -25,3 +25,6 @@ pub fn (mut block FBlock) end() {
 	block.add_code("end")
 }
 
+pub fn (mut block FBlock) return_() {
+	block.add_code("return")
+}
