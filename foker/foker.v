@@ -16,12 +16,10 @@ fn main() {
 	}
 
 	prefs := prefs.parse_args_and_get_prefs()
-    	_ := parser.parse_files(prefs.files, &ast.Table{}, prefs, &ast.Scope{parent: 0})
-    	//println(parsed_file)
+    _ := parser.parse_files(prefs.files, &ast.Table{}, prefs, &ast.Scope{parent: 0})
+    //println(parsed_file)
 }
 
-// TODO: Cambiar la opción '-rom' por '-game', e implementar el soporte para inyecciones de scripts directamente
-// en la ROM.
 fn help() {
 	program := os.args[0]
 	current_time := time.now().str()
@@ -70,16 +68,22 @@ Opciones:
         Esta opción le especifica al compilador cómo debería llamarse el archivo de salida
         Ejemplo de uso:
             ${program} -o micarpeta/miarchivo.rbh miarchivo.fkr
-
+    
     -r, -rom
+        Esta opción le dice al compilador el nombre de la ROM que se usará para insertar el
+        script. OJO: Esta opción no se puede usar junto a -o, -output
+        Ejemplo de uso:
+            ${program} -r mirom.gba miscript.fkr
+
+    -g, -game
         Esta opción le especifica al compilador que ROM se usará para el script, por defecto
         se usa el valor 'frlf'.
-        Actualmente -r soporta los siguientes valores:
+        Actualmente -g soporta los siguientes valores:
             rs, rubysapphire: Pokémon Ruby/Sapphire
             frlf, fireredleafgreen: Pokémon FireRed/LeafGreen
             e, emerald: Pokémon Emerald
         Ejemplo de uso:
-            ${program} -r fr miarchivo.fkr
+            ${program} -g fr miarchivo.fkr
 
     -fast, -debug
         Estas opciones le dicen al compilador que nivel de optimización debe usar para generar
@@ -100,9 +104,9 @@ Opciones:
             ${program} -skip-warnings
 
 Ejemplo de uso del programa:
-    ${program} -o mi_script_perron.inc -r rs -b decomp mi_script.fkr
-    ${program} -fast -skip-warnings -r rs mi_script.fkr
-    ${program} -debug -warn-are-errors -r rs mi_script.fkr")
+    ${program} -o mi_script_perron.inc -g rs -b decomp mi_script.fkr
+    ${program} -fast -skip-warnings -g rs mi_script.fkr
+    ${program} -debug -warn-are-errors -g rs mi_script.fkr")
 }
 
 fn to_hex(val int) string {

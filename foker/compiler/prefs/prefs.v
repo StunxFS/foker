@@ -6,7 +6,7 @@ import os
 import os.cmdline
 import compiler.util
 
-pub enum ROM {
+pub enum Game {
 	firered_leafgreen
 	ruby_sapphire
 	emerald
@@ -26,14 +26,14 @@ pub struct Preferences {
 pub mut:
 	// ROM en el que se usará el script generado. Esto es usado para
 	// generar código exacto sin problemas.
-	rom			    ROM      = .firered_leafgreen
+	game			Game     = .firered_leafgreen
 	backend 		Backend  = .binary
+	rom				string // la rom en la que se insertará el script
 	// Por defecto se coge este archivo, ya que se crea automaticamente
 	// con todas las variables y banderas disponibles. Si en ella hay
 	// una variable o flag ocupada, simplemente abrir el archivo y borrarla.
 	flags_vars_file	string   = "fvf.txt"
 	output			string   // nombre de salida del script
-	output_dir 		string   // nombre del directorio de salida
 	optlevel		Optlevel = .debug
 	skip_warnings	bool	// saltarse las advertencias
 	warns_are_errors bool	// tratar las advertencias como errores
@@ -66,25 +66,32 @@ pub fn parse_args_and_get_prefs() &Preferences {
 			}
 			'-o', '-output' {
 				res.output = cmdline.option(current_args, arg, '')
-				res.output_dir = res.output.split(os.path_separator)[..1].join(os.path_separator)
 				i++
 			}
-			'-r', '-rom' {
-				target_rom := cmdline.option(current_args, arg, '')
-				match target_rom {
+			'-g', '-game' {
+				target_game := cmdline.option(current_args, arg, '')
+				match target_game {
 					'rs', 'rubysapphire' {
-						res.rom = .ruby_sapphire
+						res.game = .ruby_sapphire
 					}
 					'frlf', 'fireredleafgreen' {
-						res.rom = .firered_leafgreen
+						res.game = .firered_leafgreen
 					}
 					'e', 'emerald' {
-						res.rom = .emerald
+						res.game = .emerald
 					}
 					else {
 						util.err('la opción ${arg} solo soporta los valores: rs, rubysapphire, frlf, fireredleafgreen, e, emerald')
 					}
 				}
+				i++
+			}
+			'-r', '-rom' {
+				target_rom := cmdline.option(current_args, arg, '')
+				if !target_rom.ends_with('.gba') {
+					util.err('${arg} espera una ROM de GBA')
+				}
+				res.rom = target_rom
 				i++
 			}
 			'-fast' {
@@ -107,6 +114,9 @@ pub fn parse_args_and_get_prefs() &Preferences {
 				}
 			}
 		}
+	}
+	if res.output != "" && res.rom != "" {
+		util.err('no puedes insertar un script en una ROM, y, a la vez, crear un archivo .rbh')
 	}
 	// TODO: Remover esto cuando el backend de decomp esté completo.
 	if res.backend == .decomp {
