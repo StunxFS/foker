@@ -4,6 +4,10 @@ module gen
 
 import os
 
+const (
+	separator = '#-- ponga aqui abajo sus flags --#'
+)
+
 struct FVF {
 mut:
 	vars	map[string]bool
@@ -12,12 +16,12 @@ mut:
 
 pub fn new_fvf(file string) ?FVF {
 	content := os.read_file(file)?
-	content_splitted := content.split('<!-- ponga aqui abajo sus flags -->')
+	content_splitted := content.split(separator)
 	mut vars := map[string]bool{}
 	mut flags := map[string]bool{}
 	if content_splitted.len == 2 {
-		for k in content_splitted[0].split('\n') { // variables
-			if k != "" { vars[k] = false }
+		for v in content_splitted[0].split('\n') { // variables
+			if v != "" { vars[v] = false }
 		}
 		for f in content_splitted[1].split('\n') { // flags
 			if f != "" { flags[f] = false }
@@ -72,5 +76,5 @@ pub fn (mut fvf FVF) free_flag(flag string) ? {
 }
 
 pub fn make_new_fvf_file() ? {
-	os.write_file("fvf.txt", "<!-- ponga aqui abajo sus flags -->")?
+	os.write_file("fvf.txt", separator)?
 }

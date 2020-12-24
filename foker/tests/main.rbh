@@ -1,14 +1,22 @@
-; Generate with FokerScript v0.1.0a0
-#dynamic 800000
+; Generado con FokerScript v0.1.0a0, by StunxFS :)
+; NO MODIFICAR, si NO SABES LO QUE HACES
+#dynamic 0x800000
 
 #org @main
 msgbox StunxFS, 0x6
 msgbox @str0, 0x6
 end
 
-; strings init
+; strings temporales
+#org @str0
+= Corriendo!
+
+; literales de cadenas (constantes)
 #org @StunxFS
 = Me llaman kalawus
 
-#org @str0
-= Corriendo!
+; movimientos (temporales)
+
+; movimientos (constantes)
+#org @movement_player
+#raw 0x6
