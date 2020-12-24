@@ -4,11 +4,11 @@ module ast
 
 pub struct Scope {
 pub mut:
-	objects		map[string]ScopeObject
-	parent		&Scope
-	children	[]&Scope
-	start_pos	int
-	end_pos		int
+	objects   map[string]ScopeObject
+	parent    &Scope
+	children  []&Scope
+	start_pos int
+	end_pos   int
 }
 
 pub fn new_scope(parent &Scope, start_pos int) &Scope {
@@ -93,11 +93,7 @@ pub fn (mut s Scope) update_var_type(name string, typ Type) {
 }
 
 pub fn (mut s Scope) register(obj ScopeObject) {
-	name := if obj is ConstField {
-		obj.name
-	} else {
-		(obj as Var).name
-	}
+	name := if obj is ConstField { obj.name } else { (obj as Var).name }
 	if name in s.objects {
 		return
 	}
@@ -168,6 +164,6 @@ pub fn (sc &Scope) show(depth int, max_depth int) string {
 }
 
 pub fn (sc Scope) str() string {
-	//return sc.show(0, 0)
-	return ""
+	// return sc.show(0, 0)
+	return ''
 }
