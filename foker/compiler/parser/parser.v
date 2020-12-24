@@ -32,6 +32,7 @@ mut:
 	ast_imports   []ast.Import // mod_names
 	used_imports  []string // alias
 	is_main_module bool
+	have_dyn_custom bool
 }
 
 /*
@@ -105,6 +106,13 @@ pub fn (mut p Parser) parse() ast.File {
 
 	mut stmts := []ast.Stmt{}
 	for p.tok.kind != .eof {
+		if p.tok.kind == .key_dynamic {
+			if !p.have_dyn_custom {
+				stmts << p.parse_dyn_custom()
+			} else {
+				p.error('no se puede redefinir el offset a usar dinámicamente')
+			}
+		}
 		if p.tok.kind == .key_import {
 			stmts << p.import_stmt()
 			continue
@@ -257,6 +265,21 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 	return ast.Stmt{}
 }
 
+fn (mut p Parser) parse_dyn_custom() ast.Stmt {
+	p.check(.key_dynamic)
+	dyn_offset := p.tok.lit
+	pos := p.tok.position()
+	p.check(.number)
+	/*if !dyn_offset.starts_with('0x') || !dyn_offset.starts_with('0X') {
+		p.error_with_pos('se esperaba una dirección/offset válida', pos)
+	}*/
+	p.check(.semicolon)
+	return ast.DynamicStmt{
+		pos: pos
+		dyn_offset: dyn_offset
+	}
+}
+
 fn (mut p Parser) script_stmt() ast.Stmt {
 	is_pub := p.tok.kind == .key_pub
 	if is_pub {
@@ -283,10 +306,11 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 		mut extern_offset := ''
 		if p.pref.backend == .binary && p.tok.kind == .key_at {
 			p.next()
-			if p.tok.kind != .number {
+			extern_offset = p.tok.lit
+			p.check(.number)
+			if !extern_offset.starts_with('0x') || !extern_offset.starts_with('0X') {
 				p.error('se esperaba un offset/dirección')
 			}
-			extern_offset = p.tok.lit
 			p.next()
 		} else {
 			p.error_with_pos('esta utilidad solo está disponible para el backend de binario',

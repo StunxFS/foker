@@ -89,6 +89,7 @@ pub enum Kind {
 	key_cmd
 	key_var
 	key_const
+	key_dynamic
 	
 	key_pub
 	key_extern
@@ -127,6 +128,7 @@ pub const (
 		"cmd": Kind.key_cmd,
 		"var": Kind.key_var,
 		"const": Kind.key_const,
+		"dynamic": Kind.key_dynamic,
 		
 		"pub": Kind.key_pub,
 		"extern": Kind.key_extern,
@@ -202,6 +204,7 @@ fn build_tokenstr() []string {
 	k[Kind.key_cmd] = "cmd"
 	k[Kind.key_var] = "var"
 	k[Kind.key_const] = "const"
+	k[Kind.key_dynamic] = "dynamic"
 	
 	k[Kind.key_pub] = "pub"
 	k[Kind.key_extern] = "extern"

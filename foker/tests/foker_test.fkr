@@ -1,3 +1,5 @@
+dynamic 0x800000;
+
 import (
     StunxFS.library.cool
 )

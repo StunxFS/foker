@@ -10,14 +10,15 @@ import compiler.ast
 import compiler.parser
 
 fn main() {
-	if os.args.len == 1 || (os.args.len == 2 && os.args[1] in ["-h", "help", "ayuda"]) {
+	if os.args.len == 1 || (os.args.len == 2 && os.args[1] in ['-h', 'help', 'ayuda']) {
 		help()
 		exit(1)
 	}
-
 	prefs := prefs.parse_args_and_get_prefs()
-    _ := parser.parse_files(prefs.files, &ast.Table{}, prefs, &ast.Scope{parent: 0})
-    //println(parsed_file)
+	_ := parser.parse_files(prefs.files, &ast.Table{}, prefs, &ast.Scope{
+		parent: 0
+	})
+	// println(parsed_file)
 }
 
 fn help() {
@@ -27,14 +28,14 @@ fn help() {
 FokerScript | Mensaje de Ayuda | Work In Progress
 =================================================
 Autor: StunxFS
-Fecha de compilación: ${current_time}
-Versión: ${about.version}
+Fecha de compilación: $current_time
+Versión: $about.version
 
 Uso:
-    ${program} [opciones] [argumentos]
+    $program [opciones] [argumentos]
 
 Información básica sobre los backends:
-    Versión del backend de binario: ${about.gen_bin_version}
+    Versión del backend de binario: $about.gen_bin_version
     Versión del backend de decomp: Aún no disponible [TODO].
 
 Descripción:
@@ -48,7 +49,7 @@ Argumentos:
         Este argumento no se declara, sino que recibe los archivos que serán compilados, estos
         archivos deben tener la extensión .fkr
         Ejemplo de uso:
-            ${program} miarchivo.foker otroarchivo.fkr
+            $program miarchivo.foker otroarchivo.fkr
 
 Opciones:
     -h, help, ayuda
@@ -61,19 +62,19 @@ Opciones:
             binary
             decomp
         Ejemplo de uso:
-            ${program} -b decomp miarchivo.foker
-            ${program} -b binary miarchivo.foker
+            $program -b decomp miarchivo.foker
+            $program -b binary miarchivo.foker
 
     -o, -output
         Esta opción le especifica al compilador cómo debería llamarse el archivo de salida
         Ejemplo de uso:
-            ${program} -o micarpeta/miarchivo.rbh miarchivo.fkr
+            $program -o micarpeta/miarchivo.rbh miarchivo.fkr
     
     -r, -rom
         Esta opción le dice al compilador el nombre de la ROM que se usará para insertar el
         script. OJO: Esta opción no se puede usar junto a -o, -output
         Ejemplo de uso:
-            ${program} -r mirom.gba miscript.fkr
+            $program -r mirom.gba miscript.fkr
 
     -g, -game
         Esta opción le especifica al compilador que ROM se usará para el script, por defecto
@@ -83,40 +84,43 @@ Opciones:
             frlf, fireredleafgreen: Pokémon FireRed/LeafGreen
             e, emerald: Pokémon Emerald
         Ejemplo de uso:
-            ${program} -g fr miarchivo.fkr
+            $program -g fr miarchivo.fkr
 
     -fast, -debug
         Estas opciones le dicen al compilador que nivel de optimización debe usar para generar
         el script, esto permite realizar un script que pueda ser feo y lento (-debug), o uno rápido
         y limpio (-fast). Por defecto el valor es -debug
         Ejemplo de uso:
-            ${program} -fast miarchivo.fkr
-            ${program} -debug miarchivo.fkr
+            $program -fast miarchivo.fkr
+            $program -debug miarchivo.fkr
     
     -warn-are-errors
         Esta opción le dice al compilador que trate las advertencias como errores.
         Ejemplo de uso:
-            ${program} -warn-are-errors
+            $program -warn-are-errors
 
     -skip-warnings
         Esta opción hace que el compilador no muestre advertencias.
         Ejemplo de uso:
-            ${program} -skip-warnings
+            $program -skip-warnings
 
 Ejemplo de uso del programa:
-    ${program} -o mi_script_perron.inc -g rs -b decomp mi_script.fkr
-    ${program} -fast -skip-warnings -g rs mi_script.fkr
-    ${program} -debug -warn-are-errors -g rs mi_script.fkr")
+    $program -o mi_script_perron.inc -g rs -b decomp mi_script.fkr
+    $program -fast -skip-warnings -g rs mi_script.fkr
+    $program -debug -warn-are-errors -g rs mi_script.fkr")
 }
 
 fn to_hex(val int) string {
-	/*byte_max  := int(HexOutput.byte)
+	/*
+	byte_max  := int(HexOutput.byte)
 	word_max  := int(HexOutput.word)
-	dword_max := int(HexOutput.dword)*/
-	return "0x${val.hex().str().to_upper()}"
+	dword_max := int(HexOutput.dword)
+	*/
+	return '0x$val.hex().str().to_upper()'
 }
 
-/* TODO: Retirar esto de aquí
+/*
+TODO: Retirar esto de aquí
 enum HexOutput {
 	byte  = 255
 	word  = 510
@@ -144,4 +148,5 @@ println(to_hex(100, .byte))
 gen.make_new_fvf_file()?
 fvf := gen.new_fvf("fvf.txt")?
 println(fvf)
-https://www.tmohentai.com/reader/5fdab3d2b2bb9/paginated/92?*/
+https://www.tmohentai.com/reader/5fdab3d2b2bb9/paginated/92?
+*/
