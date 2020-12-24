@@ -119,34 +119,8 @@ fn to_hex(val int) string {
 	return '0x$val.hex().str().to_upper()'
 }
 
-/*
-TODO: Retirar esto de aquí
 enum HexOutput {
 	byte  = 255
 	word  = 510
 	dword = 1020
 }
-
-mut script := bin.new_fscript("main")
-script.add_string("StunxFS", "Me llamo StunxFS")
-	
-mut block := bin.new_fblock("main")
-	block.add_cmd("msgbox", ["@StunxFS", "0x2"])
-	block.add_cmd("msgbox", ["@"+script.add_tmp_string("String temporal"), "0x2"])
-	block.end()
-script.add_block(block)
-	
-block = bin.new_fblock("main_2")
-	block.add_cmd("msgbox", ["@StunxFS", "0x2"])
-	block.add_cmd("msgbox", ["@"+script.add_tmp_string("String temporal"), "0x2"])
-	block.end()
-script.add_block(block)
-	
-os.write_file("${script.name}.rbh", script.generate_script())?
-
-println(to_hex(100, .byte))
-gen.make_new_fvf_file()?
-fvf := gen.new_fvf("fvf.txt")?
-println(fvf)
-https://www.tmohentai.com/reader/5fdab3d2b2bb9/paginated/92?
-*/
