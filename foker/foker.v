@@ -109,18 +109,3 @@ Ejemplo de uso del programa:
     $program -fast -skip-warnings -g rs mi_script.fkr
     $program -debug -warn-are-errors -g rs mi_script.fkr")
 }
-
-fn to_hex(val int) string {
-	/*
-	byte_max  := int(HexOutput.byte)
-	word_max  := int(HexOutput.word)
-	dword_max := int(HexOutput.dword)
-	*/
-	return '0x$val.hex().str().to_upper()'
-}
-
-enum HexOutput {
-	byte  = 255
-	word  = 510
-	dword = 1020
-}
