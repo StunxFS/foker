@@ -106,14 +106,12 @@ fn (mut p Parser) name_expr() ast.Expr {
 	if p.tok.lit == 'fmt' { // auto-format string
 		p.next()
 		p.check(.lparen)
-		val := p.tok.lit
 		pos := p.tok.position()
-		p.next()
+		expr := p.expr(0)
 		p.check(.rparen)
-		return ast.StringLiteral{
-			lit: val
+		return ast.FmtStringLiteral{
+			expr: expr
 			pos: pos
-			autofmt: true
 		}
 	} else {
 		node = p.parse_ident()
@@ -153,9 +151,14 @@ pub fn (mut p Parser) parse_ident() ast.Ident {
 }
 
 fn (mut p Parser) string_expr() ast.Expr {
-	val := p.tok.lit
-	pos := p.tok.position()
+	mut val := p.tok.lit
+	mut pos := p.tok.position()
 	p.next()
+	if p.tok.kind == .string {
+		val += p.tok.lit
+		pos = pos.extend(p.tok.position())
+		p.next()
+	}
 	return ast.StringLiteral{
 		lit: val
 		pos: pos

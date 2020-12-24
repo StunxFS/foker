@@ -201,7 +201,7 @@ pub:
 
 // Expressions
 pub type Expr = IntegerLiteral | StringLiteral | BoolLiteral | MatchExpr | InfixExpr | PrefixExpr | PostfixExpr | Ident |
-				ParExpr | SelectorExpr | BinaryExpr
+				ParExpr | SelectorExpr | BinaryExpr | FmtStringLiteral
 
 pub struct SelectorExpr {
 pub:
@@ -224,7 +224,12 @@ pub struct StringLiteral {
 pub:
 	pos		token.Position
 	lit		string
-	autofmt	bool // para checar si aplicamos formato o no
+}
+
+pub struct FmtStringLiteral {
+pub:
+	pos 	token.Position
+	expr	Expr
 }
 
 pub struct BoolLiteral {

@@ -17,6 +17,5 @@ const (
 )
 
 script main {
-    var name = "Stunx";
-    var name2 = 1 + 2;
+    var name = fmt("Hola"+"Loquendo");
 }
