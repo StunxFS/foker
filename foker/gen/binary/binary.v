@@ -85,12 +85,13 @@ pub fn (mut fs FScript) add_movement_temp(block FBlock) {
 }
 
 pub fn (fs FScript) generate_script() string {
-	fsdyn := if fs.dynamic.starts_with('0x') {fs.dynamic} else {"0x"+fs.dynamic}
+	fsdyn := if fs.dynamic.starts_with('0x') { fs.dynamic } else { "0x"+fs.dynamic }
 	mut code := [
-		"; Generado con FokerScript v${about.version}, by StunxFS :)",
-		"; NO MODIFICAR, si NO SABES LO QUE HACES",
+		"; Generado con FokerScript v${about.version}, hecho por StunxFS :).",
+		"; NO MODIFICAR, SI NO SABES LO QUE HACES.",
 		"#dynamic ${fsdyn}", ""
 	]
+
 	for block in fs.blocks {
 		for code_ in block.code {
 			code << code_
@@ -99,35 +100,42 @@ pub fn (fs FScript) generate_script() string {
 	}
 
 	// strings temporales
-	code << "; strings temporales"
-	for k, v in fs.strings_temp {
-		code << ["#org @${k}", "= ${v}", ""]
+	if fs.strings_temp.len > 0 {
+		code << "; strings (temporales)"
+		for k, v in fs.strings_temp {
+			code << ["#org @${k}", "= ${v}", ""]
+		}
 	}
 	
 	// strings desde constantes
-	code << "; literales de cadenas (constantes)"
-	for k, v in fs.strings {
-		code << ["#org @${k}", "= ${v}", ""]
+	if fs.strings.len > 0 {
+		code << "; strings (constantes)"
+		for k, v in fs.strings {
+			code << ["#org @${k}", "= ${v}", ""]
+		}
 	}
 
 	// movimientos temporales (movement{})
-	code << "; movimientos (temporales)"
-	for _, v in fs.movements_temp {
-		for code_ in v.code {
-			code << code_
+	if fs.movements_temp.len > 0 {
+		code << "; movimientos (temporales)"
+		for _, v in fs.movements_temp {
+			for code_ in v.code {
+				code << code_
+			}
+			code << ""
 		}
 		code << ""
 	}
-	code << ""
 
 	// movimientos desde constantes
-	code << "; movimientos (constantes)"
-	for _, v in fs.movements {
-		for code_ in v.code {
-			code << code_
+	if fs.movements.len > 0 {
+		code << "; movimientos (constantes)"
+		for _, v in fs.movements {
+			for code_ in v.code {
+				code << code_
+			}
+			code << ""
 		}
-		code << ""
 	}
-	code << ""
 	return code.join("\n")
 }
