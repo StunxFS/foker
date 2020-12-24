@@ -5,4 +5,5 @@ module about
 pub const (
 	version 			= "0.1.0a0"
 	gen_bin_version 	= "alpha0" // Más tarde: 0.1.0a
+	build_time			= '<unknown>'
 )

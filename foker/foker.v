@@ -3,7 +3,6 @@
 module main
 
 import os
-import time
 import about
 import compiler.prefs
 import compiler.ast
@@ -23,12 +22,11 @@ fn main() {
 
 fn help() {
 	program := os.args[0]
-	current_time := time.now().str()
 	println("=================================================
 FokerScript | Mensaje de Ayuda | Work In Progress
 =================================================
 Autor: StunxFS
-Fecha de compilación: $current_time
+Fecha de compilación: $about.build_time
 Versión: $about.version
 
 Uso:
