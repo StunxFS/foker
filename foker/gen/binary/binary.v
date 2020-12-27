@@ -51,7 +51,7 @@ pub fn new_fscript_with_vffile(name string, vffile_name string) FScript {
 }
 
 pub fn (mut fs FScript) new_label() string {
-	label :=  "fs_label_${fs.label_count}"
+	label :=  "fs_snippet${fs.label_count}"
 	fs.label_count++
 	return label
 }
@@ -65,7 +65,7 @@ pub fn (mut fs FScript) add_block(block FBlock) {
 }
 
 pub fn (mut fs FScript) add_tmp_string(str string) string {
-	name := "str${fs.str_count}"
+	name := "string${fs.str_count}"
 	fs.str_count++
 	fs.strings_temp[name] = str
 	return name
@@ -80,7 +80,7 @@ pub fn (mut fs FScript) add_movement(name string, block FBlock) {
 }
 
 pub fn (mut fs FScript) add_movement_temp(block FBlock) {
-	fs.movements["mov${fs.movs_count}"] = block
+	fs.movements["move${fs.movs_count}"] = block
 	fs.movs_count++
 }
 

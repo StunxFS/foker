@@ -71,13 +71,9 @@ pub fn skip_bom(file_content string) string {
 }
 
 pub fn strip_mod_name(name string) string {
-	return name.all_after_last('::')
+	return name.all_after_last('.')
 }
 
 pub fn no_dots(s string) string {
 	return s.replace('.', '__')
-}
-
-pub fn no_doblecolon(s string) string {
-	return s.replace('::', '__')
 }

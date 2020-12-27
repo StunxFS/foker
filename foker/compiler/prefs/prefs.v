@@ -22,6 +22,11 @@ pub enum Optlevel {
 	debug
 }
 
+pub enum UseColor {
+	always
+	never
+}
+
 pub struct Preferences {
 pub mut:
 	// ROM en el que se usará el script generado. Esto es usado para
@@ -37,13 +42,16 @@ pub mut:
 	optlevel		Optlevel = .debug
 	skip_warnings	bool	// saltarse las advertencias
 	warns_are_errors bool	// tratar las advertencias como errores
-	files			[]string // los archivos a compilar
+	file			string  // archivo a compilar
+	is_verbose		bool    // el compilador debe detallar cada cosa que hace
+	use_color		UseColor
 }
 
 pub fn parse_args_and_get_prefs() &Preferences {
 	app := os.args[0]
 	args := os.args[1..]
 	mut res := &Preferences{}
+	mut has_file := false
 	for i := 0; i < args.len; i++ {
 		arg := args[i]
 		current_args := args[i..]
@@ -103,12 +111,25 @@ pub fn parse_args_and_get_prefs() &Preferences {
 			'-skip-warnings' {
 				res.skip_warnings = true
 			}
-			'-warn-are-errors' {
+			'-warns-are-errors' {
 				res.warns_are_errors = true
+			}
+			'-verbose' {
+				res.is_verbose = true
+			}
+			'-no-use-color' {
+				res.use_color = .never
+			}
+			'-use-color' {
+				res.use_color = .always
 			}
 			else {
 				if arg.ends_with(".fkr") {
-					res.files << arg
+					if !has_file {
+						res.file = arg
+					} else {
+						util.err("solo se puede soportar un archivo de script .fkr, no varios")
+					}
 				} else {
 					util.err("no se reconoce la opción ${arg}, por favor use '${app} ayuda' para ver las opciones disponibles")
 				}

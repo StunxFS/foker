@@ -12,6 +12,10 @@ pub mut:
 	cmds    []CmdDecl
 }
 
+pub fn new_table() &Table {
+	return &Table{}
+}
+
 // TODO: Once we have a module format we can read from module file instead
 // this is not optimal. it depends on the full import being in table.imports
 // already, we can instead lookup the module path and then work it out

@@ -17,6 +17,7 @@ pub struct Module {
 pub:
 	name    string
 	pos     token.Position
+	imports []Import
 	stmts   []Stmt
 	is_main bool // es esto el modulo principal?
 pub mut:
@@ -49,19 +50,12 @@ pub type ScopeObject = Const | Var
 
 // Statements
 pub type Stmt = AssignStmt | Const | DynamicStmt | ExprStmt | ForInStmt |
-	ForStmt | GotoStmt | Import | Include | QuestionStmt | ScriptDecl
+	ForStmt | GotoStmt | Include | QuestionStmt | ScriptDecl
 
 pub struct DynamicStmt {
 pub:
 	pos        token.Position
 	dyn_offset string
-}
-
-pub struct Import {
-pub:
-	pos   token.Position
-	mod   string
-	alias string
 }
 
 pub struct Include {
@@ -81,7 +75,6 @@ pub struct ScriptDecl {
 pub:
 	name          string
 	mod           string
-	is_pub        bool
 	is_extern     bool // for: extern script Karmelico at 0x8000232F;
 	extern_offset string
 	pos           token.Position
@@ -104,7 +97,6 @@ pub struct CmdDecl {
 pub:
 	name   string
 	params []Param
-	is_pub bool
 	pos    token.Position
 }
 

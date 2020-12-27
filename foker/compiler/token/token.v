@@ -93,7 +93,6 @@ pub enum Kind {
 	key_dynamic
 	key_movement
 	
-	key_pub
 	key_extern
 	
 	key_match
@@ -133,8 +132,7 @@ pub const (
 		"const": Kind.key_const,
 		"dynamic": Kind.key_dynamic,
 		"movement": Kind.key_movement,
-		
-		"pub": Kind.key_pub,
+
 		"extern": Kind.key_extern,
 		
 		"match": Kind.key_match,
@@ -212,7 +210,6 @@ fn build_tokenstr() []string {
 	k[Kind.key_dynamic] = "dynamic"
 	k[Kind.key_movement] = "movement"
 	
-	k[Kind.key_pub] = "pub"
 	k[Kind.key_extern] = "extern"
 	
 	k[Kind.key_match] = "match"

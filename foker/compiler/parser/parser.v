@@ -23,7 +23,6 @@ mut:
 	peek_tok2     token.Token
 	peek_tok3     token.Token
 	table         &ast.Table
-	builtin_mod   bool // estamos en el modulo 'builtin'?
 	mod           string // current module name
 	expr_mod      string
 	scope         &ast.Scope
@@ -88,23 +87,23 @@ pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences, global
 	return p.parse()
 }
 
-pub fn parse_files(paths []string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) []ast.File {
+/*pub fn parse_files(paths []string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) []ast.File {
 	mut files := []ast.File{}
 	for path in paths {
 		files << parse_file(path, table, pref, global_scope)
 	}
 	return files
-}
+}*/
 
 pub fn (mut p Parser) parse() ast.File {
 	p.read_first_token()
-	mod_name := p.file_name.all_before_last('.').all_after_last(os.path_separator)
+	mod_name := p.file_name.all_after(os.path_separator).all_before_last('.').replace(os.path_separator, '.')
 	p.mod = p.table.qualify_module(mod_name, p.file_name)
-	if p.mod == 'builtin' {
-		p.builtin_mod = true
+	if p.pref.is_verbose {
+		println("> Parsing module: '${p.mod}' (archivo: '${p.file_name}')")
 	}
-	println("---- Parsing module: ${p.mod}")
 	mut stmts := []ast.Stmt{}
+	mut imports := []ast.Import{}
 	for p.tok.kind != .eof {
 		if p.tok.kind == .key_dynamic {
 			if !p.have_dyn_custom {
@@ -113,10 +112,6 @@ pub fn (mut p Parser) parse() ast.File {
 			} else {
 				p.error('no se puede redefinir el offset a usar dinámicamente')
 			}
-		}
-		if p.tok.kind == .key_import {
-			stmts << p.import_stmt()
-			continue
 		}
 		if p.tok.kind == .key_include {
 			stmts << p.include_stmt()
@@ -127,13 +122,13 @@ pub fn (mut p Parser) parse() ast.File {
 	for p.tok.kind != .eof {
 		stmts << p.top_stmt()
 	}
-	p.check_unused_imports()
 	p.scope.end_pos = p.tok.pos
 	return ast.File{
 		path: p.file_name
 		mod: ast.Module{
 			name: p.mod
 			stmts: stmts
+			imports: imports
 			scope: p.scope
 			is_main: p.is_main_module
 		}
@@ -223,6 +218,9 @@ fn (mut p Parser) check_name() string {
 		p.register_used_import(name)
 	}
 	p.check(.name)
+	if name.len > 1 && name.starts_with('_') {
+		p.error_with_pos("esto no puede iniciar con un '_'", p.prev_tok.position())
+	}
 	return name
 }
 
@@ -238,64 +236,17 @@ fn (mut p Parser) include_stmt() ast.Include {
 	}
 }
 
-fn (mut p Parser) import_stmt() ast.Import {
-	p.check(.key_import)
-	mut mod_pos := p.tok.position()
-	mut mod_name := p.check_name()
-	mut mod_alias := mod_name
-	for p.tok.kind == .dot {
-		p.next()
-		if p.tok.kind != .name {
-			p.error_with_pos("error en la sintáxis de uso de módulo, por favor usa 'x.y.z'",
-				p.tok.position())
-		}
-		submod_name := p.check_name()
-		mod_name += '.' + submod_name
-		mod_alias = submod_name
-		mod_pos = mod_pos.extend(p.tok.position())
-	}
-	if p.tok.kind == .key_as {
-		p.next()
-		mod_alias = p.check_name()
-		if mod_alias == mod_name.split('.').last() {
-			p.error_with_pos('aquí hay un alias redundante', mod_pos.extend(p.prev_tok.position()))
-		}
-		mod_pos = mod_pos.extend(p.tok.position())
-	}
-	p.check(.semicolon)
-	node := ast.Import{
-		pos: mod_pos
-		mod: mod_name
-		alias: mod_alias
-	}
-	p.imports[mod_alias] = mod_name
-	p.table.imports << mod_name
-	p.ast_imports << node
-	return node
-}
-
 pub fn (mut p Parser) top_stmt() ast.Stmt {
 	for {
 		match p.tok.kind {
-			.key_import, .key_include {
-				p.error_with_pos("tanto 'import', como 'include', se pueden usar solo al principio del archivo",
+			.key_include {
+				p.error_with_pos("'include' se puede usar solo al principio del archivo",
 					p.tok.position())
-			}
-			.key_pub { 
-				match p.peek_tok.kind {
-					.key_const { return p.const_decl() }
-					.key_extern, .key_script { return p.script_stmt() }
-					.key_movement {}
-					else { p.error("mal uso de la palabra clave 'pub'") }
-				}
 			}
 			.key_script {
 				return p.script_stmt()
 			}
 			.key_extern {
-				if p.peek_tok.kind == .key_pub {
-					p.error_with_pos("no se puede usar 'extern' seguido de un 'pub'", p.peek_tok.position())
-				}
 				match p.peek_tok.kind {
 					.key_script { return p.script_stmt() }
 					else { p.error("la palabra clave 'extern' solo se puede usar en conjunto a 'script': extern script xxx") }
@@ -333,10 +284,6 @@ fn (mut p Parser) parse_dyn_custom() ast.Stmt {
 }
 
 fn (mut p Parser) script_stmt() ast.Stmt {
-	is_pub := p.tok.kind == .key_pub
-	if is_pub {
-		p.next()
-	}
 	is_extern := p.tok.kind == .key_extern
 	if is_extern {
 		p.next()
@@ -373,7 +320,6 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 		return ast.ScriptDecl{
 			name: script_name
 			mod: p.mod
-			is_pub: is_pub
 			is_extern: is_extern
 			extern_offset: extern_offset
 			pos: script_pos.extend(p.prev_tok.position())
@@ -383,7 +329,6 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	return ast.ScriptDecl{
 		name: script_name
 		mod: p.mod
-		is_pub: is_pub
 		is_extern: is_extern
 		stmts: stmts
 		pos: script_pos.extend(name_pos)
@@ -392,16 +337,15 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 
 fn (mut p Parser) const_decl() ast.Const {
 	//start_pos := p.tok.position()
-	is_pub := p.tok.kind == .key_pub
-	if is_pub {
-		p.next()
-	}
 	//end_pos := p.tok.position()
 	//const_pos := p.tok.position()
 	p.check(.key_const)
 	pos := p.tok.position()
 	name := p.check_name()
 	mut type_const := ast.Type._auto
+	if name == "_" {
+		p.error_with_pos("no se puede usar '_' como nombre de una constante", pos)
+	}
 	if !util.contains_capital(name) {
 		p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas (use: "${name.to_upper()}", en vez de "${name}")',
 			pos)
@@ -411,7 +355,7 @@ fn (mut p Parser) const_decl() ast.Const {
 		p.next()
 		type_const = p.parse_type()
 	}
-	println(full_name)
+	// println(full_name.replace('.', '__')) // (works fine)
 	p.check(.assign)
 	expr := p.expr(0)
 	field := ast.Const{
@@ -419,7 +363,6 @@ fn (mut p Parser) const_decl() ast.Const {
 		mod: p.mod
 		expr: expr
 		pos: pos
-		is_pub: is_pub
 		typ: type_const
 	}
 	p.global_scope.register(field)
@@ -480,6 +423,9 @@ fn (mut p Parser) check_undefined_variables(expr ast.Expr, val ast.Expr) {
 fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 	p.check(.key_var)
 	mut name := p.parse_ident()
+	if is_top_level && name.name == "_" {
+		p.error_with_pos("no se puede usar '_' como nombre de una variable global", p.prev_tok.position())
+	}
 	mut type_var := ast.Type._auto
 	if p.tok.kind == .key_at {
 		pos := p.tok.position()
