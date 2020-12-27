@@ -1,8 +1,7 @@
-dynamic 0x800000;
+dynamic 800000;
 
-import (
-    StunxFS.library.cool
-)
+include "stdlib.rbh";
+import StunxFS.library.cool;
 
 const (
     message = "Stunx es real"
@@ -10,7 +9,7 @@ const (
     numero_neg = -1
     booleano = true
     expr_entre_parentesis = 2 + (2 / -4)
-    boolean_expr = fmt("Recoge estas maletas broder!")
+    boolean_expr = fmt("Recoge estas maletas broder!\n"+"Llevalas al Santorium")
     expr_con_constantes = numero + numero_neg
     d = "d"+"d"
     constante_a_base_de_otro = cool.mi_constante++
@@ -18,7 +17,7 @@ const (
 
 script main {
     var name = fmt("Hola"+"Loquendo");
-    applymovement(movement {
+    /*applymovement(movement {
         walk_up * 4
-    }, PLAYER);
+    }, PLAYER);*/
 }

@@ -57,14 +57,7 @@ pub type ScopeObject = ConstField | Var
 
 // Statements
 pub type Stmt = AssignStmt | ConstDecl | DynamicStmt | EnumDecl | ExprStmt | ForInStmt |
-	ForStmt | GotoStmt | Import | QuestionStmt | ScriptDecl
-
-pub struct ImportField {
-pub:
-	pos   token.Position
-	mod   string
-	alias string
-}
+	ForStmt | GotoStmt | Import | Include | QuestionStmt | ScriptDecl
 
 pub struct DynamicStmt {
 pub:
@@ -73,8 +66,16 @@ pub:
 }
 
 pub struct Import {
-	pos    token.Position
-	fields []ImportField
+pub:
+	pos   token.Position
+	mod   string
+	alias string
+}
+
+pub struct Include {
+pub:
+	pos		token.Position
+	file	string
 }
 
 pub struct ExprStmt {

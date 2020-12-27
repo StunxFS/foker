@@ -85,11 +85,13 @@ pub enum Kind {
 	// keywords
 	keyword_begin
 	key_import
+	key_include
 	key_script
 	key_cmd
 	key_var
 	key_const
 	key_dynamic
+	key_movement
 	
 	key_pub
 	key_extern
@@ -124,11 +126,13 @@ pub fn (k Kind) str() string {
 pub const (
 	keywords = {
 		"import": Kind.key_import,
+		"include": Kind.key_include,
 		"script": Kind.key_script,
 		"cmd": Kind.key_cmd,
 		"var": Kind.key_var,
 		"const": Kind.key_const,
 		"dynamic": Kind.key_dynamic,
+		"movement": Kind.key_movement,
 		
 		"pub": Kind.key_pub,
 		"extern": Kind.key_extern,
@@ -200,11 +204,13 @@ fn build_tokenstr() []string {
 	k[Kind.rbracket] = "]"
 
 	k[Kind.key_import] = "import"
+	k[Kind.key_include] = "include"
 	k[Kind.key_script] = "script"
 	k[Kind.key_cmd] = "cmd"
 	k[Kind.key_var] = "var"
 	k[Kind.key_const] = "const"
 	k[Kind.key_dynamic] = "dynamic"
+	k[Kind.key_movement] = "movement"
 	
 	k[Kind.key_pub] = "pub"
 	k[Kind.key_extern] = "extern"

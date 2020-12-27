@@ -198,6 +198,8 @@ Buena parte del código fuente de FokerScript está tomado del código fuente de
 
 Créditos a Alexander Medvednikov (Creador del lenguaje V) y a todo el equipo de desarrollo del lenguaje V.
 
+Créditos al usuario [huderlem](https://github.com/huderlem/), creador de [Poryscript](https://github.com/huderlem/poryscript), proyecto que fue fuente de inspiración y de donde se tomó el código fuente del [formateador de textos](foker/gen/binary/fmtttext.v).
+
 * * *
 
 > Copyright (C) 2020 StunxFS. Todos los derechos reservados.

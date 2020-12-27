@@ -11,8 +11,8 @@ import compiler.scanner
 import compiler.ast
 
 pub struct Parser {
-	file_base     string // "hello.v"
-	file_name     string // /home/user/hello.v
+	file_base     string // "hello.fkr"
+	file_name     string // /home/user/hello.fkr
 	file_name_dir string // home/user
 	pref          &prefs.Preferences
 mut:
@@ -109,12 +109,17 @@ pub fn (mut p Parser) parse() ast.File {
 		if p.tok.kind == .key_dynamic {
 			if !p.have_dyn_custom {
 				stmts << p.parse_dyn_custom()
+				continue
 			} else {
 				p.error('no se puede redefinir el offset a usar dinámicamente')
 			}
 		}
 		if p.tok.kind == .key_import {
 			stmts << p.import_stmt()
+			continue
+		}
+		if p.tok.kind == .key_include {
+			stmts << p.include_stmt()
 			continue
 		}
 		break
@@ -187,58 +192,62 @@ fn (mut p Parser) check_name() string {
 	return name
 }
 
+fn (mut p Parser) include_stmt() ast.Include {
+	p.check(.key_include)
+	pos := p.tok.position()
+	file := p.tok.lit
+	p.check(.string)
+	p.check(.semicolon)
+	return ast.Include{
+		pos: pos
+		file: file
+	}
+}
+
 fn (mut p Parser) import_stmt() ast.Import {
 	p.check(.key_import)
-	pos := p.tok.position()
-	mut fields := []ast.ImportField{}
-	p.check(.lparen)
-	for p.tok.kind != .rparen {
-		mut mod_pos := p.tok.position()
-		mut mod_name := p.check_name()
-		mut mod_alias := mod_name
-		for p.tok.kind == .dot {
-			p.next()
-			if p.tok.kind != .name {
-				p.error_with_pos("error en la sintáxis de uso de módulo, por favor usar 'x.y.z'",
-					p.tok.position())
-			}
-			submod_name := p.check_name()
-			mod_name += '.' + submod_name
-			mod_alias = submod_name
-			mod_pos = mod_pos.extend(p.tok.position())
+	mut mod_pos := p.tok.position()
+	mut mod_name := p.check_name()
+	mut mod_alias := mod_name
+	for p.tok.kind == .dot {
+		p.next()
+		if p.tok.kind != .name {
+			p.error_with_pos("error en la sintáxis de uso de módulo, por favor usar 'x.y.z'",
+				p.tok.position())
 		}
-		if p.tok.kind == .key_as {
-			p.next()
-			mod_alias = p.check_name()
-			if mod_alias == mod_name.split('.').last() {
-				p.error_with_pos('aquí hay un alias redundante', mod_pos.extend(p.prev_tok.position()))
-			}
-			mod_pos = mod_pos.extend(p.tok.position())
-		}
-		fields << ast.ImportField{
-			pos: mod_pos
-			mod: mod_name
-			alias: mod_alias
-		}
+		submod_name := p.check_name()
+		mod_name += '.' + submod_name
+		mod_alias = submod_name
+		mod_pos = mod_pos.extend(p.tok.position())
 	}
-	p.check(.rparen)
+	if p.tok.kind == .key_as {
+		p.next()
+		mod_alias = p.check_name()
+		if mod_alias == mod_name.split('.').last() {
+			p.error_with_pos('aquí hay un alias redundante', mod_pos.extend(p.prev_tok.position()))
+		}
+		mod_pos = mod_pos.extend(p.tok.position())
+	}
+	p.check(.semicolon)
 	return ast.Import{
-		pos: pos
-		fields: fields
+		pos: mod_pos
+		mod: mod_name
+		alias: mod_alias
 	}
 }
 
 pub fn (mut p Parser) top_stmt() ast.Stmt {
 	for {
 		match p.tok.kind {
-			.key_import {
-				p.error_with_pos("'import ()' solo se puede usar al principio del archivo",
+			.key_import, .key_include {
+				p.error_with_pos("tanto 'import', como 'include', se pueden usar solo al principio del archivo",
 					p.tok.position())
 			}
 			.key_pub { 
 				match p.peek_tok.kind {
 					.key_const { return p.const_decl() }
 					.key_extern, .key_script { return p.script_stmt() }
+					.key_movement {}
 					else { p.error("mal uso de la palabra clave 'pub'") }
 				}
 			}
@@ -257,6 +266,7 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 			.key_const {
 				return p.const_decl()
 			}
+			.key_movement {}
 			else {
 				p.error('declaración de alto nivel "' + p.tok.lit + '" desconocido')
 			}
@@ -267,12 +277,13 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 
 fn (mut p Parser) parse_dyn_custom() ast.Stmt {
 	p.check(.key_dynamic)
+	p.have_dyn_custom = true
 	dyn_offset := p.tok.lit
 	pos := p.tok.position()
 	p.check(.number)
-	/*if !dyn_offset.starts_with('0x') || !dyn_offset.starts_with('0X') {
-		p.error_with_pos('se esperaba una dirección/offset válida', pos)
-	}*/
+	if dyn_offset.to_lower().starts_with('0x') {
+		p.error_with_pos('por favor no inicie la dirrección con `0x` o `0X`', p.prev_tok.position().extend(pos))
+	}
 	p.check(.semicolon)
 	return ast.DynamicStmt{
 		pos: pos
