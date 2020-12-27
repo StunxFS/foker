@@ -31,25 +31,7 @@ mut:
 	cur_script_name string
 }
 
-/*
-pub fn parse_stmt(text string, table &ast.Table, scope &ast.Scope) ast.Stmt {
-	pref := &prefs.Preferences{}
-	s := scanner.new_scanner(text, pref)
-	mut p := Parser{
-		scanner: s
-		table: table
-		pref: pref
-		scope: scope
-		global_scope: &ast.Scope{
-			start_pos: 0
-			parent: 0
-		}
-	}
-	p.read_first_token()
-	return p.stmt(false)
-}
-*/
-pub fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
+fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
 	mut p := Parser{
 		scanner: scanner.new_scanner(text, pref)
 		file_name: path
@@ -83,22 +65,18 @@ pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences, global
 	return p.parse()
 }
 
-/*pub fn parse_files(paths []string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) []ast.File {
-	mut files := []ast.File{}
-	for path in paths {
-		files << parse_file(path, table, pref, global_scope)
-	}
-	return files
-}*/
-
 pub fn (mut p Parser) parse() ast.File {
 	p.read_first_token()
 	mod_name := p.file_name.all_after(os.path_separator).all_before_last('.').replace(os.path_separator, '.')
 	p.mod = p.table.qualify_module(mod_name, p.file_name)
+	mut stmts := if p.file_name != builtins_file {
+		parse_text(builtins_code, builtins_file, p.table, p.pref, p.global_scope).mod.stmts
+	} else {
+		[]ast.Stmt{}
+	}
 	if p.pref.is_verbose {
 		println("> Parsing module: '${p.mod}' (archivo: '${p.file_name}')")
 	}
-	mut stmts := []ast.Stmt{}
 	for p.tok.kind != .eof {
 		if p.tok.kind == .key_dynamic {
 			if !p.have_dyn_custom {
@@ -242,6 +220,9 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 					else { p.error("la palabra clave 'extern' solo se puede usar en conjunto a 'script': extern script xxx") }
 				}
 			}
+			.key_cmd {
+				return p.parse_cmd_stmt()
+			}
 			.key_const {
 				return p.const_decl()
 			}
@@ -255,6 +236,49 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 		}
 	}
 	return ast.Stmt{}
+}
+
+fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
+	p.check(.key_cmd)
+	name_pos := p.tok.position()
+	name := p.check_name()
+	p.check(.lparen)
+	mut params := []ast.Param{}
+	for p.tok.kind != .rparen {
+		pos := p.tok.position()
+		param_name := p.check_name()
+		p.check(.colon)
+		typ_param := p.parse_type()
+		if p.tok.kind == .assign {
+			p.next()
+			expr := p.expr(0)
+			params << ast.Param{
+				name: param_name
+				typ: typ_param
+				pos: pos
+				def_value: expr
+			}
+		} else {
+			params << ast.Param{
+				name: param_name
+				typ: typ_param
+				pos: pos
+			}
+		}
+		if p.tok.kind == .comma {
+			p.next()
+			continue
+		}
+	}
+	p.check(.rparen)
+	p.check(.semicolon)
+	cmd := ast.CmdDecl{
+		name: name
+		params: params
+		pos: name_pos
+	}
+	p.table.cmds << cmd
+	return cmd
 }
 
 fn (mut p Parser) parse_dyn_custom() ast.Stmt {
@@ -356,12 +380,15 @@ fn (mut p Parser) const_decl() ast.Const {
 	return field
 }
 
-// Local Statements =========================================================================
+// ===== Local Statements =========================================================================
 fn (mut p Parser) local_stmt() ast.Stmt {
 	for {
 		match p.tok.kind {
 			.key_var {
 				return p.parse_var_stmt(false)
+			}
+			.key_free {
+				return p.parse_free_stmt()
 			}
 			else {
 				p.error('declaración de nivel local "' + p.tok.lit + '" desconocido')
@@ -432,7 +459,11 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 			pos: name.pos
 		})
 		name.obj = obj
-		p.scope.register(obj)
+		if !is_top_level {
+			p.scope.register(obj)
+		} else {
+			p.global_scope.register(obj)
+		}
 		return ast.AssignStmt{
 			right: name
 			offset: offset
@@ -467,6 +498,17 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 		right: name
 		op: token.Kind.assign
 		left: expr
+		pos: pos
+	}
+}
+
+fn (mut p Parser) parse_free_stmt() ast.Stmt {
+	p.check(.key_free)
+	pos := p.tok.position()
+	var := p.check_name()
+	p.check(.semicolon)
+	return ast.FreeStmt{
+		ident: var
 		pos: pos
 	}
 }

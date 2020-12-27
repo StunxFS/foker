@@ -4,12 +4,12 @@
 
 #org @main
 msgbox @StunxFS, 0x6
-:fs_label_0
-msgbox @str0, 0x6
+:fs_snippet0
+msgbox @string0, 0x6
 end
 
 ; strings (temporales)
-#org @str0
+#org @string0
 = Corriendo!
 
 ; strings (constantes)

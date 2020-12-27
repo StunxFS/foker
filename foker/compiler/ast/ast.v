@@ -46,7 +46,7 @@ pub type ScopeObject = Const | Var
 
 // Statements
 pub type Stmt = AssignStmt | Const | DynamicStmt | ExprStmt | ForInStmt | ForStmt | GotoStmt |
-	Include | QuestionStmt | ScriptDecl
+	Include | QuestionStmt | ScriptDecl | FreeStmt | CmdDecl
 
 pub struct DynamicStmt {
 pub:
@@ -88,12 +88,18 @@ pub:
 	def_value Expr // para valores por defecto
 }
 
-// para: extern cmd msgbox(msg: string, type: byte = 5);
+// para: extern cmd msgbox(msg: string, type: byte = 6);
 pub struct CmdDecl {
 pub:
 	name   string
 	params []Param
 	pos    token.Position
+}
+
+pub struct FreeStmt {
+pub:
+	pos		token.Position
+	ident	string
 }
 
 pub struct AssignStmt {

@@ -34,8 +34,8 @@ Argumentos:
             $program miarchivo.fkr
 
 Opciones:
-    -h, help, ayuda
-        Muestra este mensaje de ayuda
+    -h, -a, help, ayuda
+        Muestra este mensaje de ayuda.
 
     -b, -backend
         Esta opción se usa para especificarle a FokerScript que backend debe usar para generar

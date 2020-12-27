@@ -1,7 +1,20 @@
-// Script inicial de Pueblo Paleta XD
-// creado para testear FokerScript.
+// Script inicial de Pueblo Paleta | Creado para testear FokerScript xD.
+// Misión: ¡Hacer que FokerScript compile este script exitosamente!
+// Escrito el: 27/12/2020, Completado el: ??/??/????
+
+const MSG = "";
+var rutina_var at 0x80B1: int;
 
 script main {
-	msg(fmt("¡Bienvenido al Pueblo Paleta! Un pueblo rico en escuelas pokémon"));
+	/*msg(fmt("¡Bienvenido al Pueblo Paleta! Un pueblo rico en escuelas pokémon"));
+	question "¿Quieres un viaje gratis?" {
+		yes {
+			msg("¡Vale! Comencemos");
+		}
+		no {
+			msg("Esta bien, cuando quieras dime :3");
+		}
+	}
+	free rutina_var;*/
 }
 

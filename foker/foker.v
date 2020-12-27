@@ -10,7 +10,7 @@ import compiler.util
 import compiler.parser
 
 fn main() {
-	if os.args.len == 1 || (os.args.len == 2 && os.args[1] in ['-h', 'help', 'ayuda']) {
+	if os.args.len == 1 || (os.args.len == 2 && os.args[1] in ['-h', '-a', 'help', 'ayuda']) {
 		about.help()
 		exit(1)
 	}

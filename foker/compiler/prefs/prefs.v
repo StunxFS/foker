@@ -127,6 +127,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 				if arg.ends_with(".fkr") {
 					if !has_file {
 						res.file = arg
+						has_file = true
 					} else {
 						util.err("solo se puede soportar un archivo de script .fkr, no varios")
 					}

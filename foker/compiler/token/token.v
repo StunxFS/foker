@@ -94,6 +94,7 @@ pub enum Kind {
 	key_movement
 	
 	key_extern
+	key_free
 	
 	key_match
 	key_if
@@ -134,6 +135,7 @@ pub const (
 		"movement": Kind.key_movement,
 
 		"extern": Kind.key_extern,
+		"free": Kind.key_free,
 		
 		"match": Kind.key_match,
 		"if": Kind.key_if,
@@ -211,6 +213,7 @@ fn build_tokenstr() []string {
 	k[Kind.key_movement] = "movement"
 	
 	k[Kind.key_extern] = "extern"
+	k[Kind.key_free] = "free"
 	
 	k[Kind.key_match] = "match"
 	k[Kind.key_if] = "if"
