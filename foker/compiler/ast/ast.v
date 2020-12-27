@@ -17,7 +17,6 @@ pub struct Module {
 pub:
 	name    string
 	pos     token.Position
-	imports []Import
 	stmts   []Stmt
 	is_main bool // es esto el modulo principal?
 pub mut:
@@ -37,20 +36,20 @@ pub mut:
 
 pub struct Var {
 pub:
-	name       string
-	expr       Expr
+	name    string
+	expr    Expr
 pub mut:
-	typ        Type
-	pos        token.Position
-	is_used    bool
-	offset	   string // para 'var mivar at 0x800D;'
+	typ     Type
+	pos     token.Position
+	is_used bool
+	offset  string // para 'var mivar at 0x800D;'
 }
 
 pub type ScopeObject = Const | Var
 
 // Statements
-pub type Stmt = AssignStmt | Const | DynamicStmt | ExprStmt | ForInStmt |
-	ForStmt | GotoStmt | Include | QuestionStmt | ScriptDecl
+pub type Stmt = AssignStmt | Const | DynamicStmt | ExprStmt | ForInStmt | ForStmt | GotoStmt |
+	Include | QuestionStmt | ScriptDecl
 
 pub struct DynamicStmt {
 pub:
@@ -60,8 +59,8 @@ pub:
 
 pub struct Include {
 pub:
-	pos		token.Position
-	file	string
+	pos  token.Position
+	file string
 }
 
 pub struct ExprStmt {
