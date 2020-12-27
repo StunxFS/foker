@@ -162,17 +162,7 @@ pub:
 
 // Expressions
 pub type Expr = BinaryExpr | BoolLiteral | FmtStringLiteral | Ident | InfixExpr | IntegerLiteral |
-	MatchExpr | ParExpr | PostfixExpr | PrefixExpr | SelectorExpr | StringLiteral
-
-pub struct SelectorExpr {
-pub:
-	pos        token.Position
-	expr       Expr // expr.field_name
-	field_name string
-pub mut:
-	expr_type  Type
-	typ        Type
-}
+	MatchExpr | ParExpr | PostfixExpr | PrefixExpr | StringLiteral
 
 pub struct IntegerLiteral {
 pub:
