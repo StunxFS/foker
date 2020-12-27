@@ -50,9 +50,7 @@ fn (mut p Parser) expr(precedence int) ast.Expr {
 pub fn (mut p Parser) expr_with_left(left ast.Expr, precedence int) ast.Expr {
 	mut node := left
 	for precedence < p.tok.precedence() {
-		if p.tok.kind == .dot {
-			node = p.dot_expr(node)
-		} else if p.tok.kind.is_infix() {
+		if p.tok.kind.is_infix() {
 			if p.tok.kind.is_prefix() && p.tok.line_nr != p.prev_tok.line_nr {
 				// added 10/2020: LATER this will be parsed as PrefixExpr instead
 				p.warn_with_pos('move infix `$p.tok.kind` operator before new line (if infix intended) or use brackets for a prefix expression',
@@ -181,15 +179,3 @@ fn (mut p Parser) parse_number_literal() ast.Expr {
 		pos: pos
 	}
 }
-
-fn (mut p Parser) dot_expr(left ast.Expr) ast.Expr {
-	p.next()
-	name_pos := p.tok.position()
-	field_name := p.check_name()
-	return ast.SelectorExpr{
-		expr: left
-		field_name: field_name
-		pos: name_pos
-	}
-}
-

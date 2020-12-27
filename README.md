@@ -36,7 +36,6 @@ FokerScript tiene como objetivos los siguientes puntos:
 
 * **Fácil aprendizaje y escritura** - aprender en menos de 1 hora el lenguaje, escribir en menos de 5 minutos un buen script.
 * **Sencillez** - no sobrecargar el lenguaje con sintaxis innecesaria.
-* **Modularización** - permitir que el usuario pueda reutilizar scripts en otros proyectos sin problemas.
 
 También tiene otro objetivo que está en estado tentativo:
 

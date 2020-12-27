@@ -8,8 +8,6 @@ import compiler.token
 pub struct File {
 pub:
 	path string
-	// el módulo, recordar que cada archivo es un módulo es decir que al 
-	// momento de crear un archivo este tendrá un módulo automático.
 	mod  Module
 }
 
@@ -18,7 +16,6 @@ pub:
 	name    string
 	pos     token.Position
 	stmts   []Stmt
-	is_main bool // es esto el modulo principal?
 pub mut:
 	scope   Scope
 }

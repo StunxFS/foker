@@ -27,10 +27,6 @@ mut:
 	expr_mod      string
 	scope         &ast.Scope
 	global_scope  &ast.Scope
-	imports       map[string]string // alias => mod_name
-	ast_imports   []ast.Import // mod_names
-	used_imports  []string // alias
-	is_main_module bool
 	have_dyn_custom bool
 	cur_script_name string
 }
@@ -103,7 +99,6 @@ pub fn (mut p Parser) parse() ast.File {
 		println("> Parsing module: '${p.mod}' (archivo: '${p.file_name}')")
 	}
 	mut stmts := []ast.Stmt{}
-	mut imports := []ast.Import{}
 	for p.tok.kind != .eof {
 		if p.tok.kind == .key_dynamic {
 			if !p.have_dyn_custom {
@@ -128,9 +123,7 @@ pub fn (mut p Parser) parse() ast.File {
 		mod: ast.Module{
 			name: p.mod
 			stmts: stmts
-			imports: imports
 			scope: p.scope
-			is_main: p.is_main_module
 		}
 	}
 }
@@ -214,9 +207,6 @@ fn (mut p Parser) check(expected token.Kind) {
 
 fn (mut p Parser) check_name() string {
 	name := p.tok.lit
-	if p.peek_tok.kind == .dot && name in p.imports {
-		p.register_used_import(name)
-	}
 	p.check(.name)
 	if name.len > 1 && name.starts_with('_') {
 		p.error_with_pos("esto no puede iniciar con un '_'", p.prev_tok.position())
@@ -298,9 +288,6 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 			p.prev_tok.position(),
 			"en vez de usar, por ejemplo, 'MiNameScript', use 'miNameScript'")
 	}
-	if script_name == 'main' {
-		p.is_main_module = true
-	}
 	p.cur_script_name = script_name
 	if is_extern { // extern script name; | extern script name2 at 0x90034;
 		mut extern_offset := ''
@@ -350,7 +337,6 @@ fn (mut p Parser) const_decl() ast.Const {
 		p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas (use: "${name.to_upper()}", en vez de "${name}")',
 			pos)
 	}
-	full_name := p.prepend_mod(name)
 	if p.tok.kind == .colon {
 		p.next()
 		type_const = p.parse_type()
@@ -359,7 +345,7 @@ fn (mut p Parser) const_decl() ast.Const {
 	p.check(.assign)
 	expr := p.expr(0)
 	field := ast.Const{
-		name: full_name
+		name: name
 		mod: p.mod
 		expr: expr
 		pos: pos

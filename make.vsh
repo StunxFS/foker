@@ -59,7 +59,6 @@ foker_bin_path := join_path('bin', exe_name)
 if !exists(foker_bin_path) {
 	println('- Compilando el compilador de FokerScript...')
 	system('v -prod -o ${foker_bin_path} foker/')
-     cp('lib', os.join_path('bin', 'lib'))
 } else {
 	println('- Saltando compilación del compilador de FokerScript, esto ya está compilado...')
 }
