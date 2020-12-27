@@ -23,40 +23,32 @@ pub mut:
 	scope   Scope
 }
 
-pub struct ConstField {
+pub struct Const {
 pub:
 	mod    string
 	name   string
 	expr   Expr
 	is_pub bool
 	pos    token.Position
-	typ    Type
-}
-
-pub struct ConstDecl {
-pub:
-	is_pub bool
-	pos    token.Position
 pub mut:
-	fields []ConstField
+	typ    Type
 }
 
 pub struct Var {
 pub:
 	name       string
 	expr       Expr
-	is_mut     bool
 pub mut:
 	typ        Type
 	pos        token.Position
 	is_used    bool
-	is_changed bool // to detect mutable vars that are never changed
+	offset	   string // para 'var mivar at 0x800D;'
 }
 
-pub type ScopeObject = ConstField | Var
+pub type ScopeObject = Const | Var
 
 // Statements
-pub type Stmt = AssignStmt | ConstDecl | DynamicStmt | EnumDecl | ExprStmt | ForInStmt |
+pub type Stmt = AssignStmt | Const | DynamicStmt | ExprStmt | ForInStmt |
 	ForStmt | GotoStmt | Import | Include | QuestionStmt | ScriptDecl
 
 pub struct DynamicStmt {
@@ -83,32 +75,6 @@ pub:
 	expr    Expr
 	pos     token.Position
 	is_expr bool
-}
-
-pub struct EnumField {
-pub:
-	name     string
-	pos      token.Position
-	expr     Expr
-	has_expr bool
-}
-
-pub struct EnumDecl {
-pub:
-	name   string
-	is_pub bool
-	fields []EnumField
-	pos    token.Position
-	typ    Type
-}
-
-pub fn (_enum &EnumDecl) exists_field(name string) bool {
-	for field in _enum.fields {
-		if field.name == name {
-			return true
-		}
-	}
-	return false
 }
 
 pub struct ScriptDecl {
@@ -147,6 +113,7 @@ pub:
 	right      Expr
 	op         token.Kind
 	pos        token.Position
+	offset     string
 pub mut:
 	left       Expr
 	left_type  Type
@@ -231,8 +198,9 @@ pub:
 
 pub struct FmtStringLiteral {
 pub:
-	pos  token.Position
-	expr Expr
+	pos   token.Position
+	width int // si 'width' es igual a 0, entonces se usa el valor por defecto
+	expr  Expr
 }
 
 pub struct BoolLiteral {

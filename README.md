@@ -117,9 +117,7 @@ script main {
 ```
 
 ```cpp
-const (
-    MIRUTINA_ESPECIAL = 0x80AB24DF
-)
+const MIRUTINA_ESPECIAL = 0x80AB24DF;
 
 script main {
     callasm(MIRUTINA_ESPECIAL);
@@ -157,9 +155,7 @@ Aquí otro ejemplo de lo que sería el soporte para generar scripts tanto para d
 
 ```c++
 #if BINARY // si se usa el backend para binario
-    const (
-        RUTINA2 = 0x80ABCD2F;
-    )
+    const RUTINA2 = 0x80ABCD2F;
 #else // de lo contrario, se está usando el backend de decomp
     extern script script_RUTINA2;
 #endif

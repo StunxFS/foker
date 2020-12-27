@@ -61,10 +61,10 @@ pub fn (s &Scope) find_var(name string) ?&Var {
 	return none
 }
 
-pub fn (s &Scope) find_const(name string) ?&ConstField {
+pub fn (s &Scope) find_const(name string) ?&Const {
 	if obj := s.find(name) {
 		match obj {
-			ConstField { return &obj }
+			Const { return &obj }
 			else {}
 		}
 	}
@@ -93,7 +93,7 @@ pub fn (mut s Scope) update_var_type(name string, typ Type) {
 }
 
 pub fn (mut s Scope) register(obj ScopeObject) {
-	name := if obj is ConstField { obj.name } else { (obj as Var).name }
+	name := if obj is Const { obj.name } else { (obj as Var).name }
 	if name in s.objects {
 		return
 	}
@@ -151,7 +151,7 @@ pub fn (sc &Scope) show(depth int, max_depth int) string {
 	out += '$indent# $sc.start_pos - $sc.end_pos\n'
 	for _, obj in sc.objects {
 		match obj {
-			ConstField { out += '$indent  * const: $obj.name - $obj.typ\n' }
+			Const { out += '$indent  * const: $obj.name - $obj.typ\n' }
 			Var { out += '$indent  * var: $obj.name - $obj.typ\n' }
 		}
 	}

@@ -108,10 +108,17 @@ fn (mut p Parser) name_expr() ast.Expr {
 		p.check(.lparen)
 		pos := p.tok.position()
 		expr := p.expr(0)
+		mut width := 0
+		if p.tok.kind == .comma { // fmt("msg", 10);
+			p.next()
+			width = p.tok.lit.int()
+			p.check(.number)
+		}
 		p.check(.rparen)
 		return ast.FmtStringLiteral{
 			expr: expr
 			pos: pos
+			width: width
 		}
 	} else {
 		node = p.parse_ident()

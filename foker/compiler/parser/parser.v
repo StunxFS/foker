@@ -33,6 +33,7 @@ mut:
 	used_imports  []string // alias
 	is_main_module bool
 	have_dyn_custom bool
+	cur_script_name string
 }
 
 /*
@@ -97,13 +98,12 @@ pub fn parse_files(paths []string, table &ast.Table, pref &prefs.Preferences, gl
 
 pub fn (mut p Parser) parse() ast.File {
 	p.read_first_token()
-	mod_name := p.file_name.all_before_last('.')
+	mod_name := p.file_name.all_before_last('.').all_after_last(os.path_separator)
 	p.mod = p.table.qualify_module(mod_name, p.file_name)
 	if p.mod == 'builtin' {
 		p.builtin_mod = true
 	}
 	println("---- Parsing module: ${p.mod}")
-
 	mut stmts := []ast.Stmt{}
 	for p.tok.kind != .eof {
 		if p.tok.kind == .key_dynamic {
@@ -127,6 +127,7 @@ pub fn (mut p Parser) parse() ast.File {
 	for p.tok.kind != .eof {
 		stmts << p.top_stmt()
 	}
+	p.check_unused_imports()
 	p.scope.end_pos = p.tok.pos
 	return ast.File{
 		path: p.file_name
@@ -158,6 +159,37 @@ pub fn (mut p Parser) close_scope() {
 	p.scope = p.scope.parent
 }
 
+pub fn (mut p Parser) parse_block() []ast.Stmt {
+	p.open_scope()
+	// println('parse block')
+	stmts := p.parse_block_no_scope(false)
+	p.close_scope()
+	// println('nr exprs in block = $exprs.len')
+	return stmts
+}
+
+pub fn (mut p Parser) parse_block_no_scope(is_top_level bool) []ast.Stmt {
+	p.check(.lbrace)
+	mut stmts := []ast.Stmt{}
+	if p.tok.kind != .rbrace {
+		mut c := 0
+		for p.tok.kind !in [.eof, .rbrace] {
+			stmts << p.local_stmt()
+			c++
+			if c % 100000 == 0 {
+				eprintln('parsed $c statements so far from fn $p.cur_script_name ...')
+			}
+			if c > 1000000 {
+				p.error_with_pos('parsed over $c statements from fn $p.cur_script_name, the parser is probably stuck',
+					p.tok.position())
+				return []
+			}
+		}
+	}
+	p.check(.rbrace)
+	return stmts
+}
+
 fn (mut p Parser) next() {
 	p.prev_tok = p.tok
 	p.tok = p.peek_tok
@@ -187,7 +219,9 @@ fn (mut p Parser) check(expected token.Kind) {
 
 fn (mut p Parser) check_name() string {
 	name := p.tok.lit
-	// if p.peek_tok.kind == .dot && name in p.imports {}
+	if p.peek_tok.kind == .dot && name in p.imports {
+		p.register_used_import(name)
+	}
 	p.check(.name)
 	return name
 }
@@ -212,7 +246,7 @@ fn (mut p Parser) import_stmt() ast.Import {
 	for p.tok.kind == .dot {
 		p.next()
 		if p.tok.kind != .name {
-			p.error_with_pos("error en la sintáxis de uso de módulo, por favor usar 'x.y.z'",
+			p.error_with_pos("error en la sintáxis de uso de módulo, por favor usa 'x.y.z'",
 				p.tok.position())
 		}
 		submod_name := p.check_name()
@@ -229,11 +263,15 @@ fn (mut p Parser) import_stmt() ast.Import {
 		mod_pos = mod_pos.extend(p.tok.position())
 	}
 	p.check(.semicolon)
-	return ast.Import{
+	node := ast.Import{
 		pos: mod_pos
 		mod: mod_name
 		alias: mod_alias
 	}
+	p.imports[mod_alias] = mod_name
+	p.table.imports << mod_name
+	p.ast_imports << node
+	return node
 }
 
 pub fn (mut p Parser) top_stmt() ast.Stmt {
@@ -265,6 +303,9 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 			}
 			.key_const {
 				return p.const_decl()
+			}
+			.key_var {
+				return p.parse_var_stmt(true)
 			}
 			.key_movement {}
 			else {
@@ -313,6 +354,7 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	if script_name == 'main' {
 		p.is_main_module = true
 	}
+	p.cur_script_name = script_name
 	if is_extern { // extern script name; | extern script name2 at 0x90034;
 		mut extern_offset := ''
 		if p.pref.backend == .binary && p.tok.kind == .key_at {
@@ -337,12 +379,7 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 			pos: script_pos.extend(p.prev_tok.position())
 		}
 	}
-	mut stmts := []ast.Stmt{}
-	p.check(.lbrace)
-	for p.tok.kind != .rbrace {
-		stmts << p.local_stmt()
-	}
-	p.check(.rbrace)
+	mut stmts := p.parse_block()
 	return ast.ScriptDecl{
 		name: script_name
 		mod: p.mod
@@ -353,50 +390,41 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	}
 }
 
-fn (mut p Parser) const_decl() ast.ConstDecl {
-	start_pos := p.tok.position()
+fn (mut p Parser) const_decl() ast.Const {
+	//start_pos := p.tok.position()
 	is_pub := p.tok.kind == .key_pub
 	if is_pub {
 		p.next()
 	}
-	end_pos := p.tok.position()
-	const_pos := p.tok.position()
+	//end_pos := p.tok.position()
+	//const_pos := p.tok.position()
 	p.check(.key_const)
-	if p.tok.kind != .lparen {
-		p.error_with_pos("en una declaración 'const' se espera '( ... )'", const_pos)
+	pos := p.tok.position()
+	name := p.check_name()
+	mut type_const := ast.Type._auto
+	if !util.contains_capital(name) {
+		p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas (use: "${name.to_upper()}", en vez de "${name}")',
+			pos)
 	}
-	p.next()
-	mut fields := []ast.ConstField{}
-	for {
-		if p.tok.kind == .eof {
-			p.error_with_pos("se espera un ')' para cerrar la declaración", const_pos)
-		}
-		if p.tok.kind == .rparen {
-			break
-		}
-		pos := p.tok.position()
-		name := p.check_name()
-		if util.contains_capital(name) {
-			p.error_with_pos('los nombres de las constantes deben ser puras minúsculas', pos)
-		}
-		full_name := p.prepend_mod(name)
-		p.check(.assign)
-		expr := p.expr(0)
-		field := ast.ConstField{
-			name: full_name
-			mod: p.mod
-			expr: expr
-			pos: pos
-		}
-		fields << field
-		p.global_scope.register(field)
+	full_name := p.prepend_mod(name)
+	if p.tok.kind == .colon {
+		p.next()
+		type_const = p.parse_type()
 	}
-	p.check(.rparen)
-	return ast.ConstDecl{
-		pos: start_pos.extend(end_pos)
-		fields: fields
+	println(full_name)
+	p.check(.assign)
+	expr := p.expr(0)
+	field := ast.Const{
+		name: full_name
+		mod: p.mod
+		expr: expr
+		pos: pos
 		is_pub: is_pub
+		typ: type_const
 	}
+	p.global_scope.register(field)
+	p.check(.semicolon)
+	return field
 }
 
 // Local Statements =========================================================================
@@ -404,7 +432,7 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 	for {
 		match p.tok.kind {
 			.key_var {
-				return p.parse_var_stmt()
+				return p.parse_var_stmt(false)
 			}
 			else {
 				p.error('declaración de nivel local "' + p.tok.lit + '" desconocido')
@@ -414,12 +442,99 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 	return ast.Stmt{}
 }
 
-fn (mut p Parser) parse_var_stmt() ast.Stmt {
+fn (mut p Parser) parse_type() ast.Type {
+	typ_name := p.check_name()
+	if typ_name !in ast.type_names {
+		p.error_with_pos('se esperaba uno de los siguientes tipos: ' + ast.type_names.join(', '),
+		p.prev_tok.position())
+	}
+	return ast.get_type_from_string(typ_name)
+}
+
+fn (mut p Parser) check_undefined_variables(expr ast.Expr, val ast.Expr) {
+	match val {
+		ast.Ident {
+			if expr is ast.Ident {
+				if expr.name == val.name {
+					p.error_with_pos('variable indefinida `$val.name`', val.pos)
+				}
+			}
+		}
+		ast.InfixExpr {
+			p.check_undefined_variables(expr, val.left)
+			p.check_undefined_variables(expr, val.right)
+		}
+		ast.ParExpr {
+			p.check_undefined_variables(expr, val.expr)
+		}
+		ast.PostfixExpr {
+			p.check_undefined_variables(expr, val.expr)
+		}
+		ast.PrefixExpr {
+			p.check_undefined_variables(expr, val.right)
+		}
+		else {}
+	}
+}
+
+fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 	p.check(.key_var)
-	name := p.check_name()
-	p.check(.assign)
+	mut name := p.parse_ident()
+	mut type_var := ast.Type._auto
+	if p.tok.kind == .key_at {
+		pos := p.tok.position()
+		p.next()
+		offset := p.tok.lit
+		p.check(.number)
+		if p.tok.kind == .colon {
+			p.next()
+			type_var = p.parse_type()
+		}
+		p.check(.semicolon)
+		if p.scope.known_var(name.name) {
+			p.error_with_pos("redefinición de '${name.name}'", name.pos)
+		}
+		obj := ast.ScopeObject(ast.Var{
+			name: name.name
+			offset: offset
+			pos: name.pos
+		})
+		name.obj = obj
+		p.scope.register(obj)
+		return ast.AssignStmt{
+			right: name
+			offset: offset
+			pos: pos
+			right_type: type_var
+		}
+	}
+	if is_top_level && p.tok.kind == .assign {
+		p.error('no se pueden definir variables en el ámbito global')
+	}
+	p.next()
+	pos := p.tok.position()
 	expr := p.expr(0)
+	p.check_undefined_variables(name, expr)
+	if p.tok.kind == .colon {
+		p.next()
+		type_var = p.parse_type()
+	}
+	//println('var stmt: "${name}", expr: ${expr}')
 	p.check(.semicolon)
-	println('Var stmt: "${name}", expr: ${expr}')
-	return ast.Stmt{}
+	if p.scope.known_var(name.name) {
+		p.error_with_pos("redefinición de '${name.name}'", name.pos)
+	}
+	obj := ast.ScopeObject(ast.Var{
+		name: name.name
+		expr: expr
+		pos: name.pos
+	})
+	name.obj = obj
+	p.scope.register(obj)
+	return ast.AssignStmt{
+		right: name
+		op: token.Kind.assign
+		left: expr
+		pos: pos
+	}
 }

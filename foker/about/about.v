@@ -7,3 +7,4 @@ pub const (
 	gen_bin_version 	= "alpha0" // Más tarde: 0.1.0a
 	build_time			= '<unknown>'
 )
+

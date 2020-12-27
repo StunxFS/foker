@@ -2,21 +2,24 @@ dynamic 800000;
 
 include "stdlib.rbh";
 import StunxFS.library.cool;
+//import othermodule;
 
-const (
-    message = "Stunx es real"
-    numero = 2
-    numero_neg = -1
-    booleano = true
-    expr_entre_parentesis = 2 + (2 / -4)
-    boolean_expr = fmt("Recoge estas maletas broder!\n"+"Llevalas al Santorium")
-    expr_con_constantes = numero + numero_neg
-    d = "d"+"d"
-    constante_a_base_de_otro = cool.mi_constante++
-)
+const MESSAGE = "Stunx es real";
+const NUMERO = 2;
+const NUMERO_NEG = -1;
+const BOOLEANO = true;
+const EXPR_ENTRE_PARENTESIS = 2 + (2 / -4);
+const FORMAT_MSG = fmt("Hola, necesito que pagues este precio wey!", 48);
+const EXPR_CON_CONSTANTES = NUMERO + NUMERO_NEG;
+const D = "d" + "d";
+const CONSTANTE_A_BASE_DE_OTRO: int = cool.MI_CONSTANTE++;
+
+var makako at 100: int;
+
+// cmd applymovement(mov: movement, obj: int);
 
 script main {
-    var name = fmt("Hola"+"Loquendo");
+    var makako2 = 22;
     /*applymovement(movement {
         walk_up * 4
     }, PLAYER);*/
