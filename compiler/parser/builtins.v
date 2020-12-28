@@ -6,7 +6,7 @@ const (
 builtins_file = 'in_memory/builtins.fkr'
 builtins_code ='
 // Builtins.fkr | Archivo guardado en memoria para la generación de comandos, variables y alias
-// debido a que FokerScript no soporta la modularización de archivos.
+// debido a que FokerScript no soporta la modularización.
 // NOTA: Por favor, usar este código con cuidado.
 
 // variable utilizada para comparar los resultados de ciertos comandos que utilizan a esta

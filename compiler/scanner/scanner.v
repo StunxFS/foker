@@ -197,7 +197,7 @@ fn (mut s Scanner) end_of_file() token.Token {
 		s.line_nr--
 		panic('el final del archivo `$s.file_path` ya se ha alcanzado 50 veces, el analizador de FokerScript probablemente esté bloqueado.\n' +
 			'Esto no debería suceder. Informe el error aquí e incluya las últimas 2-3 líneas de su código fuente:\n' +
-			'https://github.com/StunxFSFS/foker/issues/new?labels=Bug')
+			'https://github.com/StunxFS/foker/issues/new?labels=Bug')
 	}
 	if s.pos != s.text.len && s.eofs == 1 {
 		s.inc_line_number()
@@ -395,6 +395,10 @@ pub fn (mut s Scanner) scan() token.Token {
 					continue
 				}
 				return s.new_token(.div, '', 1)
+			}
+			`#` {
+				s.ignore_line()
+				continue
 			}
 			else {}
 		}

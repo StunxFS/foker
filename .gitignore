@@ -5,6 +5,4 @@
 *.dylib
 *.dll
 *.odt
-foker/foker
-foker/foker.exe
-ejemplos/example.foker
+foker

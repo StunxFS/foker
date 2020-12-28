@@ -31,20 +31,22 @@ pub struct Preferences {
 pub mut:
 	// ROM en el que se usará el script generado. Esto es usado para
 	// generar código exacto sin problemas.
-	game			Game     = .firered_leafgreen
-	backend 		Backend  = .binary
-	rom				string // la rom en la que se insertará el script
+	game			  Game     = .firered_leafgreen
+	backend 		  Backend  = .binary
+	rom				  string // la rom en la que se insertará el script
 	// Por defecto se coge este archivo, ya que se crea automaticamente
 	// con todas las variables y banderas disponibles. Si en ella hay
 	// una variable o flag ocupada, simplemente abrir el archivo y borrarla.
-	flags_vars_file	string   = "fvf.txt"
-	output			string   // nombre de salida del script
-	optlevel		Optlevel = .debug
-	skip_warnings	bool	// saltarse las advertencias
-	warns_are_errors bool	// tratar las advertencias como errores
-	file			string  // archivo a compilar
-	is_verbose		bool    // el compilador debe detallar cada cosa que hace
-	use_color		UseColor
+	flags_vars_file	  string   = "fvf.txt"
+	output			  string   // nombre de salida del script
+	optlevel		  Optlevel = .debug
+	skip_warnings	  bool	// saltarse las advertencias
+	warns_are_errors  bool	// tratar las advertencias como errores
+	file			  string  // archivo a compilar
+	is_verbose		  bool    // el compilador debe detallar cada cosa que hace
+	use_color		  UseColor
+	only_check_syntax bool
+	defines           []string
 }
 
 pub fn parse_args_and_get_prefs() &Preferences {
@@ -69,6 +71,19 @@ pub fn parse_args_and_get_prefs() &Preferences {
 					else {
 						util.err("la opción ${arg} solo soporta los valores 'binary' o 'decomp'")
 					}
+				}
+				i++
+			}
+			'-d', '-define' {
+				to_define := cmdline.option(current_args, arg, '')
+				if to_define != "" {
+					if to_define !in res.defines {
+						res.defines << to_define
+					} else {
+						util.err('esta bandera ya está definida: ${to_define}')
+					}
+				} else {
+					util.err('no se puede definir una bandera vacía')
 				}
 				i++
 			}
@@ -117,11 +132,14 @@ pub fn parse_args_and_get_prefs() &Preferences {
 			'-verbose' {
 				res.is_verbose = true
 			}
-			'-no-use-color' {
+			'-nocolor' {
 				res.use_color = .never
 			}
-			'-use-color' {
+			'-color' {
 				res.use_color = .always
+			}
+			'-only-check-syntax' {
+				res.only_check_syntax = true
 			}
 			else {
 				if arg.ends_with(".fkr") {

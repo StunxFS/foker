@@ -7,17 +7,28 @@ import compiler.token
 // Esto representa un archivo de script FokerScript
 pub struct File {
 pub:
-	path string
-	mod  Module
+	path    string
+	prog    Program
+pub mut:
+	reports []string
 }
 
-pub struct Module {
+pub fn (mut f File) show_reports() {
+	for report in f.reports {
+		eprintln(report)
+	}
+	if f.reports.len > 0 {
+		unsafe { f.reports.free() }
+	}
+}
+
+pub struct Program {
 pub:
-	name    string
-	pos     token.Position
-	stmts   []Stmt
+	name  string
+	pos   token.Position
+	stmts []Stmt
 pub mut:
-	scope   Scope
+	scope Scope
 }
 
 pub struct Const {
@@ -45,8 +56,8 @@ pub mut:
 pub type ScopeObject = Const | Var
 
 // Statements
-pub type Stmt = AssignStmt | Const | DynamicStmt | ExprStmt | ForInStmt | ForStmt | GotoStmt |
-	Include | QuestionStmt | ScriptDecl | FreeStmt | CmdDecl
+pub type Stmt = AssignStmt | CmdDecl | Const | DynamicStmt | ExprStmt | ForInStmt | ForStmt |
+	FreeStmt | GotoStmt | Include | QuestionStmt | ScriptDecl
 
 pub struct DynamicStmt {
 pub:
@@ -98,8 +109,8 @@ pub:
 
 pub struct FreeStmt {
 pub:
-	pos		token.Position
-	ident	string
+	pos   token.Position
+	ident string
 }
 
 pub struct AssignStmt {

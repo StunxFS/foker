@@ -12,7 +12,7 @@ import compiler.token
 // to find the source file, when the IDE has a different working folder than
 // v itself.
 // error_context_before - how many lines of source context to print before the pointer line
-// error_context_after - ^^^ same, but after
+// error_context_after  - ^^^ same, but after
 const (
 	error_context_before = 2
 	error_context_after  = 2
@@ -59,8 +59,7 @@ fn color(kind string, msg string) string {
 }
 
 // formatted_error - `kind` may be 'error' or 'warn'
-pub fn formatted_error(kind string, omsg string, filepath string, pos token.Position) string {
-	emsg := omsg.replace('main::', '')
+pub fn formatted_error(kind string, emsg string, filepath string, pos token.Position) string {
 	mut path := filepath
 	// Get relative path
 	workdir := os.getwd() + os.path_separator
@@ -121,7 +120,7 @@ pub fn source_context(kind string, source string, column int, pos token.Position
 				x := if bchar.is_space() { bchar } else { ` ` }
 				pointerline += x.str()
 			}
-			underline := if pos.len > 1 { '~'.repeat(end_column - start_column) } else { '^' }
+			underline := if pos.len > 1 { '^'.repeat(end_column - start_column) } else { '^' }
 			pointerline += bold(color(kind, underline))
 			clines << '      | ' + pointerline.replace('\t', tab_spaces)
 		}

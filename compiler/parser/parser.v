@@ -65,15 +65,19 @@ pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences, global
 	return p.parse()
 }
 
+fn (mut p Parser) get_builtins_stmt() []ast.Stmt {
+	mut b_file := if p.file_name != builtins_file {
+		parse_text(builtins_code, builtins_file, p.table, p.pref, p.global_scope)
+	} else {
+		ast.File{}
+	}
+	return b_file.prog.stmts
+}
+
 pub fn (mut p Parser) parse() ast.File {
 	p.read_first_token()
-	mod_name := p.file_name.all_after(os.path_separator).all_before_last('.').replace(os.path_separator, '.')
-	p.mod = p.table.qualify_module(mod_name, p.file_name)
-	mut stmts := if p.file_name != builtins_file {
-		parse_text(builtins_code, builtins_file, p.table, p.pref, p.global_scope).mod.stmts
-	} else {
-		[]ast.Stmt{}
-	}
+	p.mod = p.file_name.all_after_last(os.path_separator).all_before_last('.')
+	mut stmts := p.get_builtins_stmt()
 	if p.pref.is_verbose {
 		println("> Parsing module: '${p.mod}' (archivo: '${p.file_name}')")
 	}
@@ -98,7 +102,7 @@ pub fn (mut p Parser) parse() ast.File {
 	p.scope.end_pos = p.tok.pos
 	return ast.File{
 		path: p.file_name
-		mod: ast.Module{
+		prog: ast.Program{
 			name: p.mod
 			stmts: stmts
 			scope: p.scope
@@ -186,9 +190,6 @@ fn (mut p Parser) check(expected token.Kind) {
 fn (mut p Parser) check_name() string {
 	name := p.tok.lit
 	p.check(.name)
-	if name.len > 1 && name.starts_with('_') {
-		p.error_with_pos("esto no puede iniciar con un '_'", p.prev_tok.position())
-	}
 	return name
 }
 
