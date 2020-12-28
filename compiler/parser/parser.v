@@ -29,6 +29,8 @@ mut:
 	global_scope  &ast.Scope
 	have_dyn_custom bool
 	cur_script_name string
+	// preprocesador
+	//stack_prep 	 []PreKind
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
@@ -67,7 +69,11 @@ pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences, global
 
 fn (mut p Parser) get_builtins_stmt() []ast.Stmt {
 	mut b_file := if p.file_name != builtins_file {
-		parse_text(builtins_code, builtins_file, p.table, p.pref, p.global_scope)
+		parse_text(if p.pref.backend == .binary {
+			builtins_code
+		} else {
+			builtins_code_decomp
+		}, builtins_file, p.table, p.pref, p.global_scope)
 	} else {
 		ast.File{}
 	}
@@ -167,6 +173,100 @@ fn (mut p Parser) next() {
 	p.peek_tok2 = p.peek_tok3
 	p.peek_tok3 = p.scanner.scan()
 }
+
+/*const (
+	enemies = [token.Kind.key_cond_elif, .key_cond_else, .key_cond_endif]
+)
+
+enum PreKind {
+	_none
+	_if
+	_elif
+	_else
+	_endif
+}
+
+fn (mut p Parser) get_pre_res() bool {
+	is_bang := p.tok.kind == .bang
+	if is_bang {
+		p.next()
+	}
+	def := if p.tok.kind == .name {
+		p.check_name()
+	} else {
+		if p.tok.kind == .key_true {
+			'true'
+		} else {
+			'false'
+		}
+	}
+	return if def !in ['true', 'false'] {
+		if is_bang { def !in p.pref.defines } else { def in p.pref.defines }
+	} else { 
+		if is_bang { !def.bool() } else { def.bool() }
+	}
+}
+
+fn (mut p Parser) preprocesador() {
+	// compilación condicional
+	mut if_or_elif_ok := false
+	match p.tok.kind {
+		.key_cond_if {
+			p.stack_prep << ._if
+			p.next()
+			if p.get_pre_res() {
+				for p.tok.kind != .eof && p.tok.kind !in enemies {
+					println(p.tok.kind == .key_cond_endif)
+					p.next()
+				}
+				println(p.tok)
+				if p.tok.kind in [.key_cond_elif, .key_cond_else] {
+					if_or_elif_ok = true
+				}
+			}
+		}
+		/*.key_cond_elif {
+			if p.stack_prep.len > 0 && p.stack_prep.pop() !in [._if, ._elif] {
+				p.error('no se puede usar #elif sin antes haber usado un #if')
+			}
+			p.stack_prep << ._elif
+			p.next()
+			if !if_or_elif_ok && p.get_pre_res() {
+				for p.tok.kind !in enemies {
+					p.next()
+				}
+				if p.tok.kind in enemies {
+					match p.tok.kind {
+						.key_cond_elif, .key_cond_else {
+							if_or_elif_ok = true
+						}
+						else {}
+					}
+				}
+			}
+		}
+		.key_cond_else {
+			if p.stack_prep.len > 0 && p.stack_prep.pop() !in [._if, ._elif] {
+				p.error('no se puede usar un #else sin antes haber usado #if o un #elif')
+			}
+			p.stack_prep << ._else
+			p.next()
+			if !if_or_elif_ok {
+				for p.tok.kind != .key_cond_endif {
+					p.next()
+				}
+			}
+		}*/
+		.key_cond_endif {
+			if p.stack_prep.len > 0 && p.stack_prep.pop() in [._if, ._elif, ._else] {
+				p.next()
+			} else {
+				p.error('no se puede usar un #endif sin haber usado un #if, #elif o #else antes')
+			}
+		}
+		else {}
+	}
+}*/
 
 fn (mut p Parser) check(expected token.Kind) {
 	expected_str := match expected {

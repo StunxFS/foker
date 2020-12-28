@@ -377,7 +377,7 @@ pub fn (mut s Scanner) scan() token.Token {
 						s.pos++
 						if s.pos >= s.text.len {
 							s.line_nr--
-							s.error('comment not terminated')
+							s.error('comentario no terminado')
 						}
 						if s.text[s.pos] == `\n` {
 							s.inc_line_number()
@@ -396,10 +396,26 @@ pub fn (mut s Scanner) scan() token.Token {
 				}
 				return s.new_token(.div, '', 1)
 			}
-			`#` {
-				s.ignore_line()
-				continue
-			}
+			/*`#` {
+				key := s.ident_name()
+				match key {
+					'#if' {
+						return s.new_token(.key_cond_if, '#if', 3)
+					}
+					'#elif' {
+						return s.new_token(.key_cond_elif, '#elif', 5)
+					}
+					'#else' {
+						return s.new_token(.key_cond_else, '#else', 5)
+					}
+					'#endif' {
+						return s.new_token(.key_cond_endif, '#endif', 6)
+					}
+					else { 
+						s.error("se esperaba '#if', '#elif', '#else' o '#endif'")
+					}
+				}
+			}*/
 			else {}
 		}
 		$if windows {
@@ -407,7 +423,7 @@ pub fn (mut s Scanner) scan() token.Token {
 				return s.end_of_file()
 			}
 		}
-		s.error("carácter inválido '${c.str()}'")
+		s.error("carácter inválido -> '${c.str()}'")
 		break
 	}
 	return s.end_of_file()

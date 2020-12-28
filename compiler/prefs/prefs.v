@@ -46,7 +46,7 @@ pub mut:
 	is_verbose		  bool    // el compilador debe detallar cada cosa que hace
 	use_color		  UseColor
 	only_check_syntax bool
-	defines           []string
+	defines           []string = ['FRLF', 'FIREREDLEAFGREEN', 'BINARY']
 }
 
 pub fn parse_args_and_get_prefs() &Preferences {
@@ -67,6 +67,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 					}
 					'decomp' {
 						res.backend = .decomp
+						res.defines[res.defines.index('BINARY')] = 'DECOMP'
 					}
 					else {
 						util.err("la opción ${arg} solo soporta los valores 'binary' o 'decomp'")
@@ -76,6 +77,9 @@ pub fn parse_args_and_get_prefs() &Preferences {
 			}
 			'-d', '-define' {
 				to_define := cmdline.option(current_args, arg, '')
+				if to_define.to_lower() in ['true', 'false'] {
+					util.err('no se puede definir valores booleanos constantes (true y false)')
+				}
 				if to_define != "" {
 					if to_define !in res.defines {
 						res.defines << to_define
@@ -96,12 +100,16 @@ pub fn parse_args_and_get_prefs() &Preferences {
 				match target_game {
 					'rs', 'rubysapphire' {
 						res.game = .ruby_sapphire
+						res.defines[res.defines.index('FRLF')] = 'RS'
+						res.defines[res.defines.index('FIREREDLEAFGREEN')] = 'RUBYSAPPHIRE'
 					}
 					'frlf', 'fireredleafgreen' {
 						res.game = .firered_leafgreen
 					}
 					'e', 'emerald' {
 						res.game = .emerald
+						res.defines[res.defines.index('FRLF')] = 'E'
+						res.defines[res.defines.index('FIREREDLEAFGREEN')] = 'EMERALD'
 					}
 					else {
 						util.err('la opción ${arg} solo soporta los valores: rs, rubysapphire, frlf, fireredleafgreen, e, emerald')

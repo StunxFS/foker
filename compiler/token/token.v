@@ -95,6 +95,11 @@ pub enum Kind {
 	
 	key_extern
 	key_free
+
+	key_cond_if
+	key_cond_elif
+	key_cond_else
+	key_cond_endif
 	
 	key_match
 	key_if
@@ -136,6 +141,11 @@ pub const (
 
 		"extern": Kind.key_extern,
 		"free": Kind.key_free,
+
+		"#if": Kind.key_cond_if,
+		"#elif": Kind.key_cond_elif,
+		"#else": Kind.key_cond_else,
+		"#endif": Kind.key_cond_endif,
 		
 		"match": Kind.key_match,
 		"if": Kind.key_if,
@@ -214,7 +224,12 @@ fn build_tokenstr() []string {
 	
 	k[Kind.key_extern] = "extern"
 	k[Kind.key_free] = "free"
-	
+
+	k[Kind.key_cond_if] = "#if"
+	k[Kind.key_cond_elif] = "#elif"
+	k[Kind.key_cond_else] = "#else"
+	k[Kind.key_cond_endif] = "#endif"
+
 	k[Kind.key_match] = "match"
 	k[Kind.key_if] = "if"
 	k[Kind.key_elif] = "elif"

@@ -2,20 +2,7 @@
 // Misión: ¡Hacer que FokerScript compile este script exitosamente!
 // Escrito el: 27/12/2020, Completado el: ??/??/????
 
-const MSG = fmt("Movimiento naranja");
-
 script main {
-#if BINARY or (DECOMP && GAME_RUBY) or GAME_FRLF
-	/*msg(fmt("¡Bienvenido al Pueblo Paleta! Un pueblo rico en escuelas pokémon"));
-	question "¿Quieres un viaje gratis?" {
-		yes {
-			msg("¡Vale! Comencemos");
-		}
-		no {
-			msg("Esta bien, cuando quieras dime :)");
-		}
-	}
-	free rutina_var;*/
-#endif
+	
 }
 
