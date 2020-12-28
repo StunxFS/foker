@@ -3,7 +3,7 @@
 module main
 
 import os
-import about
+import compiler.about
 import compiler.ast
 import compiler.prefs
 import compiler.util

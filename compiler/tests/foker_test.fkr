@@ -6,6 +6,7 @@ const MSG = "";
 var rutina_var at 0x80B1: int;
 
 script main {
+#if BINARY
 	/*msg(fmt("¡Bienvenido al Pueblo Paleta! Un pueblo rico en escuelas pokémon"));
 	question "¿Quieres un viaje gratis?" {
 		yes {
@@ -16,5 +17,6 @@ script main {
 		}
 	}
 	free rutina_var;*/
+#endif
 }
 

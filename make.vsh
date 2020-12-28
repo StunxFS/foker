@@ -37,28 +37,17 @@
         >>   24 LOAD_CONST               4 (None)
              26 RETURN_VALUE
 >>> 
-
 */
 
 $if macos {
-	panic('lo sentimos, macOS todavía no es soportado.')
+	panic("make.vsh: lo sentimos, macOS todavía no está soportado.")
 }
 
-exe_name := $if windows {
-	'foker.exe'
-} $else {
-	'foker'
-}
+exe_name := "foker" + $if windows { ".exe" } $else { "" }
 
-if !exists('bin') {
-	mkdir('bin')
-}
-
-foker_bin_path := join_path('bin', exe_name)
-
-if !exists(foker_bin_path) {
-	println('- Compilando el compilador de FokerScript...')
-	system('v -prod -o ${foker_bin_path} foker/')
+if !exists(exe_name) {
+	println('> Compilando a FokerScript...')
+	system('v -prod -o ${exe_name} cmd/main.v')
 } else {
-	println('- Saltando compilación del compilador de FokerScript, esto ya está compilado...')
+	println('> Saltando la compilación para FokerScript, esto ya está compilado...')
 }

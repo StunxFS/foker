@@ -3,7 +3,7 @@
 module util
 
 import os
-import about
+import compiler.about
 
 // full_fokerscript_version() retorna la version completa del compilador de FokerScript
 pub fn full_fokerscript_version() string {
@@ -11,7 +11,7 @@ pub fn full_fokerscript_version() string {
 }
 
 pub fn set_fsroot_folder(fsroot_path string) {
-	fsname := if os.user_os() == 'windows' { 'fokerscript.exe' } else { 'fokerscript' }
+	fsname := if os.user_os() == 'windows' { 'fokerc.exe' } else { 'fokerc' }
 	os.setenv('FSEXE', os.real_path(os.join_path(fsroot_path, fsname)), true)
 }
 
