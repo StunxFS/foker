@@ -2,8 +2,8 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module binary
 
-import about
-import gen
+import compiler.about
+import compiler.emitter as gen
 
 pub fn to_hex(val int) string {
 	/* TODO
@@ -26,9 +26,12 @@ pub:
 mut:
 	dynamic			string = "800000"
 	fvf				gen.FVF
+	includes		[]string
+	constantes		[]string
 	str_count		int
 	label_count		int
 	movs_count		int
+	question_count  int
 	strings			map[string]string
 	strings_temp	map[string]string
 	movements		map[string]FBlock
@@ -45,7 +48,7 @@ pub fn new_fscript(name string) FScript {
 pub fn new_fscript_with_vffile(name string, vffile_name string) FScript {
 	mut fs := new_fscript(name)
 	fs.fvf = gen.new_fvf(vffile_name) or {
-		panic("gen.binary.FScript.new_fscript_with_vffile: " + err)
+		panic("compiler.emitter.binary.FScript.new_fscript_with_vffile: " + err)
 	}
 	return fs
 }
@@ -56,8 +59,24 @@ pub fn (mut fs FScript) new_label() string {
 	return label
 }
 
+pub fn (mut fs FScript) new_question_label() string {
+	label := "fs_question_${fs.question_count}"
+	fs.question_count++
+	return label
+}
+
 pub fn (mut fs FScript) change_dynamic(new_dyn string) {
 	fs.dynamic = new_dyn
+}
+
+pub fn (mut fs FScript) add_include(file string) {
+	if file !in fs.includes {
+		fs.includes << '#include "${file}"'
+	}
+}
+
+pub fn (mut fs FScript) add_const(name string, expr string) {
+	fs.constantes << '#define '+(name + ' ' + expr)
 }
 
 pub fn (mut fs FScript) add_block(block FBlock) {
@@ -89,7 +108,7 @@ pub fn (fs FScript) generate_script() string {
 	mut code := [
 		"; Generado con FokerScript v${about.version}, hecho por StunxFS :).",
 		"; NO MODIFICAR, SI NO SABES LO QUE HACES.",
-		"#dynamic ${fsdyn}", ""
+		"#dynamic ${fsdyn}", "", fs.includes.join('\n'),"", fs.constantes.join("\n"), ""
 	]
 
 	for block in fs.blocks {

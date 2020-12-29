@@ -22,7 +22,7 @@ pub fn (mut block FBlock) add_label(name string) {
 }
 
 pub fn (mut block FBlock) add_cmd(cmd string, params []string) {
-	block.add_code(if params.len > 0 { "${cmd} "+params.join(", ") } else { cmd })
+	block.add_code(if params.len > 0 { "${cmd} "+params.join(" ") } else { cmd })
 }
 
 pub fn (mut block FBlock) add_goto(label string) {

@@ -18,6 +18,16 @@ fn (mut p Parser) expr(precedence int) ast.Expr {
 		.number {
 			node = p.parse_number_literal()
 		}
+		.dollar {
+			match p.peek_tok.kind {
+				.key_if {
+					return p.if_expr(true)
+				}
+				else {
+					p.error_with_pos("'$' inesperado", p.peek_tok.position())
+				}
+			}
+		}
 		.key_true, .key_false {
 			node = ast.BoolLiteral{
 				lit: (p.tok.kind == .key_true).str()
@@ -155,7 +165,7 @@ pub fn (mut p Parser) parse_ident() ast.Ident {
 	}
 }
 
-fn (mut p Parser) string_expr() ast.Expr {
+fn (mut p Parser) string_expr() ast.StringLiteral {
 	mut val := p.tok.lit
 	mut pos := p.tok.position()
 	p.next()

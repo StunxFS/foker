@@ -2,7 +2,6 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module parser
 
-// import compiler.errors
 import os
 import compiler.token
 import compiler.prefs
@@ -11,26 +10,26 @@ import compiler.scanner
 import compiler.ast
 
 pub struct Parser {
-	file_base     string // "hello.fkr"
-	file_name     string // /home/user/hello.fkr
-	file_name_dir string // home/user
-	pref          &prefs.Preferences
+	file_base     		string // "hello.fkr"
+	file_name     		string // /home/user/hello.fkr
+	file_name_dir 		string // home/user
+	pref          		&prefs.Preferences
 mut:
-	scanner       &scanner.Scanner
-	tok           token.Token
-	prev_tok      token.Token
-	peek_tok      token.Token
-	peek_tok2     token.Token
-	peek_tok3     token.Token
-	table         &ast.Table
-	mod           string // current module name
-	expr_mod      string
-	scope         &ast.Scope
-	global_scope  &ast.Scope
-	have_dyn_custom bool
-	cur_script_name string
-	// preprocesador
-	//stack_prep 	 []PreKind
+	scanner       		&scanner.Scanner
+	tok           		token.Token
+	prev_tok      		token.Token
+	peek_tok      		token.Token
+	peek_tok2     		token.Token
+	peek_tok3     		token.Token
+	table        		&ast.Table
+	mod           		string // current module name
+	expr_mod      		string
+	scope         		&ast.Scope
+	global_scope  		&ast.Scope
+	have_dyn_custom 	bool
+	cur_script_name 	string
+	inside_if		 	bool
+	inside_ct_if_expr	bool
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
@@ -69,11 +68,7 @@ pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences, global
 
 fn (mut p Parser) get_builtins_stmt() []ast.Stmt {
 	mut b_file := if p.file_name != builtins_file {
-		parse_text(if p.pref.backend == .binary {
-			builtins_code
-		} else {
-			builtins_code_decomp
-		}, builtins_file, p.table, p.pref, p.global_scope)
+		parse_text(builtins_code, builtins_file, p.table, p.pref, p.global_scope)
 	} else {
 		ast.File{}
 	}
@@ -89,6 +84,9 @@ pub fn (mut p Parser) parse() ast.File {
 	}
 	for p.tok.kind != .eof {
 		if p.tok.kind == .key_dynamic {
+			if p.pref.backend == .decomp {
+				p.error("no se puede usar la declaración 'dynamic' en binario")
+			}
 			if !p.have_dyn_custom {
 				stmts << p.parse_dyn_custom()
 				continue
@@ -150,7 +148,11 @@ pub fn (mut p Parser) parse_block_no_scope(is_top_level bool) []ast.Stmt {
 	if p.tok.kind != .rbrace {
 		mut c := 0
 		for p.tok.kind !in [.eof, .rbrace] {
-			stmts << p.local_stmt()
+			if !is_top_level {
+				stmts << p.local_stmt()
+			} else {
+				stmts << p.top_stmt()
+			}
 			c++
 			if c % 100000 == 0 {
 				eprintln('parsed $c statements so far from fn $p.cur_script_name ...')
@@ -172,101 +174,10 @@ fn (mut p Parser) next() {
 	p.peek_tok = p.peek_tok2
 	p.peek_tok2 = p.peek_tok3
 	p.peek_tok3 = p.scanner.scan()
-}
-
-/*const (
-	enemies = [token.Kind.key_cond_elif, .key_cond_else, .key_cond_endif]
-)
-
-enum PreKind {
-	_none
-	_if
-	_elif
-	_else
-	_endif
-}
-
-fn (mut p Parser) get_pre_res() bool {
-	is_bang := p.tok.kind == .bang
-	if is_bang {
+	if p.tok.kind == .name && p.tok.lit == 'endif' {
 		p.next()
 	}
-	def := if p.tok.kind == .name {
-		p.check_name()
-	} else {
-		if p.tok.kind == .key_true {
-			'true'
-		} else {
-			'false'
-		}
-	}
-	return if def !in ['true', 'false'] {
-		if is_bang { def !in p.pref.defines } else { def in p.pref.defines }
-	} else { 
-		if is_bang { !def.bool() } else { def.bool() }
-	}
 }
-
-fn (mut p Parser) preprocesador() {
-	// compilación condicional
-	mut if_or_elif_ok := false
-	match p.tok.kind {
-		.key_cond_if {
-			p.stack_prep << ._if
-			p.next()
-			if p.get_pre_res() {
-				for p.tok.kind != .eof && p.tok.kind !in enemies {
-					println(p.tok.kind == .key_cond_endif)
-					p.next()
-				}
-				println(p.tok)
-				if p.tok.kind in [.key_cond_elif, .key_cond_else] {
-					if_or_elif_ok = true
-				}
-			}
-		}
-		/*.key_cond_elif {
-			if p.stack_prep.len > 0 && p.stack_prep.pop() !in [._if, ._elif] {
-				p.error('no se puede usar #elif sin antes haber usado un #if')
-			}
-			p.stack_prep << ._elif
-			p.next()
-			if !if_or_elif_ok && p.get_pre_res() {
-				for p.tok.kind !in enemies {
-					p.next()
-				}
-				if p.tok.kind in enemies {
-					match p.tok.kind {
-						.key_cond_elif, .key_cond_else {
-							if_or_elif_ok = true
-						}
-						else {}
-					}
-				}
-			}
-		}
-		.key_cond_else {
-			if p.stack_prep.len > 0 && p.stack_prep.pop() !in [._if, ._elif] {
-				p.error('no se puede usar un #else sin antes haber usado #if o un #elif')
-			}
-			p.stack_prep << ._else
-			p.next()
-			if !if_or_elif_ok {
-				for p.tok.kind != .key_cond_endif {
-					p.next()
-				}
-			}
-		}*/
-		.key_cond_endif {
-			if p.stack_prep.len > 0 && p.stack_prep.pop() in [._if, ._elif, ._else] {
-				p.next()
-			} else {
-				p.error('no se puede usar un #endif sin haber usado un #if, #elif o #else antes')
-			}
-		}
-		else {}
-	}
-}*/
 
 fn (mut p Parser) check(expected token.Kind) {
 	expected_str := match expected {
@@ -468,7 +379,28 @@ fn (mut p Parser) const_decl() ast.Const {
 	}
 	// println(full_name.replace('.', '__')) // (works fine)
 	p.check(.assign)
-	expr := p.expr(0)
+	mut expr := ast.Expr{}
+	match p.tok.kind {
+		.string {
+			expr = ast.Expr(p.string_expr())
+		}
+		.number {
+			expr = p.parse_number_literal()
+		}
+		.key_true, .key_false {
+			expr = ast.Expr(ast.BoolLiteral{
+				lit: (p.tok.kind == .key_true).str()
+				pos: p.tok.position()
+			})
+			p.next()
+		}
+		else {
+			p.error('las constantes no soportan expresiones avanzadas, solo soportan literales')
+		}
+	}
+	if p.tok.kind != .semicolon {
+		p.error('las constantes no soportan expresiones avanzadas, solo soportan literales')
+	}
 	field := ast.Const{
 		name: name
 		mod: p.mod
@@ -491,6 +423,38 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 			.key_free {
 				return p.parse_free_stmt()
 			}
+			.key_if {
+				return ast.ExprStmt{
+					expr: p.if_expr(false)
+				}
+			}
+			.key_question {
+				return p.question_stmt()
+			}
+			.key_checkgender {
+				return p.checkgender_stmt()
+			}
+			.dollar {
+				if p.peek_tok.kind == .key_if {
+					return ast.ExprStmt{
+						expr: p.if_expr(true)
+					}
+				}
+			}
+			/*.key_continue, .key_break {
+				tok := p.tok
+				line := p.tok.line_nr
+				p.next()
+				mut label := ''
+				if p.tok.line_nr == line && p.tok.kind == .name {
+					label = p.check_name()
+				}
+				return ast.BranchStmt{
+					kind: tok.kind
+					label: label
+					pos: tok.position()
+				}
+			}*/
 			else {
 				p.error('declaración de nivel local "' + p.tok.lit + '" desconocido')
 			}
@@ -537,6 +501,9 @@ fn (mut p Parser) check_undefined_variables(expr ast.Expr, val ast.Expr) {
 fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 	p.check(.key_var)
 	mut name := p.parse_ident()
+	if is_top_level && p.pref.backend == .decomp {
+		p.error('no se pueden declarar variables en el ámbito global en decomp')
+	}
 	if is_top_level && name.name == "_" {
 		p.error_with_pos("no se puede usar '_' como nombre de una variable global", p.prev_tok.position())
 	}
@@ -546,10 +513,12 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 		p.next()
 		offset := p.tok.lit
 		p.check(.number)
-		if p.tok.kind == .colon {
-			p.next()
-			type_var = p.parse_type()
+		if p.tok.kind == .semicolon {
+			p.error_with_pos('se espera que se declare un tipo: `var XXX at 0x800D: int;`',
+				p.prev_tok.position())
 		}
+		p.check(.colon)
+		type_var = p.parse_type()
 		p.check(.semicolon)
 		if p.scope.known_var(name.name) {
 			p.error_with_pos("redefinición de '${name.name}'", name.pos)

@@ -74,6 +74,7 @@ pub enum Kind {
 	bang
 	dot
 	dotdot
+	dollar
 
 	lparen
 	rparen
@@ -92,6 +93,9 @@ pub enum Kind {
 	key_const
 	key_dynamic
 	key_movement
+	key_checkgender
+	key_boy
+	key_girl
 	
 	key_extern
 	key_free
@@ -138,6 +142,9 @@ pub const (
 		"const": Kind.key_const,
 		"dynamic": Kind.key_dynamic,
 		"movement": Kind.key_movement,
+		"checkgender": Kind.key_checkgender,
+		"boy": Kind.key_boy,
+		"girl": Kind.key_girl,
 
 		"extern": Kind.key_extern,
 		"free": Kind.key_free,
@@ -205,6 +212,7 @@ fn build_tokenstr() []string {
 	k[Kind.bang] = "!"
 	k[Kind.dot] = "."
 	k[Kind.dotdot] = ".."
+	k[Kind.dollar] = "$"
 
 	k[Kind.lparen] = "("
 	k[Kind.rparen] = ")"
@@ -221,7 +229,10 @@ fn build_tokenstr() []string {
 	k[Kind.key_const] = "const"
 	k[Kind.key_dynamic] = "dynamic"
 	k[Kind.key_movement] = "movement"
-	
+	k[Kind.key_checkgender] = "checkgender"
+	k[Kind.key_boy] = "boy"
+	k[Kind.key_girl] = "girl"
+
 	k[Kind.key_extern] = "extern"
 	k[Kind.key_free] = "free"
 
@@ -273,6 +284,13 @@ pub fn build_precedences() []Precedence {
 	p[Kind.plus] = .sum
 	p[Kind.minus] = .sum
 	// == != < <= > >=
+	p[Kind.eq] = .eq
+	p[Kind.neq] = .eq
+	p[Kind.lt] = .eq
+	p[Kind.lte] = .eq
+	p[Kind.gt] = .eq
+	p[Kind.gte] = .eq
+	// = | += | ...
 	p[Kind.assign] = .assign
 	p[Kind.plus_assign] = .assign
 	p[Kind.minus_assign] = .assign
@@ -300,7 +318,7 @@ pub fn (tok Token) is_scalar() bool {
 // is_unary returns true if the token can be in a unary expression
 pub fn (tok Token) is_unary() bool {
 	return tok.kind in
-		[ /* `+` | `-` | `!` | `~` | `*` | `&` */
+		[ /* `+` | `-` | `!` `*` */
 		.plus, .minus, .key_not, .mul]
 }
 
@@ -311,12 +329,12 @@ pub fn (tok Kind) is_relational() bool {
 }
 
 pub fn (kind Kind) is_prefix() bool {
-	return kind in [.minus, .mul, .key_not]
+	return kind in [.minus, .mul, .key_not, .bang]
 }
 
 pub fn (kind Kind) is_infix() bool {
 	return kind in
 		[.plus, .minus, .mul, .div, .eq, .neq, .gt, .lt,
-		/*  */.gt, .lt, .key_or,
+		/*  */.gte, .lte, .key_or,
 		/*  */.key_and]
 }

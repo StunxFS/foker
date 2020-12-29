@@ -8,6 +8,7 @@ import compiler.ast
 import compiler.prefs
 import compiler.util
 import compiler.parser
+import compiler.emitter.binary
 
 fn main() {
 	if os.args.len == 1 || (os.args.len == 2 && os.args[1] in ['-h', '-a', 'help', 'ayuda']) {
@@ -27,18 +28,17 @@ fn go_compile() {
 	}
     mut table := ast.new_table()
     mut global_scope := &ast.Scope{parent: 0}
-    _ := parser.parse_file(pref.file, table, pref, global_scope)
+    file := parser.parse_file(pref.file, table, pref, global_scope)
 	if !pref.only_check_syntax {
 		// TODO: checker.check_file(file)
 		match pref.backend {
 			.binary {
-				/* TODO
-				if pref.rom != "" { // Insertar directo en la ROM
-					binary.generate_and_insert_in_rom(file, pref.rom)
-				} else {
-					binary.generate_script_file(file)
+				$if bingen_test ? {
+					binary.bingen_to_file(file, table, pref) or {
+						util.err(err)
+						exit(1)
+					}
 				}
-				*/
 			}
 			.decomp {
 				// TODO: decomp.generate(file)

@@ -32,6 +32,7 @@ pub mut:
 	nr_lines                    int
 	eofs                        int
 	pref                        &prefs.Preferences
+	conditional_stack			[]Conditional
 }
 
 pub fn new_scanner(text string, pref &prefs.Preferences) &Scanner {
@@ -396,26 +397,13 @@ pub fn (mut s Scanner) scan() token.Token {
 				}
 				return s.new_token(.div, '', 1)
 			}
-			/*`#` {
-				key := s.ident_name()
-				match key {
-					'#if' {
-						return s.new_token(.key_cond_if, '#if', 3)
-					}
-					'#elif' {
-						return s.new_token(.key_cond_elif, '#elif', 5)
-					}
-					'#else' {
-						return s.new_token(.key_cond_else, '#else', 5)
-					}
-					'#endif' {
-						return s.new_token(.key_cond_endif, '#endif', 6)
-					}
-					else { 
-						s.error("se esperaba '#if', '#elif', '#else' o '#endif'")
-					}
-				}
-			}*/
+			`#` {
+				s.pp_directive()
+				continue
+			}
+			`$` {
+				return s.new_token(.dollar, '', 1)
+			}
 			else {}
 		}
 		$if windows {
@@ -547,19 +535,17 @@ fn (mut s Scanner) inc_line_number() {
 }
 
 pub fn (mut s Scanner) warn(msg string) {
-	pos := token.Position{
+	eprintln(util.formatted_error('advertencia:', msg, s.file_path, token.Position{
 		line_nr: s.line_nr
 		pos: s.pos
-	}
-	eprintln(util.formatted_error('advertencia:', msg, s.file_path, pos))
+	}))
 }
 
 pub fn (mut s Scanner) error(msg string) {
-	pos := token.Position{
+	eprintln(util.formatted_error('error:', msg, s.file_path, token.Position{
 		line_nr: s.line_nr
 		pos: s.pos
-	}
-	eprintln(util.formatted_error('error:', msg, s.file_path, pos))
+	}))
 	exit(1)
 }
 
