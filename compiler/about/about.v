@@ -10,7 +10,7 @@ const status			  = "alpha"
 const build_time		  = '<unknown>'
 
 pub fn help() {
-	program := os.executable()
+	program := os.args[0]
 	println("=================================================
 ZubatScript | Mensaje de Ayuda | Work In Progress
 =================================================

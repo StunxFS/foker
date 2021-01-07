@@ -167,8 +167,8 @@ pub fn parse_args_and_get_prefs() &Preferences {
 		util.err('no puedes insertar un script en una ROM, y, a la vez, crear un archivo .rbh')
 	}
 	// TODO: Remover esto cuando el backend de decomp esté completo.
-	/*if res.backend == .decomp {
+	if res.backend == .decomp {
         util.err('aún no está soportado el backend de decompilación')
-    }*/
+    }
 	return res
 }
