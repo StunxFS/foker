@@ -6,13 +6,15 @@ ZubatScript es un lenguaje de scripting, de tipado fuerte, creado para la fácil
 
 Debido a que ZubatScript es muy sencillo, el tiempo de aprendizaje del lenguaje no debería superar la media hora. En esa cantidad de tiempo ya deberías ser un experto en el desarrollo de scripts.
 
-ZubatScript promueve el fácil y rápido desarrollo de scripts con una sintaxis fácil y ordenada de entender, sin tener que sufrir con la sintaxis del Rubikhon (RBH).
+ZubatScript promueve el fácil y rápido desarrollo de scripts con una sintaxis ordenada y fácil de entender, sin tener que sufrir con la sintaxis del Rubikhon (RBH).
 
 ## Tabla de contenido
 
 <table>
 <tr><td width=33% valign=top>
+    
 * [Hola Mundo](#hola-mundo)
+
 </td></tr>
 </table>
 
@@ -24,7 +26,7 @@ script main {
 }
 ```
 
-Guardamos este pedazo de código dentro de un archivo llamado main.zubat, y estando en la terminal/consola escribimos: `zubat main.zubat`, nos debería salir un salida idéntica a esta:
+Guardamos este pedazo de código dentro de un archivo llamado `main.zubat`, y estando en la terminal/consola escribimos: ``zubat main.zubat``, nos debería salir un salida idéntica a esta:
 
 > Esto asumiendo que ya tiene a zubat con un symlinking, de lo contrario, ejecute: `./zubat-symlink`
 
