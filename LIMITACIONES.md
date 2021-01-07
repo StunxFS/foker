@@ -9,7 +9,7 @@ La primera limitación que existe es esta. Los strings, o cadenas de texto, est�
 
 * constantes:
 Usando el keyword 'const' se puede declarar strings en el ámbito global del módulo, siendo público
-o privado de esta manera: `pub const frase = "Mi frase que puede ser usada en cualquier módulo";`
+o privado de esta manera: `const frase = "Mi frase que puede ser usada en cualquier módulo";`
 
 * literales:
 Esto es lo mismo que una constante, pero la diferencia está en que es declarada como temporal, es decir, que no se puede usar como variable, porque se declara literal. `myfunc("micadena");`
