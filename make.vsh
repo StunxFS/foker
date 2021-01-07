@@ -8,10 +8,10 @@ $if macos {
 	panic("make.vsh: lo sentimos, macOS todavía no está soportado.")
 }
 
-exe_name := $if windows { "foker.exe" } $else { "foker" }
+exe_name := $if windows { "zubatscript.exe" } $else { "zubatscript" }
 
 if !exists(exe_name) {
-	println('> Compilando a FokerScript...')
+	println('> Compilando a ZubatScript...')
 	system('v -prod -o ${exe_name} cmd/main.v')
 } else {
 	println('> Saltando la compilación para FokerScript, esto ya está compilado...')

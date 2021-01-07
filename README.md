@@ -1,12 +1,12 @@
 <div align="center">
 
 <p>
-    <img width="80" src="https://github.com/StunxFS/foker/blob/master/logo.png?raw=true">
+    <img width="80" src="https://github.com/StunxFS/zubatscript/blob/master/logo.png?raw=true">
 </p>
 
-<!--- ![FokerScript's logo](logo.png) --->
+<!--- ![ZubatScript's logo](logo.png) --->
 
-<h1>El lenguaje de scripting FokerScript</h1>
+<h1>El lenguaje de scripting ZubatScript</h1>
 
 [Documentación](/docs/docs.pdf) |
 [Changelog](CHANGELOG.md) |
@@ -24,7 +24,7 @@ Bienvenido al repositorio oficial del lenguaje de scripting para los juegos de l
 
 ## :question: ¿Qué es esto?
 
-**FokerScript** es un nuevo intento de facilitar el desarrollo de scripts en el ROMHacking binario del Pokémon Advance de 3ra Gen. Este lenguaje está inspirado en gran parte por su contraparte para el decomp, **Poryscript**. Este lenguaje transpila el código dado por el usuario al scripting del **XSE (desarrollado por HackMew)**.
+**ZubatScript** es un nuevo intento de facilitar el desarrollo de scripts en el ROMHacking binario del Pokémon Advance de 3ra Gen. Este lenguaje está inspirado en gran parte por su contraparte para el decomp, **Poryscript**. Este lenguaje transpila el código dado por el usuario al scripting del **XSE (desarrollado por HackMew)**.
 
 A lo largo de estos años, todos los ROMHackers, que han llegado recientemente a este mundillo, han tenido que lidiarse con el scripting del XSE. Debido a su dificultad de escritura, el scripting de XSE ***semi-facilita*** las cosas, por eso, este proyecto intenta quitar ese **semi** de ahí y dejar solo el **facilita**.
 
@@ -32,7 +32,7 @@ A lo largo de estos años, todos los ROMHackers, que han llegado recientemente a
 
 ## :clipboard: Objetivos
 
-FokerScript tiene como objetivos los siguientes puntos:
+ZubatScript tiene como objetivos los siguientes puntos:
 
 * **Fácil aprendizaje y escritura** - aprender en menos de 1 hora el lenguaje, escribir en menos de 5 minutos un buen script.
 * **Sencillez** - no sobrecargar el lenguaje con sintaxis innecesaria.
@@ -41,7 +41,7 @@ También tiene otro objetivo que está en estado tentativo:
 
 * Transpilar su código a los 2 modos: en binario y en decompilación.
 
-Con este objetivo tentativo deseamos que cualquier script hecho con FokerScript pueda funcionar tanto en el binario como en decompilación, con tan solo algunos ajustes.
+Con este objetivo tentativo deseamos que cualquier script hecho con ZubatScript pueda funcionar tanto en el binario como en decompilación, con tan solo algunos ajustes.
 
 * * *
 
@@ -49,7 +49,7 @@ Con este objetivo tentativo deseamos que cualquier script hecho con FokerScript 
 
 <!-- :heavy_check_mark: = check | :x: = equis -->
 
-Actualmente este es el estado de implementación de los backends en FokerScript:
+Actualmente este es el estado de implementación de los backends en ZubatScript:
 | Juego             | Binario              | Decompilación |
 | :---              | :---:                | :---:         |
 | Ruby/Sapphire     |  :heavy_check_mark:  |               |
@@ -62,7 +62,7 @@ Las ROMs aquí mencionadas son soportadas tanto en inglés como en español.
 
 ## :hammer_and_wrench: Compilación e Instalación
 
-Bien, en este apartado nos dedicaremos al proceso de compilación e instalación de FokerScript en nuestras computadoras o laptops. Una cosa debo dejar claro y es que FokerScript solo soporta **Windows** y **Linux** por ahora, **macOS** está por verse en un futuro.
+Bien, en este apartado nos dedicaremos al proceso de compilación e instalación de ZubatScript en nuestras computadoras o laptops. Una cosa debo dejar claro y es que ZubatScript solo soporta **Windows** y **Linux** por ahora, **macOS** está por verse en un futuro.
 
 Bien, comencemos con el proceso, primero asegurate de tener instalado lo siguiente:
 
@@ -84,16 +84,16 @@ Ahora si estás en Linux ejecuta: ``sudo ./v symlink``, si estás en Windows, ab
 ¡Eso es todo! Ya tienes instalado V en tu computadora, ahora solo toca hacer lo mismo con este repositorio:
 
 ```bash
-git clone https://github.com/StunxFS/foker
-cd foker
+git clone https://github.com/StunxFS/zubat
+cd zubat
 v run make.vsh
 ```
 
-¡Listo! Ya tienes compilado FokerScript, ahora ejecuta ``./foker`` (o en Windows: ``.\foker.exe``), si te muestra algún mensaje de ayuda todo está correcto.
+¡Listo! Ya tienes compilado ZubatScript, ahora ejecuta ``./zubat`` (o en Windows: ``.\zubat.exe``), si te muestra algún mensaje de ayuda todo está correcto.
 
 * * *
 
-## :blue_book: Ejemplos de FokerScript
+## :blue_book: Ejemplos de ZubatScript
 
 ```cs
 // Así declaramos los comandos que se usan en el scripting.
@@ -168,11 +168,11 @@ script main {
 }
 ```
 
-El ejemplo anterior se pudiera compilar así: ``foker -b <backend> gen_script.fkr``, donde ``<backend>`` pudiera ser ``decomp`` o ``binary``. Ejemplo:
+El ejemplo anterior se pudiera compilar así: ``zubat -b <backend> gen_script.fkr``, donde ``<backend>`` pudiera ser ``decomp`` o ``binary``. Ejemplo:
 
 ```bash
-foker -b decomp gen_script.fkr
-foker -b binary gen_script.fkr
+zubat -b decomp gen_script.fkr
+zubat -b binary gen_script.fkr
 ```
 
 Si quiere más ejemplos, vaya a la carpeta [ejemplos](/ejemplos/).
@@ -183,17 +183,17 @@ Si quiere más ejemplos, vaya a la carpeta [ejemplos](/ejemplos/).
 
 **Muy pronto:** en [docs.md](docs/docs.md) y [docs.html](docs/docs.html) se encuentra toda la información, puede descargarlo en su dispositivo o verlo directamente en el navegador.
 
-Por ahora está disponible un PDF llamado [docs.pdf](docs/docs.pdf), lo malo es que este documento está incompleto y habla sobre una versión muy antigua de FokerScript.
+Por ahora está disponible un PDF llamado [docs.pdf](docs/docs.pdf), lo malo es que este documento está incompleto y habla sobre una versión muy antigua de ZubatScript.
 
 * * *
 
 ## :spiral_notepad: Créditos
 
-Buena parte del código fuente de FokerScript está tomado del código fuente del compilador del lenguaje V.
+Buena parte del código fuente de ZubatScript está tomado del código fuente del compilador del lenguaje V.
 
 Créditos a Alexander Medvednikov (Creador del lenguaje V) y a todo el equipo de desarrollo del lenguaje V.
 
-Créditos al usuario [huderlem](https://github.com/huderlem/), creador de [Poryscript](https://github.com/huderlem/poryscript), proyecto que fue fuente de inspiración y de donde se tomó el código fuente del [formateador de textos](foker/gen/binary/fmtttext.v).
+Créditos al usuario [huderlem](https://github.com/huderlem/), creador de [Poryscript](https://github.com/huderlem/poryscript), proyecto que fue fuente de inspiración y de donde se tomó el código fuente del [formateador de textos](zubat/gen/binary/fmtttext.v).
 
 Créditos a GNOME y a los desarrolladores del lenguaje de programación Vala, proyecto de donde se tomó el código usado para el preprocesador implementado aquí.
 
