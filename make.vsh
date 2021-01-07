@@ -8,7 +8,7 @@ $if macos {
 	panic("make.vsh: lo sentimos, macOS todavía no está soportado.")
 }
 
-exe_name := $if windows { "zubatscript.exe" } $else { "zubatscript" }
+exe_name := $if windows { "zubat.exe" } $else { "zubat" }
 
 if !exists(exe_name) {
 	println('> Compilando a ZubatScript...')
