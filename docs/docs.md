@@ -29,7 +29,7 @@ script main {
 
 Guardamos este pedazo de código dentro de un archivo llamado `main.zubat`, y estando en la terminal/consola escribimos: ``zubat main.zubat``, nos debería salir un salida idéntica a esta:
 
-> Esto asumiendo que ya tiene a zubat con un symlinking, de lo contrario, ejecute: `./zubat-symlink`
+> Esto asumiendo que ya tiene a Zubat en su PATH, de lo contrario, ejecute: `./zubat-symlink`
 
 ```
 stunxfs@stunxfs-pc:~$ zubat main.zubat
