@@ -181,7 +181,7 @@ Si quiere más ejemplos, vaya a la carpeta [ejemplos](/ejemplos/).
 
 ## :card_index_dividers: Documentación del lenguaje
 
-La documentación del lenguaje se encuentra en el archivo [docs/docs.md](docs/docs.md). También hay una [wiki](https://github.com/StunxFS/zubatscript/wiki), en donde se planea publicar tips y consejos útiles para el desarrallo con ZubatScript.
+La documentación del lenguaje se encuentra en el archivo [docs/docs.md](docs/docs.md). También hay una [wiki](https://github.com/StunxFS/zubatscript/wiki), en donde se planea publicar tips y consejos útiles para el desarrollo con ZubatScript.
 
 * * *
 
