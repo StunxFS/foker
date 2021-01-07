@@ -57,7 +57,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 	for i := 0; i < args.len; i++ {
 		arg := args[i]
 		current_args := args[i..]
-		
+
 		match arg {
 			'-b', '-backend' {
 				target_backend := cmdline.option(current_args, arg, '')
@@ -150,7 +150,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 				res.only_check_syntax = true
 			}
 			else {
-				if arg.ends_with(".fkr") {
+				if arg.ends_with(".zubat") {
 					if !has_file {
 						res.file = arg
 						has_file = true
