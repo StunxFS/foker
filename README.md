@@ -179,11 +179,9 @@ Si quiere más ejemplos, vaya a la carpeta [ejemplos](/ejemplos/).
 
 * * *
 
-## :card_index_dividers: Documentación y especificaciones del lenguaje
+## :card_index_dividers: Documentación del lenguaje
 
-**Muy pronto:** en [docs.md](docs/docs.md) y [docs.html](docs/docs.html) se encuentra toda la información, puede descargarlo en su dispositivo o verlo directamente en el navegador.
-
-Por ahora está disponible un PDF llamado [docs.pdf](docs/docs.pdf), lo malo es que este documento está incompleto y habla sobre una versión muy antigua de ZubatScript.
+La documentación del lenguaje se encuentra en el archivo [docs/docs.md](docs/docs.md). También hay una [wiki](https://github.com/StunxFS/zubatscript/wiki), en donde se planea publicar tips y consejos útiles para el desarrallo con ZubatScript.
 
 * * *
 
