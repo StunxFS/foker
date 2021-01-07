@@ -14,21 +14,17 @@
 [Código de conducta](CODE_OF_CONDUCT.md) |
 [Contribuciones](CONTRIBUTING.md)
 
-[![Discord][DiscordBadge]][DiscordUrl]
+<!--[![Discord][DiscordBadge]][DiscordUrl]-->
 
 Bienvenido al repositorio oficial del lenguaje de scripting para los juegos de la 3ra generación de Pokémon en GBA. Yeah, este lenguaje funciona solo con el binario (por ahora), si se desea usar un lenguaje parecido o familiar para los proyectos de decompilación, puede recurrir a [Poryscript](https://github.com/huderlem/poryscript), que es desarrollado por el usuario [huderlem](https://github.com/huderlem).
 
 </div>
-
-* * *
 
 ## :question: ¿Qué es esto?
 
 **ZubatScript** es un nuevo intento de facilitar el desarrollo de scripts en el ROMHacking binario del Pokémon Advance de 3ra Gen. Este lenguaje está inspirado en gran parte por su contraparte para el decomp, **Poryscript**. Este lenguaje transpila el código dado por el usuario al scripting del **XSE (desarrollado por HackMew)**.
 
 A lo largo de estos años, todos los ROMHackers, que han llegado recientemente a este mundillo, han tenido que lidiarse con el scripting del XSE. Debido a su dificultad de escritura, el scripting de XSE ***semi-facilita*** las cosas, por eso, este proyecto intenta quitar ese **semi** de ahí y dejar solo el **facilita**.
-
-* * *
 
 ## :clipboard: Objetivos
 
@@ -43,8 +39,6 @@ También tiene otro objetivo que está en estado tentativo:
 
 Con este objetivo tentativo deseamos que cualquier script hecho con ZubatScript pueda funcionar tanto en el binario como en decompilación, con tan solo algunos ajustes.
 
-* * *
-
 ## :pencil2: Backends
 
 <!-- :heavy_check_mark: = check | :x: = equis -->
@@ -57,8 +51,6 @@ Actualmente este es el estado de implementación de los backends en ZubatScript:
 | Emerald           |  :heavy_check_mark:  |               |
 
 Las ROMs aquí mencionadas son soportadas tanto en inglés como en español.
-
-* * *
 
 ## :hammer_and_wrench: Compilación e Instalación
 
@@ -91,7 +83,6 @@ v run make.vsh
 
 ¡Listo! Ya tienes compilado ZubatScript, ahora ejecuta ``./zubat`` (o en Windows: ``.\zubat.exe``), si te muestra algún mensaje de ayuda todo está correcto.
 
-* * *
 
 ## :blue_book: Ejemplos de ZubatScript
 
@@ -177,13 +168,9 @@ zubat -b binary gen_script.fkr
 
 Si quiere más ejemplos, vaya a la carpeta [ejemplos](/ejemplos/).
 
-* * *
-
 ## :card_index_dividers: Documentación del lenguaje
 
 La documentación del lenguaje se encuentra en el archivo [docs/docs.md](docs/docs.md). También hay una [wiki](https://github.com/StunxFS/zubatscript/wiki), en donde se planea publicar tips y consejos útiles para el desarrollo con ZubatScript.
-
-* * *
 
 ## :spiral_notepad: Créditos
 
@@ -194,8 +181,6 @@ Créditos a Alexander Medvednikov (Creador del lenguaje V) y a todo el equipo de
 Créditos al usuario [huderlem](https://github.com/huderlem/), creador de [Poryscript](https://github.com/huderlem/poryscript), proyecto que fue fuente de inspiración y de donde se tomó el código fuente del [formateador de textos](zubat/gen/binary/fmtttext.v).
 
 Créditos a GNOME y a los desarrolladores del lenguaje de programación Vala, proyecto de donde se tomó el código usado para el preprocesador implementado aquí.
-
-* * *
 
 > Copyright (C) 2020 StunxFS. Todos los derechos reservados.
 
