@@ -41,14 +41,14 @@ Opciones:
         Muestra este mensaje de ayuda.
 
     -b, -backend
-        Esta opción se usa para especificarle a FokerScript que backend debe usar para generar
+        Esta opción se usa para especificarle a ZubatScript que backend debe usar para generar
         el archivo único de script XSE, por defecto se usa el valor 'binary'.
         Este acepta los siguientes valores:
             binary
             decomp
         Ejemplo de uso:
-            $program -b decomp miarchivo.foker
-            $program -b binary miarchivo.foker
+            $program -b decomp miarchivo.zubat
+            $program -b binary miarchivo.zubat
 
     -d, -define
         Esta opción define el nombre de la bandera que se le pase, esto es muy útil para manejar
@@ -112,7 +112,7 @@ Opciones:
 
     -only-check-syntax
         Esta opción solo parsea el archivo dad, evitando el chequeo y la generación del programa, esta opción
-        puede ser útil para aprender la sintaxis de FokerScript.
+        puede ser útil para aprender la sintaxis de ZubatScript.
         Ejemplo de uso:
             $program -only-check-syntax main_26.zubat
 

@@ -5,13 +5,13 @@ module util
 import os
 import compiler.about
 
-// full_fokerscript_version() retorna la version completa del compilador de FokerScript
-pub fn full_fokerscript_version() string {
-	return 'FokerScript ${about.version}'
+// full_zubatscript_version() retorna la version completa del compilador de ZubatScript
+pub fn full_zubatscript_version() string {
+	return 'ZubatScript ${about.version}'
 }
 
 pub fn set_fsroot_folder(fsroot_path string) {
-	fsname := if os.user_os() == 'windows' { 'fokerc.exe' } else { 'fokerc' }
+	fsname := if os.user_os() == 'windows' { 'zubatc.exe' } else { 'zubatc' }
 	os.setenv('FSEXE', os.real_path(os.join_path(fsroot_path, fsname)), true)
 }
 

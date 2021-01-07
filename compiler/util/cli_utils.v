@@ -5,20 +5,20 @@ module util
 import term
 
 const (
-	foker_script_cli_error = term.bold(term.red('FokerScript CLI: error: '))
-	foker_script_cli_warning = term.bold(term.magenta('FokerScript CLI: advertencia: '))
-	foker_script_cli_note = term.bold(term.cyan('FokerScript CLI: nota:'))
+	zubat_script_cli_error = term.bold(term.red('ZubatScript CLI: error: '))
+	zubat_script_cli_warning = term.bold(term.magenta('ZubatScript CLI: advertencia: '))
+	zubat_script_cli_note = term.bold(term.cyan('ZubatScript CLI: nota:'))
 )
 
 pub fn err(msg string) {
-	eprintln(foker_script_cli_error + msg)
+	eprintln(zubat_script_cli_error + msg)
 	exit(1)
 }
 
 pub fn warn(msg string) {
-	eprintln(foker_script_cli_warning + msg)
+	eprintln(zubat_script_cli_warning + msg)
 }
 
 pub fn note(msg string) {
-	eprintln(foker_script_cli_note + msg)
+	eprintln(zubat_script_cli_note + msg)
 }

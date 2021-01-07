@@ -106,7 +106,7 @@ pub fn (mut fs FScript) add_movement_temp(block FBlock) {
 pub fn (fs FScript) generate_script() string {
 	fsdyn := if fs.dynamic.starts_with('0x') { fs.dynamic } else { "0x"+fs.dynamic }
 	mut code := [
-		"; Generado con FokerScript v${about.version}, hecho por StunxFS :).",
+		"; Generado con ZubatScript v${about.version}, hecho por StunxFS :).",
 		"; NO MODIFICAR, SI NO SABES LO QUE HACES.",
 		"#dynamic ${fsdyn}", "", fs.includes.join('\n'),"", fs.constantes.join("\n"), ""
 	]

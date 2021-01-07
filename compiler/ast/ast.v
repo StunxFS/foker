@@ -4,7 +4,7 @@ module ast
 
 import compiler.token
 
-// Esto representa un archivo de script FokerScript
+// Esto representa un archivo de script ZubatScript
 pub struct File {
 pub:
 	path    string
