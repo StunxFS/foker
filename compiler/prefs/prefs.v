@@ -6,27 +6,33 @@ import os
 import os.cmdline
 import compiler.util
 
+// Game enumera los juegos que ZubatScript soporta actualmente.
 pub enum Game {
 	firered_leafgreen
 	ruby_sapphire
 	emerald
 }
 
+// Backend enumera los backends soportados por ahora
 pub enum Backend {
 	decomp
 	binary
 }
 
+// OptLevel enumera los 2 niveles de optimización que existen
 pub enum Optlevel {
 	fast
 	debug
 }
 
+// UserColor enumera las 2 opciones que hay para mostrar mensajes de error
+// con colores o no
 pub enum UseColor {
 	always
 	never
 }
 
+// Preferences, struct universal de las opciones que el usuario le pasa al compilador
 pub struct Preferences {
 pub mut:
 	// ROM en el que se usará el script generado. Esto es usado para
@@ -49,6 +55,8 @@ pub mut:
 	defines           []string = ['FRLF', 'FIREREDLEAFGREEN', 'BINARY']
 }
 
+// parse_arg_and_get_prefs, trabaja con los argumentos del programa para obtener un struct
+// &Preferences
 pub fn parse_args_and_get_prefs() &Preferences {
 	app := os.args[0]
 	args := os.args[1..]
