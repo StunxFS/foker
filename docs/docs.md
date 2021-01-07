@@ -35,9 +35,10 @@ Guardamos este pedazo de código dentro de un archivo llamado `main.zubat`, y es
 stunxfs@stunxfs-pc:~$ zubat main.zubat
 > Compilando main.zubat, con archivo de salida "main.rbh"
 > Se ha compilado exitósamente el archivo main.zubat
+stunxfs@stunxfs-pc:~$
 ```
 
-Con esta salida proceda a usar XSE para insertar el script generado en su ROM.
+Con el archivo generado proceda a usar XSE para insertar el script generado en su ROM.
 
 > Por ahora ZubatScript no puede insertar scripts en la ROM, pero en un futuro tendrá esta utilidad.
 
@@ -56,9 +57,11 @@ end
 = ¡Hola Mundo!
 ```
 
+En este caso, se omite el `#dynamic` y el `#org` se cambia por `script`, también en vez de terminar un bloque con `end`, se encierra el bloque dentro de `{` y `}`.
+
 ## Comentarios
 
-```c
+```v
 // Este es un simple comentario de una línea.
 /*
 Este es un comentario de multiples líneas.
