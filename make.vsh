@@ -9,10 +9,18 @@ $if macos {
 }
 
 exe_name := $if windows { "zubat.exe" } $else { "zubat" }
+exe_symlink := $if windows { "zubat-symlink.exe" } $else { "zubat-symlink" }
 
 if !exists(exe_name) {
 	println('> Compilando a ZubatScript...')
 	system('v -prod -o ${exe_name} cmd/main.v')
 } else {
 	println('> Saltando la compilación para ZubatScript, esto ya está compilado...')
+}
+
+if !exists(exe_symlink) {
+	println('> Compilando la herramienta para symlink...')
+	system('v -prod -o ${exe_name} cmd/zubascript_symlink.v')
+} else {
+	println('> Saltando la compilación para la herramienta de symlinking, esto ya está compilado...')
 }

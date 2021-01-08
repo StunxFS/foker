@@ -177,3 +177,13 @@ pub fn parse_args_and_get_prefs() &Preferences {
 	}
 	return res
 }
+
+pub fn zsexe_path() string {
+	zsexe := os.getenv('ZSEXE')
+	if zsexe != '' {
+		return zsexe
+	}
+	real_zsexe_path := os.real_path(os.executable())
+	os.setenv('ZSEXE', real_zsexe_path, true)
+	return real_zsexe_path
+}
