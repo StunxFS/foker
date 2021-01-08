@@ -5,11 +5,10 @@ lamentablemente, algunas limitaciones que serán explicadas a continuación:
 
 ## Strings:
 
-La primera limitación que existe es esta. Los strings, o cadenas de texto, están limitadas en Foker, ¿por qué? pues en el bytecode del ROMHacking binario no se puede manipular los strings a conveniencia, ya que estos son tratados como constantes. No se pueden concatenar, interpolar ni cambiar, por ese motivo solo hay 2 maneras de crear strings en Foker:
+La primera limitación que existe es esta. Los strings, o cadenas de texto, están limitadas en ZubatScript, ¿por qué? pues en el bytecode del ROMHacking binario no se puede manipular los strings a conveniencia, ya que estos son tratados como constantes. No se pueden concatenar, interpolar ni cambiar, por ese motivo solo hay 2 maneras de crear strings en ZubatScript:
 
 * constantes:
-Usando el keyword 'const' se puede declarar strings en el ámbito global del módulo, siendo público
-o privado de esta manera: `const frase = "Mi frase que puede ser usada en cualquier módulo";`
+Usando el keyword 'text' se puede declarar strings en el ámbito global del módulo: `text FRASE = "Mi Frase";`.
 
 * literales:
 Esto es lo mismo que una constante, pero la diferencia está en que es declarada como temporal, es decir, que no se puede usar como variable, porque se declara literal. `myfunc("micadena");`
