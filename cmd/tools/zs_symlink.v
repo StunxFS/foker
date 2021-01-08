@@ -3,7 +3,7 @@
 module main
 
 import os
-import compiler.pref
+import compiler.prefs
 
 $if windows {
 	$if tinyc {
@@ -13,7 +13,7 @@ $if windows {
 }
 
 fn main() {
-	zsexe := os.real_path(pref.zsexe_path())
+	zsexe := os.real_path(prefs.zsexe_path().replace('zubat-symlink', 'zubat'))
 	$if windows {
 		setup_symlink_windows(zsexe)
 	} $else {
@@ -26,7 +26,7 @@ fn setup_symlink(zsexe string) {
 	if !os.exists(link_dir) {
 		os.mkdir_all(link_dir)
 	}
-	mut link_path := link_dir + '/v'
+	mut link_path := link_dir + '/zubat'
 	mut ret := os.exec('ln -sf $zsexe $link_path') or {
 		panic(err)
 	}
@@ -50,24 +50,24 @@ fn setup_symlink(zsexe string) {
 
 fn setup_symlink_windows(zsexe string) {
 	$if windows {
-		// Create a symlink in a new local folder (.\.bin\.v.exe)
-		// Puts `v` in %PATH% without polluting it with anything else (like make.bat).
-		// This will make `v` available on cmd.exe, PowerShell, and MinGW(MSYS)/WSL/Cygwin
+		// Create a symlink in a new local folder (.\.bin\.zubat.exe)
+		// Puts `zubat` in %PATH% without polluting it with anything else (like make.bat).
+		// This will make `zubat` available on cmd.exe, PowerShell, and MinGW(MSYS)/WSL/Cygwin
 		vdir := os.real_path(os.dir(zsexe))
 		vsymlinkdir := os.join_path(vdir, '.bin')
-		mut vsymlink := os.join_path(vsymlinkdir, 'v.exe')
+		mut vsymlink := os.join_path(vsymlinkdir, 'zubat.exe')
 		if !os.exists(vsymlinkdir) {
 			os.mkdir_all(vsymlinkdir) // will panic if fails
 		} else {
 			os.rm(vsymlink)
 		}
-		// First, try to create a native symlink at .\.bin\v.exe
+		// First, try to create a native symlink at .\.bin\zubat.exe
 		os.symlink(vsymlink, zsexe) or {
 			// typically only fails if you're on a network drive (VirtualBox)
 			// do batch file creation instead
 			eprintln('Could not create a native symlink: $err')
 			eprintln('Creating a batch file instead...')
-			vsymlink = os.join_path(vsymlinkdir, 'v.bat')
+			vsymlink = os.join_path(vsymlinkdir, 'zubat.bat')
 			if os.exists(vsymlink) {
 				os.rm(vsymlink)
 			}
@@ -117,14 +117,14 @@ fn setup_symlink_windows(zsexe string) {
 		println('Notifying running processes to update their Environment...')
 		send_setting_change_msg('Environment') or {
 			eprintln(err)
-			warn_and_exit('You might need to run this again to have the `v` command in your %PATH%')
+			warn_and_exit('You might need to run this again to have the `zubat` command in your %PATH%')
 			C.RegCloseKey(reg_sys_env_handle)
 			return
 		}
 		C.RegCloseKey(reg_sys_env_handle)
 		println('')
 		println('Note: restart your shell/IDE to load the new %PATH%.')
-		println('After restarting your shell/IDE, give `v version` a try in another dir!')
+		println('After restarting your shell/IDE, give `zubat help` a try in another dir!')
 	}
 }
 

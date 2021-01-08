@@ -29,7 +29,10 @@ script main {
 
 Guardamos este pedazo de código dentro de un archivo llamado `main.zubat`, y estando en la terminal/consola escribimos: ``zubat main.zubat``, nos debería salir un salida idéntica a esta:
 
-> Esto asumiendo que ya tiene a Zubat en su PATH, de lo contrario, ejecute: `./zubat-symlink`
+> Esto asumiendo que ya tiene a Zubat en su PATH, de lo contrario, ejecute make.vsh:
+> `sudo v run make.vsh symlink` si está en linux
+> de lo contrario, si está en Windows, abra un cmd.exe como administrador y ejecute:
+> `v run make.vsh symlink`
 
 ```
 stunxfs@stunxfs-pc:~$ zubat main.zubat
