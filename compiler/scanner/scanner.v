@@ -32,7 +32,7 @@ pub mut:
 	nr_lines                    int
 	eofs                        int
 	pref                        &prefs.Preferences
-	conditional_stack			[]Conditional
+	conditional_stack           []Conditional
 }
 
 pub fn new_scanner(text string, pref &prefs.Preferences) &Scanner {
@@ -225,13 +225,12 @@ pub fn (mut s Scanner) scan() token.Token {
 			return s.end_of_file()
 		}
 		s.skip_whitespace()
-		//s.skip_whitespace()
+		// s.skip_whitespace()
 		if s.pos >= s.text.len {
 			return s.end_of_file()
 		}
 		c := s.text[s.pos]
 		nextc := s.look_ahead(1)
-
 		if util.is_name_char(c) {
 			name := s.ident_name()
 			next_char := s.look_ahead(1)
@@ -255,11 +254,9 @@ pub fn (mut s Scanner) scan() token.Token {
 				prefix_zero_num--
 			}
 			s.pos += prefix_zero_num
-
 			num := s.ident_number()
 			return s.new_token(.number, num, num.len)
 		}
-
 		// all other tokens
 		match c {
 			`+` {
@@ -411,7 +408,7 @@ pub fn (mut s Scanner) scan() token.Token {
 				return s.end_of_file()
 			}
 		}
-		s.error("carácter inválido -> '${c.str()}'")
+		s.error("carácter inválido -> '$c.str()'")
 		break
 	}
 	return s.end_of_file()

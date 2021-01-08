@@ -66,6 +66,7 @@ pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences, global
 	return p.parse()
 }
 
+[inline]
 fn (mut p Parser) get_builtins_stmt() []ast.Stmt {
 	mut b_file := if p.file_name != builtins_file {
 		parse_text(builtins_code, builtins_file, p.table, p.pref, p.global_scope)

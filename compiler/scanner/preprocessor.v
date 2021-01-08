@@ -7,8 +7,8 @@ import compiler.token
 
 struct Conditional {
 pub mut:
-	matched	bool
-	else_found bool
+	matched      bool
+	else_found   bool
 	skip_section bool
 }
 
@@ -22,12 +22,12 @@ pub fn (mut s Scanner) error_with_len(msg string, len int) {
 }
 
 fn (mut s Scanner) pp_whitespace() bool {
-    mut found := false
-    for s.pos < s.text.len && s.text[s.pos].is_space() && s.text[s.pos] != `\n` {
-        found = true
-        s.pos++
-    }
-    return found
+	mut found := false
+	for s.pos < s.text.len && s.text[s.pos].is_space() && s.text[s.pos] != `\n` {
+		found = true
+		s.pos++
+	}
+	return found
 }
 
 fn (mut s Scanner) pp_comment() {
@@ -39,7 +39,7 @@ fn (mut s Scanner) pp_comment() {
 
 fn (mut s Scanner) pp_space() {
 	s.pp_comment() // no permitir comentarios al lado de las directivas: #if Ol //comment
-    for s.pp_whitespace() {}
+	for s.pp_whitespace() {}
 }
 
 fn (mut s Scanner) pp_directive() {
@@ -52,19 +52,31 @@ fn (mut s Scanner) pp_directive() {
 		s.pos++
 		len++
 	}
-	if len == 2 && s.expect("if", start_pos) {
-		s.parse_pp_if()
-	} else if len == 4 && s.expect("elif", start_pos) {
-		s.parse_pp_elif()
-	} else if len == 4 && s.expect("else", start_pos) {
-		s.parse_pp_else()
-	} else if len == 5 && s.expect("endif", start_pos) {
-		s.parse_pp_endif()
-	} else {
-		s.error_with_len("directiva de preprocesador inválida", len+1)
+	match len {
+		2 {
+			if s.expect('if', start_pos) {
+				s.parse_pp_if()
+			}
+		}
+		4 {
+			if s.expect('elif', start_pos) {
+				s.parse_pp_elif()
+			} else if s.expect('else', start_pos) {
+				s.parse_pp_else()
+			}
+		}
+		5 {
+			if s.expect('endif', start_pos) {
+				s.parse_pp_endif()
+			} else if s.expect('define', start_pos) {
+				s.parse_pp_define()
+			}
+		}
+		else {
+			s.error_with_len('directiva de preprocesador inválida', len + 1)
+		}
 	}
-	if s.conditional_stack.len > 0
-		&& s.conditional_stack[s.conditional_stack.len - 1].skip_section {
+	if s.conditional_stack.len > 0 && s.conditional_stack[s.conditional_stack.len - 1].skip_section {
 		// skip lines until next preprocessing directive
 		mut bol := true
 		for s.pos < s.text.len {
@@ -88,8 +100,31 @@ fn (mut s Scanner) pp_directive() {
 fn (mut s Scanner) pp_eol() {
 	s.pp_space()
 	if s.pos >= s.text.len || s.text[s.pos] != `\n` {
-		s.error("se esperaba una nueva línea")
+		s.error('se esperaba una nueva línea')
 	}
+}
+
+fn (mut s Scanner) parse_pp_ident() string {
+	mut len := 0
+	start_pos := s.pos
+	for s.pos < s.text.len && util.is_name_char(s.text[s.pos]) {
+		s.pos++
+		len++
+	}
+	if len == 0 {
+		s.error('se esperaba un identificador')
+	}
+	return s.text[start_pos..s.pos]
+}
+
+fn (mut s Scanner) parse_pp_define() {
+	s.pp_space()
+	identifier := s.parse_pp_ident()
+	s.pp_eol()
+	if s.pref.is_verbose {
+		println('> scanner/pp: definiendo: $identifier')
+	}
+	s.pref.defines << identifier
 }
 
 fn (mut s Scanner) parse_pp_if() {
@@ -97,12 +132,13 @@ fn (mut s Scanner) parse_pp_if() {
 	condition := s.parse_pp_expression()
 	s.pp_eol()
 	s.conditional_stack << Conditional{}
-	if condition && (s.conditional_stack.len == 1 || !s.conditional_stack[s.conditional_stack.len - 2].skip_section) {
+	if condition &&
+		(s.conditional_stack.len == 1 || !s.conditional_stack[s.conditional_stack.len - 2].skip_section) {
 		// condition true => process code within if
-		s.conditional_stack[s.conditional_stack.len-1].matched = true
+		s.conditional_stack[s.conditional_stack.len - 1].matched = true
 	} else {
 		// skip lines until next preprocessing directive
-		s.conditional_stack[s.conditional_stack.len-1].skip_section = true
+		s.conditional_stack[s.conditional_stack.len - 1].skip_section = true
 	}
 }
 
@@ -114,8 +150,8 @@ fn (mut s Scanner) parse_pp_elif() {
 		s.error('no se esperaba #elif')
 		return
 	}
-	if condition && !s.conditional_stack[s.conditional_stack.len-1].matched
-		&& (s.conditional_stack.len == 1 || !s.conditional_stack[s.conditional_stack.len - 2].skip_section) {
+	if condition && !s.conditional_stack[s.conditional_stack.len - 1].matched &&
+		(s.conditional_stack.len == 1 || !s.conditional_stack[s.conditional_stack.len - 2].skip_section) {
 		// condition true => process code within if
 		s.conditional_stack[s.conditional_stack.len - 1].matched = true
 		s.conditional_stack[s.conditional_stack.len - 1].skip_section = false
@@ -128,7 +164,7 @@ fn (mut s Scanner) parse_pp_elif() {
 fn (mut s Scanner) parse_pp_else() {
 	s.pp_eol()
 	if s.conditional_stack.len == 0 || s.conditional_stack[s.conditional_stack.len - 1].else_found {
-		s.error_with_len("no se esperaba #else", 5)
+		s.error_with_len('no se esperaba #else', 5)
 	}
 	if !s.conditional_stack[s.conditional_stack.len - 1].matched &&
 		(s.conditional_stack.len == 1 || !s.conditional_stack[s.conditional_stack.len - 2].skip_section) {
@@ -144,27 +180,17 @@ fn (mut s Scanner) parse_pp_else() {
 fn (mut s Scanner) parse_pp_endif() {
 	s.pp_eol()
 	if s.conditional_stack.len == 0 {
-		s.error_with_len("no se esperaba #endif", 6)
+		s.error_with_len('no se esperaba #endif', 6)
 	}
 	s.conditional_stack.pop()
 }
 
 fn (mut s Scanner) parse_pp_symbol() bool {
-	mut len := 0
-	start_pos := s.pos
-	for s.pos < s.text.len && util.is_name_char(s.text[s.pos]) {
-		s.pos++
-		len++
-	}
-	if len == 0 {
-		s.error('se esperaba un identificador')
-		return false
-	}
-	identifier := s.text[start_pos..s.pos]
+	identifier := s.parse_pp_ident()
 	mut defined := false
-	if identifier == "true" {
+	if identifier == 'true' {
 		defined = true
-	} else if identifier == "false" {
+	} else if identifier == 'false' {
 		defined = false
 	} else {
 		defined = identifier in s.pref.defines
@@ -174,7 +200,7 @@ fn (mut s Scanner) parse_pp_symbol() bool {
 
 fn (mut s Scanner) parse_pp_primary_expression() bool {
 	if s.pos >= s.text.len {
-		s.error("se esperaba un identificador")
+		s.error('se esperaba un identificador')
 	} else if util.is_name_char(s.text[s.pos]) {
 		return s.parse_pp_symbol()
 	} else if s.text[s.pos] == `(` {
@@ -207,12 +233,12 @@ fn (mut s Scanner) parse_pp_equality_expression() bool {
 	mut left := s.parse_pp_unary_expression()
 	s.pp_space()
 	for true {
-		if s.pos < s.text.len - 1 && s.text[s.pos] == `=` && s.text[s.pos+1] == `=` {
+		if s.pos < s.text.len - 1 && s.text[s.pos] == `=` && s.text[s.pos + 1] == `=` {
 			s.pos += 2
 			s.pp_space()
 			right := s.parse_pp_unary_expression()
 			left = (left == right)
-		} else if s.pos < s.text.len - 1 && s.text[s.pos] == `!` && s.text[s.pos+1] == `=` {
+		} else if s.pos < s.text.len - 1 && s.text[s.pos] == `!` && s.text[s.pos + 1] == `=` {
 			s.pos += 2
 			s.pp_space()
 			right := s.parse_pp_unary_expression()
@@ -227,7 +253,8 @@ fn (mut s Scanner) parse_pp_equality_expression() bool {
 fn (mut s Scanner) parse_pp_and_expression() bool {
 	mut left := s.parse_pp_equality_expression()
 	s.pp_space()
-	for s.pos < s.text.len - 1 && s.text[s.pos] == `a` && s.look_ahead(1) == `n` && s.look_ahead(2) == `d` {
+	start_pos := s.pos
+	for s.pos < s.text.len - 1 && s.expect("and ", start_pos) {
 		s.pos += 3
 		s.pp_space()
 		right := s.parse_pp_equality_expression()
@@ -239,7 +266,8 @@ fn (mut s Scanner) parse_pp_and_expression() bool {
 fn (mut s Scanner) parse_pp_or_expression() bool {
 	mut left := s.parse_pp_and_expression()
 	s.pp_space()
-	for s.pos < s.text.len - 1 && s.text[s.pos] == `o` && s.look_ahead(1) == `r` {
+	start_pos := s.pos
+	for s.pos < s.text.len - 1 && s.expect("or ", start_pos) {
 		s.pos += 2
 		s.pp_space()
 		right := s.parse_pp_and_expression()

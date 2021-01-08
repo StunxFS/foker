@@ -3,7 +3,7 @@
 module parser
 
 const (
-builtins_file = 'in_memory/builtins.fkr'
+builtins_file = "in_memory/builtins.zs"
 builtins_code ="
 /*
 * Builtins.fkr | Archivo guardado en memoria para la generación de comandos, variables y alias
