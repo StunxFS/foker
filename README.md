@@ -168,7 +168,7 @@ script main {
 }
 ```
 
-El ejemplo anterior se pudiera compilar así: ``zubat -b <backend> gen_script.fkr``, donde ``<backend>`` pudiera ser ``decomp`` o ``binary``. Ejemplo:
+El ejemplo anterior se pudiera compilar así: ``zubat -b <backend> gen_script.zs``, donde ``<backend>`` pudiera ser ``decomp`` o ``binary``. Ejemplo:
 
 ```bash
 zubat -b decomp gen_script.zs
