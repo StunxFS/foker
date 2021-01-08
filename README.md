@@ -78,7 +78,17 @@ Ahora si estás en Linux ejecuta: ``sudo ./v symlink``, si estás en Windows, ab
 ```bash
 git clone https://github.com/StunxFS/zubat
 cd zubat
-v run make.vsh
+v run make.vsh build
+```
+
+Para symlinking ejecute:
+
+```bash
+# En Linux:
+sudo v run make.vsh symlink
+
+# En Windows, abra un cmd.exe como administrador, y ejecute:
+v run make.vsh symlink
 ```
 
 ¡Listo! Ya tienes compilado ZubatScript, ahora ejecuta ``./zubat`` (o en Windows: ``.\zubat.exe``), si te muestra algún mensaje de ayuda todo está correcto.
@@ -161,8 +171,8 @@ script main {
 El ejemplo anterior se pudiera compilar así: ``zubat -b <backend> gen_script.fkr``, donde ``<backend>`` pudiera ser ``decomp`` o ``binary``. Ejemplo:
 
 ```bash
-zubat -b decomp gen_script.fkr
-zubat -b binary gen_script.fkr
+zubat -b decomp gen_script.zs
+zubat -b binary gen_script.zs
 ```
 
 Si quiere más ejemplos, vaya a la carpeta [ejemplos](/ejemplos/).
