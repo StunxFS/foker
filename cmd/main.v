@@ -20,15 +20,17 @@ fn main() {
 
 fn go_compile() {
 	pref := prefs.parse_args_and_get_prefs()
-    if pref.use_color == .always {
+	if pref.use_color == .always {
 		util.emanager.set_support_color(true)
 	}
 	if pref.use_color == .never {
 		util.emanager.set_support_color(false)
 	}
-    mut table := ast.new_table()
-    mut global_scope := &ast.Scope{parent: 0}
-    file := parser.parse_file(pref.file, table, pref, global_scope)
+	mut table := ast.new_table()
+	mut global_scope := &ast.Scope{
+		parent: 0
+	}
+	file := parser.parse_file(pref.file, table, pref, global_scope)
 	if !pref.only_check_syntax {
 		// TODO: checker.check_file(file)
 		match pref.backend {
@@ -48,14 +50,14 @@ fn go_compile() {
 }
 
 fn show_reports(reports []util.Report) {
-    mut err_count := 0
-    for report in reports {
-        if report.kind == .error {
-            err_count++
-        }
-        eprintln(report.msg)
-    }
-    if err_count > 0 {
-        exit(1)
-    }
+	mut err_count := 0
+	for report in reports {
+		if report.kind == .error {
+			err_count++
+		}
+		eprintln(report.msg)
+	}
+	if err_count > 0 {
+		exit(1)
+	}
 }
