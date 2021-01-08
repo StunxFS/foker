@@ -11,8 +11,8 @@
 [Documentación](/docs/docs.pdf) |
 [Changelog](CHANGELOG.md) |
 [Limitaciones](LIMITACIONES.md) |
-[Código de conducta](CODE_OF_CONDUCT.md) |
-[Contribuciones](CONTRIBUTING.md)
+[Código de conducta](CODE_OF_CONDUCT.md)
+<!-- | [Contribuciones](CONTRIBUTING.md) -->
 
 <!--[![Discord][DiscordBadge]][DiscordUrl]-->
 
@@ -82,7 +82,6 @@ v run make.vsh
 ```
 
 ¡Listo! Ya tienes compilado ZubatScript, ahora ejecuta ``./zubat`` (o en Windows: ``.\zubat.exe``), si te muestra algún mensaje de ayuda todo está correcto.
-
 
 ## :blue_book: Ejemplos de ZubatScript
 
