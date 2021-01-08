@@ -187,7 +187,7 @@ Buena parte del código fuente de ZubatScript está tomado del código fuente de
 
 Créditos a Alexander Medvednikov (Creador del lenguaje V) y a todo el equipo de desarrollo del lenguaje V.
 
-Créditos al usuario [huderlem](https://github.com/huderlem/), creador de [Poryscript](https://github.com/huderlem/poryscript), proyecto que fue fuente de inspiración y de donde se tomó el código fuente del [formateador de textos](compiler/emitter/binary/fmtttext.v).
+Créditos al usuario [huderlem](https://github.com/huderlem/), creador de [Poryscript](https://github.com/huderlem/poryscript), proyecto que fue fuente de inspiración y de donde se tomó el código fuente del [formateador de textos](compiler/emitter/binary/fmttext.v).
 
 Créditos a GNOME y a los desarrolladores del lenguaje de programación Vala, proyecto de donde se tomó el código usado para el preprocesador implementado aquí.
 
