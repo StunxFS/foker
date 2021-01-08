@@ -179,7 +179,7 @@ Si quiere más ejemplos, vaya a la carpeta [ejemplos](/ejemplos/).
 
 ## :card_index_dividers: Documentación del lenguaje
 
-La documentación del lenguaje se encuentra en el archivo [docs/docs.md](docs/docs.md). También hay una [wiki](https://github.com/StunxFS/zubatscript/wiki), en donde se planea publicar tips y consejos útiles para el desarrollo con ZubatScript.
+La documentación del lenguaje se encuentra en el archivo [docs/docs.md](docs/docs.md). También hay una [wiki](https://github.com/StunxFS/zubat_script/wiki), en donde se planea publicar tips y consejos útiles para el desarrollo con ZubatScript.
 
 ## :spiral_notepad: Créditos
 
@@ -187,7 +187,7 @@ Buena parte del código fuente de ZubatScript está tomado del código fuente de
 
 Créditos a Alexander Medvednikov (Creador del lenguaje V) y a todo el equipo de desarrollo del lenguaje V.
 
-Créditos al usuario [huderlem](https://github.com/huderlem/), creador de [Poryscript](https://github.com/huderlem/poryscript), proyecto que fue fuente de inspiración y de donde se tomó el código fuente del [formateador de textos](zubat/gen/binary/fmtttext.v).
+Créditos al usuario [huderlem](https://github.com/huderlem/), creador de [Poryscript](https://github.com/huderlem/poryscript), proyecto que fue fuente de inspiración y de donde se tomó el código fuente del [formateador de textos](compiler/emitter/binary/fmtttext.v).
 
 Créditos a GNOME y a los desarrolladores del lenguaje de programación Vala, proyecto de donde se tomó el código usado para el preprocesador implementado aquí.
 
