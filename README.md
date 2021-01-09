@@ -193,7 +193,7 @@ Créditos a GNOME y a los desarrolladores del lenguaje de programación Vala, pr
 
 * * *
 
-> Copyright (C) 2020 StunxFS. Todos los derechos reservados.
+Copyright (C) 2020 StunxFS. Todos los derechos reservados.
 
 * * *
 

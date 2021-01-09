@@ -23,7 +23,7 @@ Descripción:
     Este compilador aún está bajo desarrollo, es decir, que todavía es un trabajo en progreso.
 
 Uso:
-    $program [opciones] archivo.zubat
+    $program [opciones] archivo.zs
 
 Información básica sobre los backends:
     Versión del backend de binario: $emitter_bin_version
@@ -31,10 +31,10 @@ Información básica sobre los backends:
 
 Argumentos:
     archivo-fkr
-        Este argumento no se declara, sino que recibe el archivo de script .zubat que será
+        Este argumento no se declara, sino que recibe el archivo de script .zs que será
         compilado.
         Ejemplo de uso:
-            $program miarchivo.zubat
+            $program miarchivo.zs
 
 Opciones:
     -h, -a, help, ayuda
@@ -47,25 +47,25 @@ Opciones:
             binary
             decomp
         Ejemplo de uso:
-            $program -b decomp miarchivo.zubat
-            $program -b binary miarchivo.zubat
+            $program -b decomp miarchivo.zs
+            $program -b binary miarchivo.zs
 
     -d, -define
         Esta opción define el nombre de la bandera que se le pase, esto es muy útil para manejar
         código que se compila condicionalmente. (ej: #if DEFINED_2020)
         Ejemplo de uso:
-            $program -d DEFINED_2020 main_def_test.zubat
+            $program -d DEFINED_2020 main_def_test.zs
 
     -o, -output
         Esta opción le especifica al compilador cómo debería llamarse el archivo de salida
         Ejemplo de uso:
-            $program -o micarpeta/miarchivo.rbh miarchivo.zubat
+            $program -o micarpeta/miarchivo.rbh miarchivo.zs
 
     -r, -rom
         Esta opción le dice al compilador el nombre de la ROM que se usará para insertar el
         script. OJO: Esta opción no se puede usar junto a -o, -output
         Ejemplo de uso:
-            $program -r mirom.gba miscript.zubat
+            $program -r mirom.gba miscript.zs
 
     -g, -game
         Esta opción le especifica al compilador que ROM se usará para el script, por defecto
@@ -75,49 +75,49 @@ Opciones:
             frlf, fireredleafgreen: Pokémon FireRed/LeafGreen
             e, emerald: Pokémon Emerald
         Ejemplo de uso:
-            $program -g fr miarchivo.zubat
+            $program -g fr miarchivo.zs
 
     -fast, -debug
         Estas opciones le dicen al compilador que nivel de optimización debe usar para generar
         el script, esto permite realizar un script que pueda ser feo y lento (-debug), o uno rápido
         y limpio (-fast). Por defecto el valor es -debug
         Ejemplo de uso:
-            $program -fast miarchivo.zubat
-            $program -debug miarchivo.zubat
+            $program -fast miarchivo.zs
+            $program -debug miarchivo.zs
 
     -warns-are-errors
         Esta opción le dice al compilador que trate las advertencias como errores.
         Ejemplo de uso:
-            $program -warns-are-errors main_12.zubat
+            $program -warns-are-errors main_12.zs
 
     -skip-warnings
         Esta opción hace que el compilador no muestre advertencias.
         Ejemplo de uso:
-            $program -skip-warnings main_14.zubat
+            $program -skip-warnings main_14.zs
 
     -verbose
         Esta opción hace que el compilador detalle cada paso que hace
         Ejemplo de uso:
-            $program -verbose main_98.zubat
+            $program -verbose main_98.zs
 
     -nocolor
         Esta opción hace que el compilador nunca use colores en los mensajes de error, advertencia, etc
         Ejemplo de uso:
-            $program -nocolor main_282.zubat
+            $program -nocolor main_282.zs
 
     -color
         Esta opción hace que el compilador siempre use los colores en los mensajes de error, advertencia, etc
         Ejemplo de uso:
-            $program -color main_13.zubat
+            $program -color main_13.zs
 
     -only-check-syntax
         Esta opción solo parsea el archivo dad, evitando el chequeo y la generación del programa, esta opción
         puede ser útil para aprender la sintaxis de ZubatScript.
         Ejemplo de uso:
-            $program -only-check-syntax main_26.zubat
+            $program -only-check-syntax main_26.zs
 
 Ejemplos de usos del programa:
-    $program -o mi_script_perron.inc -g rs -b decomp mi_script.zubat
-    $program -fast -skip-warnings -g rs mi_script.zubat
-    $program -debug -warns-are-errors -g rs mi_script.zubat")
+    $program -o mi_script_perron.inc -g rs -b decomp mi_script.zs
+    $program -fast -skip-warnings -g rs mi_script.zs
+    $program -debug -warns-are-errors -g rs mi_script.zs")
 }
