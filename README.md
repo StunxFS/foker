@@ -195,6 +195,8 @@ Créditos a GNOME y a los desarrolladores del lenguaje de programación Vala, pr
 
 > Copyright (C) 2020 StunxFS. Todos los derechos reservados.
 
+* * *
+
 <!--- Utilidades --->
 [DiscordBadge]: https://img.shields.io/discord/779007353185239070?label=Discord&logo=Discord&logoColor=white
 [DiscordUrl]: https://discord.gg/pnvcap7WYT
