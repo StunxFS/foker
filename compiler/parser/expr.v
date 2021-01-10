@@ -59,7 +59,7 @@ pub fn (mut p Parser) expr_with_left(left ast.Expr, precedence int) ast.Expr {
 		if p.tok.kind.is_infix() {
 			if p.tok.kind.is_prefix() && p.tok.line_nr != p.prev_tok.line_nr {
 				// added 10/2020: LATER this will be parsed as PrefixExpr instead
-				p.warn_with_pos('move infix `$p.tok.kind` operator before new line (if infix intended) or use brackets for a prefix expression',
+				p.warn_with_pos('mueva el operador infijo `$p.tok.kind` antes de la nueva línea (si se pretende infijo) o use corchetes para una expresión de prefijo',
 					p.tok.position())
 			}
 			// continue on infix expr
