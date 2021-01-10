@@ -3,8 +3,8 @@
 module parser
 
 const (
-builtins_file = "in_memory/builtins.zs"
-builtins_code ="
+	builtins_file = 'in_memory/builtins.zs'
+	builtins_code = '
 /*
 * Builtins.fkr | Archivo guardado en memoria para la generación de comandos, variables y alias
 * debido a que ZubatScript no soporta la modularización.
@@ -19,4 +19,5 @@ var LASTRESULT at 0x8000: int;
 
 //! Comandos básicos de ROMHacking
 cmd msgbox(msg: string, type: int = 6);
-")
+'
+)

@@ -5,9 +5,9 @@ module util
 import term
 
 const (
-	zubat_script_cli_error = term.bold(term.red('ZubatScript CLI: error: '))
+	zubat_script_cli_error   = term.bold(term.red('ZubatScript CLI: error: '))
 	zubat_script_cli_warning = term.bold(term.magenta('ZubatScript CLI: advertencia: '))
-	zubat_script_cli_note = term.bold(term.cyan('ZubatScript CLI: nota:'))
+	zubat_script_cli_note    = term.bold(term.cyan('ZubatScript CLI: nota:'))
 )
 
 pub fn err(msg string) {

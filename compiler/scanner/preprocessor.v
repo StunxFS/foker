@@ -254,7 +254,7 @@ fn (mut s Scanner) parse_pp_and_expression() bool {
 	mut left := s.parse_pp_equality_expression()
 	s.pp_space()
 	start_pos := s.pos
-	for s.pos < s.text.len - 1 && s.expect("and ", start_pos) {
+	for s.pos < s.text.len - 1 && s.expect('and ', start_pos) {
 		s.pos += 3
 		s.pp_space()
 		right := s.parse_pp_equality_expression()
@@ -267,7 +267,7 @@ fn (mut s Scanner) parse_pp_or_expression() bool {
 	mut left := s.parse_pp_and_expression()
 	s.pp_space()
 	start_pos := s.pos
-	for s.pos < s.text.len - 1 && s.expect("or ", start_pos) {
+	for s.pos < s.text.len - 1 && s.expect('or ', start_pos) {
 		s.pos += 2
 		s.pp_space()
 		right := s.parse_pp_and_expression()

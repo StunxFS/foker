@@ -7,7 +7,7 @@ import compiler.about
 
 // full_zubatscript_version() retorna la version completa del compilador de ZubatScript
 pub fn full_zubatscript_version() string {
-	return 'ZubatScript ${about.version}'
+	return 'ZubatScript $about.version'
 }
 
 pub fn set_fsroot_folder(fsroot_path string) {
@@ -21,7 +21,7 @@ pub fn quote_path(s string) string {
 		qs = qs.replace('&', '\\&')
 	}
 	if qs.contains(' ') {
-		return '"${qs}"'
+		return '"$qs"'
 	}
 	return qs
 }
@@ -42,9 +42,7 @@ pub fn path_of_executable(path string) string {
 }
 
 pub fn read_file(file_path string) ?string {
-	raw_text := os.read_file(file_path) or {
-		return error('failed to open ${file_path}')
-	}
+	raw_text := os.read_file(file_path) or { return error('failed to open $file_path') }
 	return skip_bom(raw_text)
 }
 
@@ -62,12 +60,22 @@ pub fn skip_bom(file_content string) string {
 	return raw_text
 }
 
-[inline] pub fn imin(a int, b int) int {
-	return if a < b { a } else { b }
+[inline]
+pub fn imin(a int, b int) int {
+	return if a < b {
+		a
+	} else {
+		b
+	}
 }
 
-[inline] pub fn imax(a int, b int) int {
-	return if a > b { a } else { b }
+[inline]
+pub fn imax(a int, b int) int {
+	return if a > b {
+		a
+	} else {
+		b
+	}
 }
 
 pub fn strip_mod_name(name string) string {

@@ -11,7 +11,6 @@ $if windows {
 		#flag -lUser32
 	}
 }
-
 fn main() {
 	zsexe := os.real_path(prefs.zsexe_path().replace('zubat-symlink', 'zubat'))
 	$if windows {
@@ -27,17 +26,13 @@ fn setup_symlink(zsexe string) {
 		os.mkdir_all(link_dir)
 	}
 	mut link_path := link_dir + '/zubat'
-	mut ret := os.exec('ln -sf $zsexe $link_path') or {
-		panic(err)
-	}
+	mut ret := os.exec('ln -sf $zsexe $link_path') or { panic(err) }
 	if ret.exit_code == 0 {
 		println('Symlink "$link_path" has been created')
 	} else if os.system("uname -o | grep -q \'[A/a]ndroid\'") == 0 {
 		println('Failed to create symlink "$link_path". Trying again with Termux path for Android.')
 		link_path = '/data/data/com.termux/files/usr/bin/v'
-		ret = os.exec('ln -sf $zsexe $link_path') or {
-			panic(err)
-		}
+		ret = os.exec('ln -sf $zsexe $link_path') or { panic(err) }
 		if ret.exit_code == 0 {
 			println('Symlink "$link_path" has been created')
 		} else {
@@ -88,9 +83,7 @@ fn setup_symlink_windows(zsexe string) {
 		// C.RegCloseKey(reg_sys_env_handle)
 		// }
 		// if the above succeeded, and we cannot get the value, it may simply be empty
-		sys_env_path := get_reg_value(reg_sys_env_handle, 'Path') or {
-			''
-		}
+		sys_env_path := get_reg_value(reg_sys_env_handle, 'Path') or { '' }
 		current_sys_paths := sys_env_path.split(os.path_delimiter).map(it.trim('/$os.path_separator'))
 		mut new_paths := [vsymlinkdir]
 		for p in current_sys_paths {

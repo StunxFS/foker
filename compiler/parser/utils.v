@@ -22,7 +22,7 @@ pub fn (mut p Parser) error_with_pos(s string, pos token.Position) {
 
 pub fn (mut p Parser) error_with_pos_and_details(s string, pos token.Position, details string) {
 	eprintln(util.formatted_error('error:', s, p.file_name, pos))
-	eprintln('${term.bold("detalles:")} ${details}')
+	eprintln('${term.bold('detalles:')} $details')
 	exit(1)
 }
 
@@ -35,4 +35,3 @@ pub fn (mut p Parser) warn_with_pos(s string, pos token.Position) {
 	}
 	eprintln(util.formatted_error('advertencia:', s, p.file_name, pos))
 }
-

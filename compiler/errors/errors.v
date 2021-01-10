@@ -23,7 +23,7 @@ pub:
 	file_path string
 	pos       token.Position
 	reporter  Reporter
-	kind	  ReportKind
+	kind      ReportKind
 }
 
 pub fn (r []Report) report_to_user() bool {

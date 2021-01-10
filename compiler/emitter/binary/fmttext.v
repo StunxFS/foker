@@ -10,13 +10,13 @@ import regex
 // FontsWidthsConfig holds the pixel widths of characters in various game fonts.
 pub struct FontsWidthsConfig {
 pub:
-	fonts			map[string]map[string]int
-	default_font_id	string
+	fonts           map[string]map[string]int
+	default_font_id string
 }
 
 pub fn load_fontwidths(filepath string) ?FontsWidthsConfig {
-	bytes := os.read_file(filepath)?
-	r := json.raw_decode(bytes)?
+	bytes := os.read_file(filepath) ?
+	r := json.raw_decode(bytes) ?
 	raw := r.as_map()
 	mut fonts_ := map[string]map[string]int{}
 	for k, v in raw['fonts'].as_map() {
@@ -27,13 +27,13 @@ pub fn load_fontwidths(filepath string) ?FontsWidthsConfig {
 		fonts_[k] = ms
 	}
 	return FontsWidthsConfig{
-		fonts: fonts_,
+		fonts: fonts_
 		default_font_id: raw['defaultFontId'].str()
 	}
 }
 
 pub const (
-	test_fontid = "TEST"
+	test_fontid = 'TEST'
 )
 
 pub fn (fw &FontsWidthsConfig) format_text(_text string, max_width int, font_id string) ?string {
@@ -44,9 +44,8 @@ pub fn (fw &FontsWidthsConfig) format_text(_text string, max_width int, font_id 
 			valid_fontids[i] = k
 			i++
 		}
-		return error('unknown fontID "${font_id}" used in format(). list of valid fontIDs are "${valid_fontids}"')
+		return error('unknown fontID "$font_id" used in format(). list of valid fontIDs are "$valid_fontids"')
 	}
-
 	text := _text.replace('\n', ' ')
 	mut formatted_sb := strings.new_builder(100)
 	mut curline_sb := strings.new_builder(100)
@@ -101,7 +100,6 @@ pub fn (fw &FontsWidthsConfig) format_text(_text string, max_width int, font_id 
 			}
 		}
 	}
-
 	if curline_sb.len > 0 {
 		formatted_sb.write(curline_sb.str())
 	}
@@ -155,7 +153,7 @@ fn (fw &FontsWidthsConfig) get_next_word(text string) (int, string) {
 		}
 	}
 	if !found_non_space {
-		return text.len, ""
+		return text.len, ''
 	}
 	return text.len, text[start_pos..]
 }
@@ -178,15 +176,13 @@ fn (fw &FontsWidthsConfig) get_word_pixel_width(_word string, font_id string) in
 
 fn (fw &FontsWidthsConfig) process_control_codes(word string, font_id string) (string, int) {
 	mut width := 0
-	mut re := regex.regex_opt('{[^}]*}') or {
-		panic(err)
-	}
+	mut re := regex.regex_opt('{[^}]*}') or { panic(err) }
 	positions := re.find_all_str(word)
 	for _, pos in positions {
 		code := word[pos[0]..pos[1]]
 		width += fw.get_control_code_pixel_width(code, font_id)
 	}
-	stripped_word := re.replace(word, "")
+	stripped_word := re.replace(word, '')
 	return stripped_word, width
 }
 
@@ -218,13 +214,11 @@ fn (fw &FontsWidthsConfig) read_width_from_font_config(value string, font_id str
 	}
 	font := fw.fonts[font_id]
 	if value !in font {
-		if "default" !in font {
+		if 'default' !in font {
 			return fallback_width
 		}
-		default_width := font["default"]
+		default_width := font['default']
 		return default_width
 	}
 	return font[value]
 }
-
-

@@ -5,38 +5,42 @@ module binary
 import os
 import compiler.ast
 import compiler.prefs
-//import compiler.token
 
+// import compiler.token
 const (
 	operators = {
-		"==": "1", "!=": "5", "<": "0", ">": "2",
-    	"<=": "3", ">=": "4"
+		'==': '1'
+		'!=': '5'
+		'<':  '0'
+		'>':  '2'
+		'<=': '3'
+		'>=': '4'
 	}
 )
 
 pub struct Binary {
 mut:
-	file		ast.File
-	fs			FScript
-	table		&ast.Table
-	pref		&prefs.Preferences
+	file  ast.File
+	fs    FScript
+	table &ast.Table
+	pref  &prefs.Preferences
 }
 
 pub fn bingen_to_file(file ast.File, table &ast.Table, pref &prefs.Preferences) ? {
-	os.write_file(pref.output, bingen(file, table, pref))?
+	os.write_file(pref.output, bingen(file, table, pref)) ?
 }
 
 pub fn bingen(file ast.File, table &ast.Table, pref &prefs.Preferences) string {
 	mut bin := Binary{file, new_fscript_with_vffile(file.prog.name, pref.flags_vars_file), table, pref}
 	bin.run()
-	return bin.fs.generate_script() + "\n"
+	return bin.fs.generate_script() + '\n'
 }
 
 fn (mut bin Binary) run() {
 	for stmt in bin.file.prog.stmts {
-		match stmt { 
+		match stmt {
 			ast.DynamicStmt {
-				bin.fs.change_dynamic(if !stmt.dyn_offset.starts_with('0x'){
+				bin.fs.change_dynamic(if !stmt.dyn_offset.starts_with('0x') {
 					to_hex(stmt.dyn_offset.int())
 				} else {
 					stmt.dyn_offset
@@ -71,14 +75,20 @@ fn (mut bin Binary) expr_lit_str(name string, expr ast.Expr) (bool, string) {
 			}
 		}
 		ast.BoolLiteral {
-			return true, if expr.lit.bool() { '0' } else { '1' }
+			return true, if expr.lit.bool() {
+				'0'
+			} else {
+				'1'
+			}
 		}
 		ast.StringLiteral {
 			return false, expr.lit
 		}
-		/*ast.FmtStringLiteral { TODO
+		/*
+		ast.FmtStringLiteral { TODO
 			bin.fs.add_string(name, expr.lit)
-		}*/
+		}
+		*/
 		else {}
 	}
 	return true, ''
@@ -97,16 +107,16 @@ fn (mut bin Binary) stmts(mut block FBlock, stmts []ast.Stmt) {
 	for stmt in stmts {
 		match stmt {
 			ast.QuestionStmt {
-				block.add_cmd('msgbox', ["@"+bin.fs.add_tmp_string(stmt.question.lit), '5'])
+				block.add_cmd('msgbox', ['@' + bin.fs.add_tmp_string(stmt.question.lit), '5'])
 				block.add_cmd('compare', ['LASTRESULT', '1'])
 				yes_label := bin.fs.new_question_label()
 				no_label := bin.fs.new_question_label()
 				yes_end_label := bin.fs.new_question_label()
-				block.add_cmd('if 1 goto', [":"+yes_label])
-				block.add_cmd('goto', [":"+no_label])
+				block.add_cmd('if 1 goto', [':' + yes_label])
+				block.add_cmd('goto', [':' + no_label])
 				block.add_label(yes_label)
 				bin.stmts(mut block, stmt.yes.stmts)
-				block.add_goto(yes_end_label+' ; pasaje de salida para ${yes_label}')
+				block.add_goto(yes_end_label + ' ; pasaje de salida para $yes_label')
 				block.add_label(no_label)
 				bin.stmts(mut block, stmt.no.stmts)
 				block.add_label(yes_end_label)
@@ -117,8 +127,8 @@ fn (mut bin Binary) stmts(mut block FBlock, stmts []ast.Stmt) {
 				boy_label := bin.fs.new_label()
 				girl_label := bin.fs.new_label()
 				end_boy_label := bin.fs.new_label()
-				block.add_cmd('if 1 goto', [':'+boy_label+' ; boy'])
-				block.add_goto(girl_label+' ; girl')
+				block.add_cmd('if 1 goto', [':' + boy_label + ' ; boy'])
+				block.add_goto(girl_label + ' ; girl')
 				block.add_label(boy_label)
 				bin.stmts(mut block, stmt.boy_stmts)
 				block.add_goto(end_boy_label)

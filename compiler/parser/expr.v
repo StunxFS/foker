@@ -20,12 +20,8 @@ fn (mut p Parser) expr(precedence int) ast.Expr {
 		}
 		.dollar {
 			match p.peek_tok.kind {
-				.key_if {
-					return p.if_expr(true)
-				}
-				else {
-					p.error_with_pos("'$' inesperado", p.peek_tok.position())
-				}
+				.key_if { return p.if_expr(true) }
+				else { p.error_with_pos("'$' inesperado", p.peek_tok.position()) }
 			}
 		}
 		.key_true, .key_false {
@@ -49,7 +45,7 @@ fn (mut p Parser) expr(precedence int) ast.Expr {
 		}
 		else {
 			if p.tok.kind != .eof {
-				p.error_with_pos('expresión invalida, no se esperaba el token `${p.tok.kind.str()}`',
+				p.error_with_pos('expresión invalida, no se esperaba el token `$p.tok.kind.str()`',
 					p.tok.position())
 			}
 		}
@@ -109,7 +105,7 @@ fn (mut p Parser) prefix_expr() ast.PrefixExpr {
 }
 
 fn (mut p Parser) name_expr() ast.Expr {
-	//prev_tok_kind := p.prev_tok.kind
+	// prev_tok_kind := p.prev_tok.kind
 	mut node := ast.Expr{}
 	if p.tok.lit == 'fmt' { // auto-format string
 		p.next()
@@ -144,7 +140,7 @@ pub fn (mut p Parser) parse_ident() ast.Ident {
 				name: '_'
 				kind: .blank_ident
 				pos: pos
-				//scope: p.scope
+				// scope: p.scope
 			}
 		}
 		if p.expr_mod.len > 0 {
@@ -156,12 +152,12 @@ pub fn (mut p Parser) parse_ident() ast.Ident {
 			name: name
 			mod: p.mod
 			pos: pos
-			//scope: p.scope
+			// scope: p.scope
 		}
 	}
 	p.error('token `$p.tok.lit` inesperado')
 	return ast.Ident{
-		//scope: p.scope
+		// scope: p.scope
 	}
 }
 

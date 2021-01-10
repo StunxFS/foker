@@ -10,26 +10,26 @@ import compiler.scanner
 import compiler.ast
 
 pub struct Parser {
-	file_base     		string // "hello.fkr"
-	file_name     		string // /home/user/hello.fkr
-	file_name_dir 		string // home/user
-	pref          		&prefs.Preferences
+	file_base         string // "hello.fkr"
+	file_name         string // /home/user/hello.fkr
+	file_name_dir     string // home/user
+	pref              &prefs.Preferences
 mut:
-	scanner       		&scanner.Scanner
-	tok           		token.Token
-	prev_tok      		token.Token
-	peek_tok      		token.Token
-	peek_tok2     		token.Token
-	peek_tok3     		token.Token
-	table        		&ast.Table
-	mod           		string // current module name
-	expr_mod      		string
-	scope         		&ast.Scope
-	global_scope  		&ast.Scope
-	have_dyn_custom 	bool
-	cur_script_name 	string
-	inside_if		 	bool
-	inside_ct_if_expr	bool
+	scanner           &scanner.Scanner
+	tok               token.Token
+	prev_tok          token.Token
+	peek_tok          token.Token
+	peek_tok2         token.Token
+	peek_tok3         token.Token
+	table             &ast.Table
+	mod               string // current module name
+	expr_mod          string
+	scope             &ast.Scope
+	global_scope      &ast.Scope
+	have_dyn_custom   bool
+	cur_script_name   string
+	inside_if         bool
+	inside_ct_if_expr bool
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
@@ -68,11 +68,8 @@ pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences, global
 
 [inline]
 fn (mut p Parser) get_builtins_stmt() []ast.Stmt {
-	mut b_file := if p.file_name != builtins_file {
-		parse_text(builtins_code, builtins_file, p.table, p.pref, p.global_scope)
-	} else {
-		ast.File{}
-	}
+	mut b_file := if p.file_name != builtins_file { parse_text(builtins_code, builtins_file,
+			p.table, p.pref, p.global_scope) } else { ast.File{} }
 	return b_file.prog.stmts
 }
 
@@ -81,7 +78,7 @@ pub fn (mut p Parser) parse() ast.File {
 	p.mod = p.file_name.all_after_last(os.path_separator).all_before_last('.')
 	mut stmts := p.get_builtins_stmt()
 	if p.pref.is_verbose {
-		println("> Parsing module: '${p.mod}' (archivo: '${p.file_name}')")
+		println("> Parsing module: '$p.mod' (archivo: '$p.file_name')")
 	}
 	for p.tok.kind != .eof {
 		if p.tok.kind == .key_dynamic {
@@ -320,10 +317,8 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	name_pos := p.tok.position()
 	script_name := p.check_name()
 	if util.contains_capital(script_name) && script_name[0].is_capital() {
-		p.error_with_pos_and_details(
-			'no uses el estilo PascalCase para nombrar scripts, usa el estilo camelCase',
-			p.prev_tok.position(),
-			"en vez de usar, por ejemplo, 'MiNameScript', use 'miNameScript'")
+		p.error_with_pos_and_details('no uses el estilo PascalCase para nombrar scripts, usa el estilo camelCase',
+			p.prev_tok.position(), "en vez de usar, por ejemplo, 'MiNameScript', use 'miNameScript'")
 	}
 	p.cur_script_name = script_name
 	if is_extern { // extern script name; | extern script name2 at 0x90034;
@@ -360,18 +355,18 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 }
 
 fn (mut p Parser) const_decl() ast.Const {
-	//start_pos := p.tok.position()
-	//end_pos := p.tok.position()
-	//const_pos := p.tok.position()
+	// start_pos := p.tok.position()
+	// end_pos := p.tok.position()
+	// const_pos := p.tok.position()
 	p.check(.key_const)
 	pos := p.tok.position()
 	name := p.check_name()
 	mut type_const := ast.Type._auto
-	if name == "_" {
+	if name == '_' {
 		p.error_with_pos("no se puede usar '_' como nombre de una constante", pos)
 	}
 	if !util.contains_capital(name) {
-		p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas (use: "${name.to_upper()}", en vez de "${name}")',
+		p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas (use: "$name.to_upper()", en vez de "$name")',
 			pos)
 	}
 	if p.tok.kind == .colon {
@@ -442,7 +437,8 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 					}
 				}
 			}
-			/*.key_continue, .key_break {
+			/*
+			.key_continue, .key_break {
 				tok := p.tok
 				line := p.tok.line_nr
 				p.next()
@@ -455,7 +451,8 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 					label: label
 					pos: tok.position()
 				}
-			}*/
+			}
+			*/
 			else {
 				p.error('declaración de nivel local "' + p.tok.lit + '" desconocido')
 			}
@@ -468,7 +465,7 @@ fn (mut p Parser) parse_type() ast.Type {
 	typ_name := p.check_name()
 	if typ_name !in ast.type_names {
 		p.error_with_pos('se esperaba uno de los siguientes tipos: ' + ast.type_names.join(', '),
-		p.prev_tok.position())
+			p.prev_tok.position())
 	}
 	return ast.get_type_from_string(typ_name)
 }
@@ -505,7 +502,7 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 	if is_top_level && p.pref.backend == .decomp {
 		p.error('no se pueden declarar variables en el ámbito global en decomp')
 	}
-	if is_top_level && name.name == "_" {
+	if is_top_level && name.name == '_' {
 		p.error_with_pos("no se puede usar '_' como nombre de una variable global", p.prev_tok.position())
 	}
 	mut type_var := ast.Type._auto
@@ -522,7 +519,7 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 		type_var = p.parse_type()
 		p.check(.semicolon)
 		if p.scope.known_var(name.name) {
-			p.error_with_pos("redefinición de '${name.name}'", name.pos)
+			p.error_with_pos("redefinición de '$name.name'", name.pos)
 		}
 		obj := ast.ScopeObject(ast.Var{
 			name: name.name
@@ -553,10 +550,10 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 		p.next()
 		type_var = p.parse_type()
 	}
-	//println('var stmt: "${name}", expr: ${expr}')
+	// println('var stmt: "${name}", expr: ${expr}')
 	p.check(.semicolon)
 	if p.scope.known_var(name.name) {
-		p.error_with_pos("redefinición de '${name.name}'", name.pos)
+		p.error_with_pos("redefinición de '$name.name'", name.pos)
 	}
 	obj := ast.ScopeObject(ast.Var{
 		name: name.name

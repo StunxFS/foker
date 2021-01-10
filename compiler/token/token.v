@@ -5,47 +5,53 @@ module token
 // Token represents a single token in the Wolk lexer.
 pub struct Token {
 pub mut:
-	kind	Kind
-	lit		string
-	len		int
-	line_nr	int
-	pos		int
+	kind    Kind
+	lit     string
+	len     int
+	line_nr int
+	pos     int
 }
 
 pub fn (t Token) str() string {
-	return 'token.Token{kind: ${t.kind}, lit: "${t.lit}", pos: ${t.position()}}'
+	return 'token.Token{kind: $t.kind, lit: "$t.lit", pos: $t.position()}'
 }
 
 pub struct Position {
 pub:
-	len		int
+	len     int
 	line_nr int
-	pos		int
+	pos     int
 }
 
 pub fn (pos Position) str() string {
-	return 'token.Position{ line_nr: ${pos.line_nr}, pos: ${pos.pos}, len: ${pos.len} }'
+	return 'token.Position{ line_nr: $pos.line_nr, pos: $pos.pos, len: $pos.len }'
 }
 
 pub fn (pos Position) extend(end Position) Position {
-	return { pos | len: end.pos - pos.pos + end.len }
+	return {
+		pos |
+		len: end.pos - pos.pos + end.len
+	}
 }
 
-[inline] pub fn (tok &Token) position() Position {
-	return Position{len: tok.len line_nr: tok.line_nr - 1, pos: tok.pos}
+[inline]
+pub fn (tok &Token) position() Position {
+	return Position{
+		len: tok.len
+		line_nr: tok.line_nr - 1
+		pos: tok.pos
+	}
 }
 
 // Kind distinguishes between different types of tokens in the Wolk lexer.
 pub enum Kind {
 	unknown
 	eof
-
 	// identifiers and literals
 	name
 	number
 	string
 	char
-
 	// operators
 	plus
 	minus
@@ -53,20 +59,17 @@ pub enum Kind {
 	div
 	inc // ++
 	dec // --
-	
 	eq
 	neq
 	lt
 	gt
 	lte
 	gte
-	
 	assign
 	plus_assign // +=
 	minus_assign // -=
 	div_assign
 	mul_assign
-
 	// delimeters
 	comma
 	colon
@@ -75,14 +78,12 @@ pub enum Kind {
 	dot
 	dotdot
 	dollar
-
 	lparen
 	rparen
 	lbrace
 	rbrace
 	lbracket
 	rbracket
-
 	// keywords
 	keyword_begin
 	key_import
@@ -96,15 +97,12 @@ pub enum Kind {
 	key_checkgender
 	key_boy
 	key_girl
-	
 	key_extern
 	key_free
-
 	key_cond_if
 	key_cond_elif
 	key_cond_else
 	key_cond_endif
-	
 	key_match
 	key_if
 	key_elif
@@ -117,7 +115,6 @@ pub enum Kind {
 	key_no
 	key_as
 	key_at
-
 	key_true
 	key_false
 	keyword_end
@@ -134,128 +131,114 @@ pub fn (k Kind) str() string {
 
 pub const (
 	keywords = {
-		"import": Kind.key_import,
-		"include": Kind.key_include,
-		"script": Kind.key_script,
-		"cmd": Kind.key_cmd,
-		"var": Kind.key_var,
-		"const": Kind.key_const,
-		"dynamic": Kind.key_dynamic,
-		"movement": Kind.key_movement,
-		"checkgender": Kind.key_checkgender,
-		"boy": Kind.key_boy,
-		"girl": Kind.key_girl,
-
-		"extern": Kind.key_extern,
-		"free": Kind.key_free,
-
-		"#if": Kind.key_cond_if,
-		"#elif": Kind.key_cond_elif,
-		"#else": Kind.key_cond_else,
-		"#endif": Kind.key_cond_endif,
-		
-		"match": Kind.key_match,
-		"if": Kind.key_if,
-		"elif": Kind.key_elif,
-		"else": Kind.key_else,
-		"and": Kind.key_and,
-		"or": Kind.key_or,
-		"not": Kind.key_not,
-		"question": Kind.key_question,
-		"yes": Kind.key_yes,
-		"no": Kind.key_no,
-		"as": Kind.key_as,
-		"at": Kind.key_at,
-
-		"true": Kind.key_true,
-		"false": Kind.key_false
+		'import':      Kind.key_import
+		'include':     Kind.key_include
+		'script':      Kind.key_script
+		'cmd':         Kind.key_cmd
+		'var':         Kind.key_var
+		'const':       Kind.key_const
+		'dynamic':     Kind.key_dynamic
+		'movement':    Kind.key_movement
+		'checkgender': Kind.key_checkgender
+		'boy':         Kind.key_boy
+		'girl':        Kind.key_girl
+		'extern':      Kind.key_extern
+		'free':        Kind.key_free
+		'#if':         Kind.key_cond_if
+		'#elif':       Kind.key_cond_elif
+		'#else':       Kind.key_cond_else
+		'#endif':      Kind.key_cond_endif
+		'match':       Kind.key_match
+		'if':          Kind.key_if
+		'elif':        Kind.key_elif
+		'else':        Kind.key_else
+		'and':         Kind.key_and
+		'or':          Kind.key_or
+		'not':         Kind.key_not
+		'question':    Kind.key_question
+		'yes':         Kind.key_yes
+		'no':          Kind.key_no
+		'as':          Kind.key_as
+		'at':          Kind.key_at
+		'true':        Kind.key_true
+		'false':       Kind.key_false
 	}
 )
 
 const (
-	nr_tokens = int(Kind._end_)
+	nr_tokens  = int(Kind._end_)
 	tokens_str = build_tokenstr()
 )
 
 fn build_tokenstr() []string {
 	mut k := []string{len: nr_tokens}
-	k[Kind.unknown] = "unknown"
-	k[Kind.eof] = "eof"
-	k[Kind.name] = "name"
-	k[Kind.number] = "number"
-	k[Kind.string] = "string"
-	k[Kind.char] = "char"
-	
-	k[Kind.plus] = "+"
-	k[Kind.minus] = "-"
-	k[Kind.mul] = "*"
-	k[Kind.div] = "/"
-	k[Kind.inc] = "++"
-	k[Kind.dec] = "--"
-	
-	k[Kind.eq] = "=="
-	k[Kind.neq] = "!="
-	k[Kind.lt] = "<"
-	k[Kind.gt] = ">"
-	k[Kind.lte] = "<="
-	k[Kind.gte] = ">="
-	
-	k[Kind.assign] = "="
-	k[Kind.plus_assign] = "+=" // +=
-	k[Kind.minus_assign] = "-="
-	k[Kind.div_assign] = "/="
-	k[Kind.mul_assign] = "*="
-	
-	k[Kind.comma] = ","
-	k[Kind.colon] = ":"
-	k[Kind.semicolon] = ";"
-	k[Kind.bang] = "!"
-	k[Kind.dot] = "."
-	k[Kind.dotdot] = ".."
-	k[Kind.dollar] = "$"
-
-	k[Kind.lparen] = "("
-	k[Kind.rparen] = ")"
-	k[Kind.lbrace] = "{"
-	k[Kind.rbrace] = "}"
-	k[Kind.lbracket] = "["
-	k[Kind.rbracket] = "]"
-
-	k[Kind.key_import] = "import"
-	k[Kind.key_include] = "include"
-	k[Kind.key_script] = "script"
-	k[Kind.key_cmd] = "cmd"
-	k[Kind.key_var] = "var"
-	k[Kind.key_const] = "const"
-	k[Kind.key_dynamic] = "dynamic"
-	k[Kind.key_movement] = "movement"
-	k[Kind.key_checkgender] = "checkgender"
-	k[Kind.key_boy] = "boy"
-	k[Kind.key_girl] = "girl"
-
-	k[Kind.key_extern] = "extern"
-	k[Kind.key_free] = "free"
-
-	k[Kind.key_cond_if] = "#if"
-	k[Kind.key_cond_elif] = "#elif"
-	k[Kind.key_cond_else] = "#else"
-	k[Kind.key_cond_endif] = "#endif"
-
-	k[Kind.key_match] = "match"
-	k[Kind.key_if] = "if"
-	k[Kind.key_elif] = "elif"
-	k[Kind.key_else] = "else"
-	k[Kind.key_and] = "and"
-	k[Kind.key_or] = "or"
-	k[Kind.key_not] = "not"
-	k[Kind.key_question] = "question"
-	k[Kind.key_yes] = "yes"
-	k[Kind.key_no] = "no"
-	k[Kind.key_as] = "as"
-	k[Kind.key_at] = "at"
-
-	k[Kind.key_true] = "true"
-	k[Kind.key_false] = "false"
+	k[Kind.unknown] = 'unknown'
+	k[Kind.eof] = 'eof'
+	k[Kind.name] = 'name'
+	k[Kind.number] = 'number'
+	k[Kind.string] = 'string'
+	k[Kind.char] = 'char'
+	k[Kind.plus] = '+'
+	k[Kind.minus] = '-'
+	k[Kind.mul] = '*'
+	k[Kind.div] = '/'
+	k[Kind.inc] = '++'
+	k[Kind.dec] = '--'
+	k[Kind.eq] = '=='
+	k[Kind.neq] = '!='
+	k[Kind.lt] = '<'
+	k[Kind.gt] = '>'
+	k[Kind.lte] = '<='
+	k[Kind.gte] = '>='
+	k[Kind.assign] = '='
+	k[Kind.plus_assign] = '+=' // +=
+	k[Kind.minus_assign] = '-='
+	k[Kind.div_assign] = '/='
+	k[Kind.mul_assign] = '*='
+	k[Kind.comma] = ','
+	k[Kind.colon] = ':'
+	k[Kind.semicolon] = ';'
+	k[Kind.bang] = '!'
+	k[Kind.dot] = '.'
+	k[Kind.dotdot] = '..'
+	k[Kind.dollar] = '$'
+	k[Kind.lparen] = '('
+	k[Kind.rparen] = ')'
+	k[Kind.lbrace] = '{'
+	k[Kind.rbrace] = '}'
+	k[Kind.lbracket] = '['
+	k[Kind.rbracket] = ']'
+	k[Kind.key_import] = 'import'
+	k[Kind.key_include] = 'include'
+	k[Kind.key_script] = 'script'
+	k[Kind.key_cmd] = 'cmd'
+	k[Kind.key_var] = 'var'
+	k[Kind.key_const] = 'const'
+	k[Kind.key_dynamic] = 'dynamic'
+	k[Kind.key_movement] = 'movement'
+	k[Kind.key_checkgender] = 'checkgender'
+	k[Kind.key_boy] = 'boy'
+	k[Kind.key_girl] = 'girl'
+	k[Kind.key_extern] = 'extern'
+	k[Kind.key_free] = 'free'
+	k[Kind.key_cond_if] = '#if'
+	k[Kind.key_cond_elif] = '#elif'
+	k[Kind.key_cond_else] = '#else'
+	k[Kind.key_cond_endif] = '#endif'
+	k[Kind.key_match] = 'match'
+	k[Kind.key_if] = 'if'
+	k[Kind.key_elif] = 'elif'
+	k[Kind.key_else] = 'else'
+	k[Kind.key_and] = 'and'
+	k[Kind.key_or] = 'or'
+	k[Kind.key_not] = 'not'
+	k[Kind.key_question] = 'question'
+	k[Kind.key_yes] = 'yes'
+	k[Kind.key_no] = 'no'
+	k[Kind.key_as] = 'as'
+	k[Kind.key_at] = 'at'
+	k[Kind.key_true] = 'true'
+	k[Kind.key_false] = 'false'
 	return k
 }
 
@@ -317,15 +300,13 @@ pub fn (tok Token) is_scalar() bool {
 
 // is_unary returns true if the token can be in a unary expression
 pub fn (tok Token) is_unary() bool {
-	return tok.kind in
-		[ /* `+` | `-` | `!` `*` */
-		.plus, .minus, .key_not, .mul]
+	return tok.kind in [
+		/* `+` | `-` | `!` `*` */.plus, .minus, .key_not, .mul]
 }
 
 pub fn (tok Kind) is_relational() bool {
 	return tok in [
-		/* `<` | `<=` | `>` | `>=` */
-		.lte, .lt, .gte, .gt, .eq, .neq]
+		/* `<` | `<=` | `>` | `>=` */.lte, .lt, .gte, .gt, .eq, .neq]
 }
 
 pub fn (kind Kind) is_prefix() bool {
@@ -334,7 +315,5 @@ pub fn (kind Kind) is_prefix() bool {
 
 pub fn (kind Kind) is_infix() bool {
 	return kind in
-		[.plus, .minus, .mul, .div, .eq, .neq, .gt, .lt,
-		/*  */.gte, .lte, .key_or,
-		/*  */.key_and]
+		[.plus, .minus, .mul, .div, .eq, .neq, .gt, .lt, /*  */.gte, .lte, .key_or, /*  */.key_and]
 }

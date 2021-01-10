@@ -24,7 +24,7 @@ pub const (
 
 pub struct EManager {
 mut:
-	support_color	bool
+	support_color bool
 }
 
 pub fn new_error_manager() &EManager {
@@ -78,9 +78,7 @@ pub fn formatted_error(kind string, emsg string, filepath string, pos token.Posi
 }
 
 pub fn filepath_pos_to_source_and_column(filepath string, pos token.Position) (string, int) {
-	source := read_file(filepath) or {
-		''
-	}
+	source := read_file(filepath) or { '' }
 	mut p := imax(0, imin(source.len - 1, pos.pos))
 	if source.len > 0 {
 		for ; p >= 0; p-- {
@@ -130,7 +128,7 @@ pub fn source_context(kind string, source string, column int, pos token.Position
 
 pub fn fserror(kind string, s string) {
 	final_kind := bold(color(kind, kind))
-	eprintln("${final_kind}: ${s}")
+	eprintln('$final_kind: $s')
 	exit(1)
 }
 
