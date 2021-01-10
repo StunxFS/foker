@@ -221,9 +221,8 @@ pub:
 
 pub struct IfExpr {
 pub:
-	is_comptime		bool
 	tok_kind		token.Kind
-	pos				token.Position
+	pos			token.Position
 pub mut:
 	branches		[]IfBranch
 	is_expr			bool

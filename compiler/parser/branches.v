@@ -5,16 +5,12 @@ module parser
 import compiler.ast
 
 // import compiler.token
-fn (mut p Parser) if_expr(is_comptime bool) ast.IfExpr {
+fn (mut p Parser) if_expr() ast.IfExpr {
 	pos := p.tok.position()
 	mut branches := []ast.IfBranch{}
 	for p.tok.kind in [.key_if, .key_elif, .key_else] {
 		p.inside_if = true
-		start_pos := if is_comptime {
-			p.prev_tok.position().extend(p.tok.position())
-		} else {
-			p.tok.position()
-		}
+		start_pos := p.tok.position()
 		// 'if' o 'elif'
 		if p.tok.kind in [.key_if, .key_elif] {
 			p.check(p.tok.kind)
@@ -66,7 +62,6 @@ fn (mut p Parser) if_expr(is_comptime bool) ast.IfExpr {
 		}
 	}
 	return ast.IfExpr{
-		is_comptime: is_comptime // TODO: remover esta wea de aqui
 		branches: branches
 		pos: pos
 	}

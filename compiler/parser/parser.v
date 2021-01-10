@@ -29,7 +29,6 @@ mut:
 	have_dyn_custom   bool
 	cur_script_name   string
 	inside_if         bool
-	inside_ct_if_expr bool
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
@@ -416,7 +415,7 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 			.key_var { return p.parse_var_stmt(false) }
 			.key_free { return p.parse_free_stmt() }
 			.key_if { return ast.ExprStmt{
-					expr: p.if_expr(false)
+					expr: p.if_expr()
 				} }
 			.key_question { return p.question_stmt() }
 			.key_checkgender { return p.checkgender_stmt() }
