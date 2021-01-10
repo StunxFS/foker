@@ -1,11 +1,13 @@
-//include "stdlib.rbh";
-//include "stddefs.rbh";
-//include "../lib/query.rbh";
+// ZubatTest | ValenForever
+include "stdlib.rbh";
 
-//const YEAR_ACTUAL = 2020;
-//const RESPUESTA = true;
-const VAL = 2 + 2 * 4 * (5 * VAL2);
-text MSG2 = "1234ABCD";
+const AGE = 10 * 20;
+text MSG = "Tu edad es de $(AGE)";
+
+movement Mov1 {
+	walk_up * 2
+	walk_down * 4
+}
 
 // Probando preprocesador :)
 script main {

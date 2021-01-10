@@ -37,9 +37,12 @@ fn (mut p Parser) expr(precedence int) ast.Expr {
 		.minus, .bang {
 			node = p.prefix_expr()
 		}
+		.key_movement {
+			node = p.movement_expr(true)
+		}
 		else {
 			if p.tok.kind != .eof {
-				p.error_with_pos('expresión invalida, no se esperaba el token `$p.tok.kind.str()`',
+				p.error_with_pos('expresión inválida, no se esperaba el token `$p.tok.kind.str()`',
 					p.tok.position())
 			}
 		}

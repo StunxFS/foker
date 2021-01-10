@@ -116,3 +116,46 @@ fn (mut p Parser) checkgender_stmt() ast.CheckgenderStmt {
 		girl_stmts: girl_stmts
 	}
 }
+
+const valid_movs = {
+		'walk_up':    ast.MovKind.walk_up
+		'walk_down':  ast.MovKind.walk_down
+		'walk_right': ast.MovKind.walk_right
+		'walk_left':  ast.MovKind.walk_left
+	}
+
+fn (mut p Parser) movement_expr(is_anon bool) ast.MovementExpr {
+	p.check(.key_movement)
+	pos := p.tok.position()
+	mut name := ''
+	if !is_anon {
+		name = p.check_name()
+	}
+	p.check(.lbrace)
+	mut movs := []ast.MovItem{}
+	for p.tok.kind != .rbrace {
+		pos1 := p.tok.position()
+		move := p.check_name()
+		if move !in valid_movs {
+			p.error_with_pos('este movimiento no es válido', pos1)
+		}
+		mut count := 0
+		if p.tok.kind == .mul {
+			p.next()
+			count = p.tok.lit.int()
+			p.check(.number)
+		}
+		movs << ast.MovItem{
+			pos: pos1
+			count: count
+			kind: valid_movs[move]
+		}
+	}
+	p.check(.rbrace)
+	return ast.MovementExpr{
+		name: name
+		pos: pos
+		is_anon: is_anon
+		movs: movs
+	}
+}

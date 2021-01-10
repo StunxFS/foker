@@ -58,7 +58,7 @@ pub type ScopeObject = Const | Var
 // Statements
 pub type Stmt = AssignStmt | Block | BranchStmt | CheckgenderStmt | CmdDecl | Const |
 	DynamicStmt | ExprStmt | ForInStmt | ForStmt | FreeStmt | GotoLabel | GotoStmt | IfStmt |
-	Include | QuestionStmt | ScriptDecl
+	Include | MatchStmt | QuestionStmt | ScriptDecl
 
 pub struct Block {
 pub:
@@ -209,9 +209,27 @@ pub mut:
 	scope    &Scope = 0
 }
 
+pub struct MatchStmt {
+pub:
+	cond          Expr
+	branches      []MatchBranch
+	pos           token.Position
+pub mut:
+	cond_type     Type
+	expected_type Type
+}
+
+pub struct MatchBranch {
+pub:
+	exprs   []Expr
+	stmts   []Stmt
+	pos     token.Position
+	is_else bool
+}
+
 // Expressions
 pub type Expr = BinaryExpr | BoolLiteral | CallExpr | FmtStringLiteral | Ident | InfixExpr |
-	IntegerLiteral | MatchExpr | ParExpr | PostfixExpr | PrefixExpr | StringLiteral
+	IntegerLiteral | MovementExpr | ParExpr | PostfixExpr | PrefixExpr | StringLiteral
 
 pub struct IntegerLiteral {
 pub:
@@ -329,23 +347,26 @@ pub:
 	pos   token.Position
 }
 
-pub struct MatchExpr {
-pub:
-	tok_kind      token.Kind
-	cond          Expr
-	branches      []MatchBranch
-	pos           token.Position
-pub mut:
-	cond_type     Type
-	expected_type Type
+pub enum MovKind {
+	walk_up
+	walk_down
+	walk_left
+	walk_right
 }
 
-pub struct MatchBranch {
+pub struct MovItem {
 pub:
-	exprs   []Expr
-	stmts   []Stmt
+	kind  MovKind
+	count int // repeat
+	pos   token.Position
+}
+
+pub struct MovementExpr {
+pub:
+	name    string
 	pos     token.Position
-	is_else bool
+	is_anon bool // for applymovement(movement{});
+	movs    []MovItem
 }
 
 [inline]
@@ -358,7 +379,7 @@ pub fn (expr Expr) is_blank_ident() bool {
 
 pub fn (expr Expr) position() token.Position {
 	match expr { // /*ConcatExpr, */  /*RangeExpr, */ 
-		BoolLiteral, CallExpr, Ident, IntegerLiteral, MatchExpr, ParExpr, PostfixExpr, PrefixExpr, StringLiteral, FmtStringLiteral, BinaryExpr {
+		BoolLiteral, CallExpr, Ident, IntegerLiteral, ParExpr, PostfixExpr, PrefixExpr, StringLiteral, FmtStringLiteral, BinaryExpr, MovementExpr {
 			return expr.pos
 		}
 		InfixExpr {
@@ -390,6 +411,6 @@ pub fn (expr Expr) is_lit() bool {
 
 pub fn (stmt Stmt) position() token.Position {
 	match stmt {
-		AssignStmt, Block, BranchStmt, Const, ExprStmt, ForStmt, ForInStmt, GotoLabel, GotoStmt, IfStmt, CmdDecl, DynamicStmt, FreeStmt, Include, QuestionStmt, ScriptDecl, CheckgenderStmt { return stmt.pos }
+		AssignStmt, Block, BranchStmt, Const, ExprStmt, ForStmt, ForInStmt, GotoLabel, GotoStmt, IfStmt, CmdDecl, DynamicStmt, FreeStmt, Include, QuestionStmt, ScriptDecl, CheckgenderStmt, MatchStmt { return stmt.pos }
 	}
 }

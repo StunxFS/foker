@@ -9,13 +9,6 @@ import compiler.util
 import compiler.scanner
 import compiler.ast
 
-const valid_movs = [
-		'walk_up',
-		'walk_down',
-		'walk_right',
-		'walk_left',
-	]
-
 pub struct Parser {
 	file_base       string // "hello.fkr"
 	file_name       string // /home/user/hello.fkr
@@ -250,7 +243,11 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 			.key_var {
 				return p.parse_var_stmt(true)
 			}
-			.key_movement {}
+			.key_movement {
+				return ast.ExprStmt{
+					expr: p.movement_expr(false)
+				}
+			}
 			else {
 				p.error('declaración de alto nivel "' + p.tok.lit + '" desconocido')
 			}
