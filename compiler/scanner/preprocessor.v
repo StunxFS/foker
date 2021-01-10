@@ -23,7 +23,7 @@ pub fn (mut s Scanner) error_with_len(msg string, len int) {
 
 fn (mut s Scanner) pp_whitespace() bool {
 	mut found := false
-	for s.pos < s.text.len && s.text[s.pos].is_space() && s.text[s.pos] != `\n` {
+	for s.pos < s.text.len && s.text[s.pos].is_space() && !util.is_nl(s.text[s.pos]) {
 		found = true
 		s.pos++
 	}

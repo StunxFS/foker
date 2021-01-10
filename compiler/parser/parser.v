@@ -9,6 +9,10 @@ import compiler.util
 import compiler.scanner
 import compiler.ast
 
+const valid_movs = [
+	'walk_up', 'walk_down', 'walk_right', 'walk_left'
+]
+
 pub struct Parser {
 	file_base       string // "hello.fkr"
 	file_name       string // /home/user/hello.fkr
@@ -27,6 +31,7 @@ mut:
 	have_dyn_custom bool
 	cur_script_name string
 	inside_if       bool
+	consts_names	[]string
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences) ast.File {
@@ -376,15 +381,18 @@ fn (mut p Parser) const_decl() ast.Const {
 	if name == '_' {
 		p.error_with_pos("no se puede usar '_' como nombre de una constante", pos)
 	}
-	if !util.contains_capital(name) {
+	if !util.is_pure_capital(name) {
 		p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas',
 			pos)
 	}
+	if name in p.consts_names {
+		p.error_with_pos("constante '${name}' duplicada", pos)
+	}
+	p.consts_names << name
 	if p.tok.kind == .colon {
 		p.next()
 		type_const = p.parse_type()
 	}
-	// println(full_name.replace('.', '__')) // (works fine)
 	p.check(.assign)
 	expr := p.expr(0)
 	if type_const == .string {
@@ -405,7 +413,7 @@ fn (mut p Parser) text_decl() ast.Stmt {
 	p.check(.key_text)
 	pos := p.tok.position()
 	name := p.check_name()
-	if !util.contains_capital(name) {
+	if !util.is_pure_capital(name) {
 		p.error_with_pos('los nombres de las constantes de texto deben ser puras mayúsculas',
 			pos)
 	}
@@ -415,6 +423,7 @@ fn (mut p Parser) text_decl() ast.Stmt {
 		name: name
 		expr: expr
 		pos: pos
+		is_text: true
 		typ: .string
 	}
 	p.scope.register(field)

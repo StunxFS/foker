@@ -20,11 +20,19 @@ pub fn is_nl(c byte) bool {
 
 pub fn contains_capital(s string) bool {
 	for c in s {
-		if c >= `A` && c <= `Z` {
+		if c.is_capital() {
 			return true
 		}
 	}
 	return false
+}
+
+pub fn is_pure_capital(s string) bool {
+	mut res := false
+	for c in s {
+		res = c.is_capital() || c.is_digit()
+	}
+	return res
 }
 
 pub fn cescaped_path(s string) string {
