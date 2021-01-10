@@ -5,7 +5,6 @@ module parser
 import compiler.token
 import compiler.ast
 
-// Exprs ====================================================================================
 fn (mut p Parser) expr(precedence int) ast.Expr {
 	mut node := ast.Expr{}
 	match p.tok.kind {

@@ -27,6 +27,7 @@ mut:
 	have_dyn_custom bool
 	cur_script_name string
 	inside_if       bool
+	inside_for      bool
 	consts_names    []string
 }
 
@@ -417,6 +418,10 @@ fn (mut p Parser) text_decl() ast.Stmt {
 		p.error_with_pos('los nombres de las constantes de texto deben ser puras mayúsculas',
 			pos)
 	}
+	if name in p.consts_names {
+		p.error_with_pos("constante de texto '$name' duplicada", pos)
+	}
+	p.consts_names << name
 	p.check(.assign)
 	expr := p.expr(0)
 	field := ast.Const{
@@ -435,28 +440,45 @@ fn (mut p Parser) text_decl() ast.Stmt {
 fn (mut p Parser) local_stmt() ast.Stmt {
 	for {
 		match p.tok.kind {
-			.key_var { return p.parse_var_stmt(false) }
-			.key_free { return p.parse_free_stmt() }
-			.key_if { return p.if_stmt() }
-			.key_question { return p.question_stmt() }
-			.key_checkgender { return p.checkgender_stmt() }
-			/*
+			.key_var {
+				return p.parse_var_stmt(false)
+			}
+			.key_free {
+				return p.parse_free_stmt()
+			}
+			.key_if {
+				return p.if_stmt()
+			}
+			.key_question {
+				return p.question_stmt()
+			}
+			.key_checkgender {
+				return p.checkgender_stmt()
+			}
 			.key_continue, .key_break {
-				tok := p.tok
-				line := p.tok.line_nr
-				p.next()
-				mut label := ''
-				if p.tok.line_nr == line && p.tok.kind == .name {
-					label = p.check_name()
-				}
-				return ast.BranchStmt{
-					kind: tok.kind
-					label: label
-					pos: tok.position()
+				if p.inside_for {
+					tok := p.tok
+					line := p.tok.line_nr
+					p.next()
+					mut label := ''
+					if p.tok.line_nr == line && p.tok.kind == .name {
+						label = p.check_name()
+					}
+					p.check(.semicolon)
+					return ast.BranchStmt{
+						kind: tok.kind
+						label: label
+						pos: tok.position()
+					}
+				} else {
+					k := if p.tok.kind == .key_continue { 'continue' } else { 'break' }
+					p.error("no se puede usar '$k' fuera de un ciclo for")
+					return ast.Stmt{}
 				}
 			}
-			*/
-			else { p.error('declaración de nivel local "' + p.tok.lit + '" desconocido') }
+			else {
+				p.error('declaración de nivel local "' + p.tok.lit + '" desconocido')
+			}
 		}
 	}
 	return ast.Stmt{}

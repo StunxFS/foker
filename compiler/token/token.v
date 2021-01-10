@@ -123,6 +123,8 @@ pub enum Kind {
 	key_at
 	key_true
 	key_false
+	key_continue
+	key_break
 	keyword_end
 	_end_
 }
@@ -164,6 +166,8 @@ pub const (
 		'at':          Kind.key_at
 		'true':        Kind.key_true
 		'false':       Kind.key_false
+		'continue':    Kind.key_continue
+		'break':       Kind.key_break
 	}
 )
 
@@ -237,6 +241,8 @@ fn build_tokenstr() []string {
 	k[Kind.key_at] = 'at'
 	k[Kind.key_true] = 'true'
 	k[Kind.key_false] = 'false'
+	k[Kind.key_continue] = 'continue'
+	k[Kind.key_break] = 'break'
 	return k
 }
 

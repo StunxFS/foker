@@ -1,8 +1,8 @@
-// ZubatTest | ValenForever
+// ZubatTest | ValenLoveForever
 include "stdlib.rbh";
 
 const AGE = 10 * 20;
-text MSG = "Tu edad es de $(AGE)";
+text MSG = "Mensaje real";
 
 movement Mov1 {
 	walk_up * 2

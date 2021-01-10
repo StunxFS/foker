@@ -6,7 +6,6 @@ import term
 import compiler.token
 import compiler.util
 
-// Utilities ================================================================================
 pub fn (mut p Parser) error(s string) {
 	p.error_with_pos(s, p.tok.position())
 }
