@@ -5,6 +5,12 @@
 //
 import os
 
+fn help() {
+	eprintln('make.vsh solo reconoce los siguientes comandos:')
+	eprintln('    build      Para compilar el proyecto')
+	eprintln('    symlink    Para hacer un symlink del compilador')
+}
+
 $if macos {
 	panic('make.vsh: lo sentimos, macOS todavía no está soportado.')
 }
@@ -12,7 +18,8 @@ exe_name := $if windows { 'zubat.exe' } $else { 'zubat' }
 exe_symlink := $if windows { 'zubat-symlink.exe' } $else { 'zubat-symlink' }
 exec_symlink := $if windows { '.\zubat-symlink.exe' } $else { './zubat-symlink' }
 if os.args.len > 2 || os.args.len == 1 {
-	panic('make.vsh necesita un comando para funcionar')
+	eprintln('make.vsh necesita un comando para funcionar')
+	help()
 }
 cmd := os.args[1]
 match cmd {
@@ -36,6 +43,7 @@ match cmd {
 		}
 	}
 	else {
-		panic('make.vsh: comando `$cmd` desconocido')
+		eprintln('make.vsh: comando `$cmd` desconocido')
+		help()
 	}
 }
