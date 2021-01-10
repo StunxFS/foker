@@ -22,16 +22,14 @@ mut:
 	peek_tok2       token.Token
 	peek_tok3       token.Token
 	table           &ast.Table
-	mod             string // current module name
 	expr_mod        string
 	scope           &ast.Scope
-	global_scope    &ast.Scope
 	have_dyn_custom bool
 	cur_script_name string
 	inside_if       bool
 }
 
-fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
+fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences) ast.File {
 	mut p := Parser{
 		scanner: scanner.new_scanner(text, pref)
 		file_name: path
@@ -41,14 +39,13 @@ fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preference
 		pref: pref
 		scope: &ast.Scope{
 			start_pos: 0
-			parent: global_scope
+			parent: 0
 		}
-		global_scope: global_scope
 	}
 	return p.parse()
 }
 
-pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
+pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences) ast.File {
 	mut p := Parser{
 		scanner: scanner.new_scanner_file(path, pref)
 		table: table
@@ -58,9 +55,8 @@ pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences, global
 		pref: pref
 		scope: &ast.Scope{
 			start_pos: 0
-			parent: global_scope
+			parent: 0
 		}
-		global_scope: global_scope
 	}
 	return p.parse()
 }
@@ -68,21 +64,20 @@ pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences, global
 [inline]
 fn (mut p Parser) get_builtins_stmt() []ast.Stmt {
 	mut b_file := if p.file_name != builtins_file { parse_text(builtins_code, builtins_file,
-			p.table, p.pref, p.global_scope) } else { ast.File{} }
+			p.table, p.pref) } else { ast.File{} }
 	return b_file.prog.stmts
 }
 
 pub fn (mut p Parser) parse() ast.File {
 	p.read_first_token()
-	p.mod = p.file_name.all_after_last(os.path_separator).all_before_last('.')
 	mut stmts := p.get_builtins_stmt()
 	if p.pref.is_verbose {
-		println("> Parsing module: '$p.mod' (archivo: '$p.file_name')")
+		println("> Parseando archivo '$p.file_name'")
 	}
 	for p.tok.kind != .eof {
 		if p.tok.kind == .key_dynamic {
 			if p.pref.backend == .decomp {
-				p.error("no se puede usar la declaración 'dynamic' en binario")
+				p.error("no se puede usar la declaración 'dynamic' en decomp")
 			}
 			if !p.have_dyn_custom {
 				stmts << p.parse_dyn_custom()
@@ -92,6 +87,9 @@ pub fn (mut p Parser) parse() ast.File {
 			}
 		}
 		if p.tok.kind == .key_include {
+			if p.pref.backend == .decomp {
+				p.error("'include' no es soportado en el backend de decomp")
+			}
 			stmts << p.include_stmt()
 			continue
 		}
@@ -104,7 +102,6 @@ pub fn (mut p Parser) parse() ast.File {
 	return ast.File{
 		path: p.file_name
 		prog: ast.Program{
-			name: p.mod
 			stmts: stmts
 			scope: p.scope
 		}
@@ -155,7 +152,7 @@ pub fn (mut p Parser) parse_block_no_scope(is_top_level bool) []ast.Stmt {
 				eprintln('se ha analizado $c declaraciones hasta ahora del script $p.cur_script_name ...')
 			}
 			if c > 1000000 {
-				p.error_with_pos('se ha analizado sobre $c declaraciones del script $p.cur_script_name, el analizador probablemente esté bloqueado',
+				p.error_with_pos('se ha analizado $c declaraciones del script $p.cur_script_name, el analizador probablemente esté bloqueado',
 					p.tok.position())
 				return []
 			}
@@ -214,11 +211,15 @@ fn (mut p Parser) include_stmt() ast.Include {
 }
 
 pub fn (mut p Parser) top_stmt() ast.Stmt {
+	extern_bad_msg := "la palabra clave 'extern' solo se puede usar en conjunto a 'script': 'extern script xxx;'"
 	for {
 		match p.tok.kind {
 			.key_include {
-				p.error_with_pos("'include' se puede usar solo al principio del archivo",
-					p.tok.position())
+				if p.pref.backend == .binary {
+					p.error("'include' se puede usar solo al principio del archivo")
+				} else {
+					p.error("'include' no es soportado en el backend de decomp")
+				}
 			}
 			.key_script {
 				return p.script_stmt()
@@ -226,7 +227,7 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 			.key_extern {
 				match p.peek_tok.kind {
 					.key_script { return p.script_stmt() }
-					else { p.error("la palabra clave 'extern' solo se puede usar en conjunto a 'script': extern script xxx") }
+					else { p.error(extern_bad_msg) }
 				}
 			}
 			.key_cmd {
@@ -234,6 +235,9 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 			}
 			.key_const {
 				return p.const_decl()
+			}
+			.key_text {
+				return p.text_decl()
 			}
 			.key_var {
 				return p.parse_var_stmt(true)
@@ -291,19 +295,29 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 }
 
 fn (mut p Parser) parse_dyn_custom() ast.Stmt {
-	p.check(.key_dynamic)
-	p.have_dyn_custom = true
-	dyn_offset := p.tok.lit
-	pos := p.tok.position()
-	p.check(.number)
-	if dyn_offset.to_lower().starts_with('0x') {
-		p.error_with_pos('por favor no inicie la dirrección con `0x` o `0X`', p.prev_tok.position().extend(pos))
+	if p.pref.backend == .binary {
+		p.check(.key_dynamic)
+		p.have_dyn_custom = true
+		dyn_offset := p.tok.lit
+		pos := p.tok.position()
+		p.check(.number)
+		pptpe := p.prev_tok.position().extend(pos)
+		if dyn_offset.to_lower().starts_with('0x') {
+			p.error_with_pos('por favor no inicie la dirección con `0x` o `0X`', pptpe)
+		}
+		if dyn_offset == '800000' {
+			p.error_with_pos('esto es innecesario, la dirección que se usa por defecto es esta',
+				pptpe)
+		}
+		p.check(.semicolon)
+		return ast.DynamicStmt{
+			pos: pos
+			dyn_offset: dyn_offset
+		}
+	} else {
+		p.error('esto no es soportado en el backend de decomp')
 	}
-	p.check(.semicolon)
-	return ast.DynamicStmt{
-		pos: pos
-		dyn_offset: dyn_offset
-	}
+	return ast.Stmt{}
 }
 
 fn (mut p Parser) script_stmt() ast.Stmt {
@@ -337,7 +351,6 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 		p.check(.semicolon)
 		return ast.ScriptDecl{
 			name: script_name
-			mod: p.mod
 			is_extern: is_extern
 			extern_offset: extern_offset
 			pos: script_pos.extend(p.prev_tok.position())
@@ -346,7 +359,6 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	mut stmts := p.parse_block()
 	return ast.ScriptDecl{
 		name: script_name
-		mod: p.mod
 		is_extern: is_extern
 		stmts: stmts
 		pos: script_pos.extend(name_pos)
@@ -365,7 +377,7 @@ fn (mut p Parser) const_decl() ast.Const {
 		p.error_with_pos("no se puede usar '_' como nombre de una constante", pos)
 	}
 	if !util.contains_capital(name) {
-		p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas (use: "$name.to_upper()", en vez de "$name")',
+		p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas',
 			pos)
 	}
 	if p.tok.kind == .colon {
@@ -374,36 +386,38 @@ fn (mut p Parser) const_decl() ast.Const {
 	}
 	// println(full_name.replace('.', '__')) // (works fine)
 	p.check(.assign)
-	mut expr := ast.Expr{}
-	match p.tok.kind {
-		.string {
-			expr = ast.Expr(p.string_expr())
-		}
-		.number {
-			expr = p.parse_number_literal()
-		}
-		.key_true, .key_false {
-			expr = ast.Expr(ast.BoolLiteral{
-				lit: (p.tok.kind == .key_true).str()
-				pos: p.tok.position()
-			})
-			p.next()
-		}
-		else {
-			p.error('las constantes no soportan expresiones avanzadas, solo soportan literales')
-		}
-	}
-	if p.tok.kind != .semicolon {
-		p.error('las constantes no soportan expresiones avanzadas, solo soportan literales')
+	expr := p.expr(0)
+	if type_const == .string {
+		p.error_with_pos("en vez de usar 'const' para strings, use 'text'", pos)
 	}
 	field := ast.Const{
 		name: name
-		mod: p.mod
 		expr: expr
 		pos: pos
 		typ: type_const
 	}
-	p.global_scope.register(field)
+	p.scope.register(field)
+	p.check(.semicolon)
+	return field
+}
+
+fn (mut p Parser) text_decl() ast.Stmt {
+	p.check(.key_text)
+	pos := p.tok.position()
+	name := p.check_name()
+	if !util.contains_capital(name) {
+		p.error_with_pos('los nombres de las constantes de texto deben ser puras mayúsculas',
+			pos)
+	}
+	p.check(.assign)
+	expr := p.expr(0)
+	field := ast.Const{
+		name: name
+		expr: expr
+		pos: pos
+		typ: .string
+	}
+	p.scope.register(field)
 	p.check(.semicolon)
 	return field
 }
@@ -505,11 +519,7 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 			pos: name.pos
 		})
 		name.obj = obj
-		if !is_top_level {
-			p.scope.register(obj)
-		} else {
-			p.global_scope.register(obj)
-		}
+		p.scope.register(obj)
 		return ast.AssignStmt{
 			right: name
 			offset: offset

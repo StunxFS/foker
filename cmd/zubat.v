@@ -27,10 +27,7 @@ fn go_compile() {
 		util.emanager.set_support_color(false)
 	}
 	mut table := ast.new_table()
-	mut global_scope := &ast.Scope{
-		parent: 0
-	}
-	file := parser.parse_file(pref.file, table, pref, global_scope)
+	file := parser.parse_file(pref.file, table, pref)
 	if !pref.only_check_syntax {
 		// TODO: checker.check_file(file)
 		match pref.backend {

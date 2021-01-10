@@ -96,6 +96,7 @@ fn (mut p Parser) question_stmt() ast.Stmt {
 	}
 }
 
+// checkgender stmt
 fn (mut p Parser) checkgender_stmt() ast.CheckgenderStmt {
 	pos := p.tok.position()
 	p.check(.key_checkgender)

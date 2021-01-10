@@ -144,7 +144,6 @@ pub fn (mut p Parser) parse_ident() ast.Ident {
 			tok_kind: p.tok.kind
 			kind: .unresolved
 			name: name
-			mod: p.mod
 			pos: pos
 			// scope: p.scope
 		}

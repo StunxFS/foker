@@ -34,6 +34,16 @@ pub fn (pos Position) extend(end Position) Position {
 	}
 }
 
+/*
+pub fn (pos Position) extend_with_last_line(end Position, last_line int) Position {
+	return {
+		len: end.pos - pos.pos + end.len
+		line_nr: pos.line_nr
+		last_line: last_line - 1
+		pos: pos.pos
+	}
+}
+*/
 [inline]
 pub fn (tok &Token) position() Position {
 	return Position{
@@ -86,7 +96,6 @@ pub enum Kind {
 	rbracket
 	// keywords
 	keyword_begin
-	key_import
 	key_include
 	key_script
 	key_cmd
@@ -99,10 +108,7 @@ pub enum Kind {
 	key_girl
 	key_extern
 	key_free
-	key_cond_if
-	key_cond_elif
-	key_cond_else
-	key_cond_endif
+	key_text
 	key_match
 	key_if
 	key_elif
@@ -131,7 +137,6 @@ pub fn (k Kind) str() string {
 
 pub const (
 	keywords = {
-		'import':      Kind.key_import
 		'include':     Kind.key_include
 		'script':      Kind.key_script
 		'cmd':         Kind.key_cmd
@@ -144,10 +149,7 @@ pub const (
 		'girl':        Kind.key_girl
 		'extern':      Kind.key_extern
 		'free':        Kind.key_free
-		'#if':         Kind.key_cond_if
-		'#elif':       Kind.key_cond_elif
-		'#else':       Kind.key_cond_else
-		'#endif':      Kind.key_cond_endif
+		'text':        Kind.key_text
 		'match':       Kind.key_match
 		'if':          Kind.key_if
 		'elif':        Kind.key_elif
@@ -208,7 +210,6 @@ fn build_tokenstr() []string {
 	k[Kind.rbrace] = '}'
 	k[Kind.lbracket] = '['
 	k[Kind.rbracket] = ']'
-	k[Kind.key_import] = 'import'
 	k[Kind.key_include] = 'include'
 	k[Kind.key_script] = 'script'
 	k[Kind.key_cmd] = 'cmd'
@@ -221,10 +222,7 @@ fn build_tokenstr() []string {
 	k[Kind.key_girl] = 'girl'
 	k[Kind.key_extern] = 'extern'
 	k[Kind.key_free] = 'free'
-	k[Kind.key_cond_if] = '#if'
-	k[Kind.key_cond_elif] = '#elif'
-	k[Kind.key_cond_else] = '#else'
-	k[Kind.key_cond_endif] = '#endif'
+	k[Kind.key_text] = 'text'
 	k[Kind.key_match] = 'match'
 	k[Kind.key_if] = 'if'
 	k[Kind.key_elif] = 'elif'

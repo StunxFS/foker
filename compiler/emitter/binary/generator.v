@@ -31,7 +31,7 @@ pub fn bingen_to_file(file ast.File, table &ast.Table, pref &prefs.Preferences) 
 }
 
 pub fn bingen(file ast.File, table &ast.Table, pref &prefs.Preferences) string {
-	mut bin := Binary{file, new_fscript_with_vffile(file.prog.name, pref.flags_vars_file), table, pref}
+	mut bin := Binary{file, new_fscript_with_vffile(file.path, pref.flags_vars_file), table, pref}
 	bin.run()
 	return bin.fs.generate_script() + '\n'
 }

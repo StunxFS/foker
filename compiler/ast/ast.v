@@ -13,6 +13,7 @@ pub mut:
 	reports []string
 }
 
+/*
 pub fn (mut f File) show_reports() {
 	for report in f.reports {
 		eprintln(report)
@@ -21,25 +22,24 @@ pub fn (mut f File) show_reports() {
 		unsafe { f.reports.free() }
 	}
 }
-
+*/
 pub struct Program {
 pub:
-	name  string
 	pos   token.Position
 	stmts []Stmt
 pub mut:
-	scope Scope
+	scope &Scope
 }
 
 pub struct Const {
 pub:
-	mod    string
-	name   string
-	expr   Expr
-	is_pub bool
-	pos    token.Position
+	name    string
+	expr    Expr
+	is_pub  bool
+	is_text bool // true: text x = "D"; | false: const x = 10;
+	pos     token.Position
 pub mut:
-	typ    Type
+	typ     Type
 }
 
 pub struct Var {
@@ -88,7 +88,6 @@ pub:
 pub struct ScriptDecl {
 pub:
 	name          string
-	mod           string
 	is_extern     bool // for: extern script Karmelico at 0x8000232F;
 	extern_offset string
 	pos           token.Position
@@ -283,7 +282,6 @@ pub:
 	pos      token.Position
 pub mut:
 	obj      ScopeObject
-	mod      string
 	name     string
 	kind     IdentKind
 }
