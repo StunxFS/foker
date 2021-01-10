@@ -10,25 +10,25 @@ import compiler.scanner
 import compiler.ast
 
 pub struct Parser {
-	file_base         string // "hello.fkr"
-	file_name         string // /home/user/hello.fkr
-	file_name_dir     string // home/user
-	pref              &prefs.Preferences
+	file_base       string // "hello.fkr"
+	file_name       string // /home/user/hello.fkr
+	file_name_dir   string // home/user
+	pref            &prefs.Preferences
 mut:
-	scanner           &scanner.Scanner
-	tok               token.Token
-	prev_tok          token.Token
-	peek_tok          token.Token
-	peek_tok2         token.Token
-	peek_tok3         token.Token
-	table             &ast.Table
-	mod               string // current module name
-	expr_mod          string
-	scope             &ast.Scope
-	global_scope      &ast.Scope
-	have_dyn_custom   bool
-	cur_script_name   string
-	inside_if         bool
+	scanner         &scanner.Scanner
+	tok             token.Token
+	prev_tok        token.Token
+	peek_tok        token.Token
+	peek_tok2       token.Token
+	peek_tok3       token.Token
+	table           &ast.Table
+	mod             string // current module name
+	expr_mod        string
+	scope           &ast.Scope
+	global_scope    &ast.Scope
+	have_dyn_custom bool
+	cur_script_name string
+	inside_if       bool
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
