@@ -68,7 +68,10 @@ fn (mut s Scanner) pp_directive() {
 		5 {
 			if s.expect('endif', start_pos) {
 				s.parse_pp_endif()
-			} else if s.expect('define', start_pos) {
+			}
+		}
+		6 {
+			if s.expect('define', start_pos) {
 				s.parse_pp_define()
 			}
 		}

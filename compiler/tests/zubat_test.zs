@@ -8,6 +8,7 @@
 
 // Probando preprocesador :)
 script main {
+#define DEFINE
 #if DEFINE
    var d = fmt("", -1);
 #endif
