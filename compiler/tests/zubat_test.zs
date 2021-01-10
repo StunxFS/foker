@@ -12,6 +12,5 @@ movement Mov1 {
 // Probando preprocesador :)
 script main {
 	var d1 = 200;
-	if (d1 == 100 and d1 < 10) {}
 }
 

@@ -3,11 +3,12 @@
 module main
 
 import os
-import compiler.about
 import compiler.ast
-import compiler.prefs
 import compiler.util
+import compiler.about
+import compiler.prefs
 import compiler.parser
+import compiler.checker
 import compiler.emitter.binary
 
 fn main() {
@@ -28,8 +29,12 @@ fn go_compile() {
 	}
 	mut table := ast.new_table()
 	file := parser.parse_file(pref.file, table, pref)
+	$if print_obj_file ? {
+		println(file)
+	}
 	if !pref.only_check_syntax {
-		// TODO: checker.check_file(file)
+		mut c := checker.new_checker(table, pref)
+		c.check(file)
 		match pref.backend {
 			.binary {
 				$if bingen_test ? {

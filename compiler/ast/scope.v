@@ -164,6 +164,5 @@ pub fn (sc &Scope) show(depth int, max_depth int) string {
 }
 
 pub fn (sc Scope) str() string {
-	// return sc.show(0, 0)
-	return ''
+	return sc.show(0, 0)
 }

@@ -29,6 +29,7 @@ mut:
 	inside_if       bool
 	inside_for      bool
 	consts_names    []string
+	movs_tmp        int
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences) ast.File {
@@ -296,7 +297,7 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 		params: params
 		pos: name_pos
 	}
-	p.table.cmds << cmd
+	p.table.cmds[name] = cmd
 	return cmd
 }
 
@@ -363,12 +364,14 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 		}
 	}
 	mut stmts := p.parse_block()
-	return ast.ScriptDecl{
+	cmd := ast.ScriptDecl{
 		name: script_name
 		is_extern: is_extern
 		stmts: stmts
 		pos: script_pos.extend(name_pos)
 	}
+	p.table.scripts[script_name] = cmd
+	return cmd
 }
 
 fn (mut p Parser) const_decl() ast.Const {
@@ -379,9 +382,6 @@ fn (mut p Parser) const_decl() ast.Const {
 	pos := p.tok.position()
 	name := p.check_name()
 	mut type_const := ast.Type._auto
-	if name == '_' {
-		p.error_with_pos("no se puede usar '_' como nombre de una constante", pos)
-	}
 	if !util.is_pure_capital(name) {
 		p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas',
 			pos)
@@ -415,11 +415,11 @@ fn (mut p Parser) text_decl() ast.Stmt {
 	pos := p.tok.position()
 	name := p.check_name()
 	if !util.is_pure_capital(name) {
-		p.error_with_pos('los nombres de las constantes de texto deben ser puras mayúsculas',
+		p.error_with_pos('los nombres de las constantes de cadenas deben ser puras mayúsculas',
 			pos)
 	}
 	if name in p.consts_names {
-		p.error_with_pos("constante de texto '$name' duplicada", pos)
+		p.error_with_pos("constante de cadena '$name' duplicada", pos)
 	}
 	p.consts_names << name
 	p.check(.assign)
@@ -428,7 +428,6 @@ fn (mut p Parser) text_decl() ast.Stmt {
 		name: name
 		expr: expr
 		pos: pos
-		is_text: true
 		typ: .string
 	}
 	p.scope.register(field)

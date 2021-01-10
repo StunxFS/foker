@@ -408,7 +408,7 @@ pub fn (mut s Scanner) scan() token.Token {
 				return s.end_of_file()
 			}
 		}
-		s.error("carácter inválido -> '$c.str()'")
+		s.error("carácter inválido -> '$c.ascii_str()'")
 		break
 	}
 	return s.end_of_file()

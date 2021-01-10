@@ -16,7 +16,7 @@ fn (mut p Parser) if_stmt() ast.IfStmt {
 			p.check(p.tok.kind)
 		}
 		if p.tok.kind == .key_match {
-			p.error('cannot use `match` with `if` statements')
+			p.error('no se puede usar `match` con declaraciones `if`')
 			return ast.IfStmt{}
 		}
 		cond := p.expr(0)
@@ -36,7 +36,7 @@ fn (mut p Parser) if_stmt() ast.IfStmt {
 		if p.tok.kind == .key_else {
 			p.check(.key_else)
 			if p.tok.kind == .key_match {
-				p.error('cannot use `match` with `if` statements')
+				p.error('no se puede usar `match` con declaraciones `if`')
 				return ast.IfStmt{}
 			}
 			if p.tok.kind == .lbrace {
@@ -127,9 +127,11 @@ const valid_movs = {
 fn (mut p Parser) movement_expr(is_anon bool) ast.MovementExpr {
 	p.check(.key_movement)
 	pos := p.tok.position()
-	mut name := ''
+	mut name := 'mov$p.movs_tmp'
 	if !is_anon {
 		name = p.check_name()
+	} else {
+		p.movs_tmp++
 	}
 	p.check(.lbrace)
 	mut movs := []ast.MovItem{}
@@ -139,10 +141,13 @@ fn (mut p Parser) movement_expr(is_anon bool) ast.MovementExpr {
 		if move !in valid_movs {
 			p.error_with_pos('este movimiento no es válido', pos1)
 		}
-		mut count := 0
+		mut count := 1
 		if p.tok.kind == .mul {
 			p.next()
 			count = p.tok.lit.int()
+			if count == 1 {
+				p.error_with_pos('esto es innecesario', p.prev_tok.position().extend(p.tok.position()))
+			}
 			p.check(.number)
 		}
 		movs << ast.MovItem{
@@ -152,10 +157,17 @@ fn (mut p Parser) movement_expr(is_anon bool) ast.MovementExpr {
 		}
 	}
 	p.check(.rbrace)
-	return ast.MovementExpr{
+	mov := ast.MovementExpr{
 		name: name
 		pos: pos
 		is_anon: is_anon
 		movs: movs
 	}
+	p.scope.register(ast.Const{
+		name: name
+		expr: mov
+		pos: pos
+		typ: .movement
+	})
+	return mov
 }

@@ -3,6 +3,7 @@
 module ast
 
 import compiler.token
+import compiler.errors
 
 // Esto representa un archivo de script ZubatScript
 pub struct File {
@@ -10,7 +11,8 @@ pub:
 	path    string
 	prog    Program
 pub mut:
-	reports []string
+	warnings []errors.Report
+	errors	[]errors.Report
 }
 
 /*
@@ -33,13 +35,12 @@ pub mut:
 
 pub struct Const {
 pub:
-	name    string
-	expr    Expr
-	is_pub  bool
-	is_text bool // true: text x = "D"; | false: const x = 10;
-	pos     token.Position
+	name   string
+	expr   Expr
+	is_pub bool
+	pos    token.Position
 pub mut:
-	typ     Type
+	typ    Type
 }
 
 pub struct Var {
@@ -83,6 +84,8 @@ pub:
 	expr    Expr
 	pos     token.Position
 	is_expr bool
+mut:
+	typ		Type
 }
 
 pub struct ScriptDecl {

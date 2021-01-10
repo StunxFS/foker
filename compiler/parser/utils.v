@@ -3,8 +3,9 @@
 module parser
 
 import term
-import compiler.token
+import compiler.ast
 import compiler.util
+import compiler.token
 
 pub fn (mut p Parser) error(s string) {
 	p.error_with_pos(s, p.tok.position())
@@ -33,4 +34,17 @@ pub fn (mut p Parser) warn_with_pos(s string, pos token.Position) {
 		return
 	}
 	eprintln(util.formatted_error('advertencia:', s, p.file_name, pos))
+}
+
+pub fn (mut p Parser) mark_var_as_used(varname string) bool {
+	if obj := p.scope.find(varname) {
+		match mut obj {
+			ast.Var {
+				obj.is_used = true
+				return true
+			}
+			else {}
+		}
+	}
+	return false
 }
