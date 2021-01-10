@@ -56,13 +56,14 @@ pub mut:
 pub type ScopeObject = Const | Var
 
 // Statements
-pub type Stmt = AssignStmt | CmdDecl | Const | DynamicStmt | ExprStmt | ForInStmt | ForStmt |
-	FreeStmt | GotoStmt | GotoLabel | Include | QuestionStmt | ScriptDecl | Block | BranchStmt | CheckgenderStmt
+pub type Stmt = AssignStmt | Block | BranchStmt | CheckgenderStmt | CmdDecl | Const |
+	DynamicStmt | ExprStmt | ForInStmt | ForStmt | FreeStmt | GotoLabel | GotoStmt | IfStmt |
+	Include | QuestionStmt | ScriptDecl
 
 pub struct Block {
 pub:
-	stmts	[]Stmt
-	pos		token.Position
+	stmts []Stmt
+	pos   token.Position
 }
 
 pub struct DynamicStmt {
@@ -149,10 +150,10 @@ pub:
 
 pub struct CheckgenderStmt {
 pub:
-	pos		token.Position
-	boy_pos	token.Position
-	girl_pos token.Position
-	boy_stmts []Stmt
+	pos        token.Position
+	boy_pos    token.Position
+	girl_pos   token.Position
+	boy_stmts  []Stmt
 	girl_stmts []Stmt
 }
 
@@ -189,9 +190,29 @@ pub:
 	pos  token.Position
 }
 
+pub struct IfStmt {
+pub:
+	cond     Expr
+	pos      token.Position
+	body_pos token.Position
+pub mut:
+	branches []IfBranch // includes all `else if` branches
+	scope    &Scope = 0
+}
+
+pub struct IfBranch {
+pub:
+	cond     Expr
+	pos      token.Position
+	body_pos token.Position
+pub mut:
+	stmts    []Stmt
+	scope    &Scope = 0
+}
+
 // Expressions
-pub type Expr = BinaryExpr | BoolLiteral | FmtStringLiteral | Ident | InfixExpr | IntegerLiteral |
-	MatchExpr | ParExpr | PostfixExpr | PrefixExpr | StringLiteral | IfExpr | CallExpr
+pub type Expr = BinaryExpr | BoolLiteral | CallExpr | FmtStringLiteral | Ident | InfixExpr |
+	IntegerLiteral | MatchExpr | ParExpr | PostfixExpr | PrefixExpr | StringLiteral
 
 pub struct IntegerLiteral {
 pub:
@@ -217,25 +238,6 @@ pub struct BoolLiteral {
 pub:
 	pos token.Position
 	lit string
-}
-
-pub struct IfExpr {
-pub:
-	tok_kind		token.Kind
-	pos			token.Position
-pub mut:
-	branches		[]IfBranch
-	is_expr			bool
-}
-
-pub struct IfBranch {
-pub:
-	cond		Expr
-	pos			token.Position
-	body_pos	token.Position
-pub mut:
-	stmts		[]Stmt
-	scope		&Scope
 }
 
 // break, continue
@@ -357,14 +359,14 @@ pub fn (expr Expr) is_blank_ident() bool {
 }
 
 pub fn (expr Expr) position() token.Position {
-	match expr {
-		BoolLiteral, CallExpr, /*ConcatExpr, */ Ident, IfExpr, IntegerLiteral, MatchExpr, ParExpr, PostfixExpr, PrefixExpr, /*RangeExpr, */ StringLiteral, FmtStringLiteral, BinaryExpr {
+	match expr { // /*ConcatExpr, */  /*RangeExpr, */ 
+		BoolLiteral, CallExpr, Ident, IntegerLiteral, MatchExpr, ParExpr, PostfixExpr, PrefixExpr, StringLiteral, FmtStringLiteral, BinaryExpr {
 			return expr.pos
 		}
 		InfixExpr {
 			left_pos := expr.left.position()
 			right_pos := expr.right.position()
-			return token.Position {
+			return token.Position{
 				line_nr: expr.pos.line_nr
 				pos: left_pos.pos
 				len: right_pos.pos - left_pos.pos + right_pos.len
@@ -390,7 +392,6 @@ pub fn (expr Expr) is_lit() bool {
 
 pub fn (stmt Stmt) position() token.Position {
 	match stmt {
-		AssignStmt, Block, BranchStmt, Const, ExprStmt, ForStmt, ForInStmt, GotoLabel, GotoStmt,
-		CmdDecl, DynamicStmt, FreeStmt, Include, QuestionStmt, ScriptDecl, CheckgenderStmt { return stmt.pos }
+		AssignStmt, Block, BranchStmt, Const, ExprStmt, ForStmt, ForInStmt, GotoLabel, GotoStmt, IfStmt, CmdDecl, DynamicStmt, FreeStmt, Include, QuestionStmt, ScriptDecl, CheckgenderStmt { return stmt.pos }
 	}
 }

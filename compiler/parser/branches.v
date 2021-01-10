@@ -2,10 +2,10 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module parser
 
+// import compiler.token
 import compiler.ast
 
-// import compiler.token
-fn (mut p Parser) if_expr() ast.IfExpr {
+fn (mut p Parser) if_stmt() ast.IfStmt {
 	pos := p.tok.position()
 	mut branches := []ast.IfBranch{}
 	for p.tok.kind in [.key_if, .key_elif, .key_else] {
@@ -17,7 +17,7 @@ fn (mut p Parser) if_expr() ast.IfExpr {
 		}
 		if p.tok.kind == .key_match {
 			p.error('cannot use `match` with `if` statements')
-			return ast.IfExpr{}
+			return ast.IfStmt{}
 		}
 		cond := p.expr(0)
 		end_pos := p.prev_tok.position()
@@ -37,7 +37,7 @@ fn (mut p Parser) if_expr() ast.IfExpr {
 			p.check(.key_else)
 			if p.tok.kind == .key_match {
 				p.error('cannot use `match` with `if` statements')
-				return ast.IfExpr{}
+				return ast.IfStmt{}
 			}
 			if p.tok.kind == .lbrace {
 				p.inside_if = false
@@ -61,7 +61,7 @@ fn (mut p Parser) if_expr() ast.IfExpr {
 			break
 		}
 	}
-	return ast.IfExpr{
+	return ast.IfStmt{
 		branches: branches
 		pos: pos
 	}

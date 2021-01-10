@@ -414,9 +414,7 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 		match p.tok.kind {
 			.key_var { return p.parse_var_stmt(false) }
 			.key_free { return p.parse_free_stmt() }
-			.key_if { return ast.ExprStmt{
-					expr: p.if_expr()
-				} }
+			.key_if { return p.if_stmt() }
 			.key_question { return p.question_stmt() }
 			.key_checkgender { return p.checkgender_stmt() }
 			/*
