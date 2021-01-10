@@ -10,8 +10,11 @@ import compiler.scanner
 import compiler.ast
 
 const valid_movs = [
-	'walk_up', 'walk_down', 'walk_right', 'walk_left'
-]
+		'walk_up',
+		'walk_down',
+		'walk_right',
+		'walk_left',
+	]
 
 pub struct Parser {
 	file_base       string // "hello.fkr"
@@ -31,7 +34,7 @@ mut:
 	have_dyn_custom bool
 	cur_script_name string
 	inside_if       bool
-	consts_names	[]string
+	consts_names    []string
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences) ast.File {
@@ -386,7 +389,7 @@ fn (mut p Parser) const_decl() ast.Const {
 			pos)
 	}
 	if name in p.consts_names {
-		p.error_with_pos("constante '${name}' duplicada", pos)
+		p.error_with_pos("constante '$name' duplicada", pos)
 	}
 	p.consts_names << name
 	if p.tok.kind == .colon {
