@@ -153,10 +153,10 @@ pub fn (mut p Parser) parse_block_no_scope(is_top_level bool) []ast.Stmt {
 			}
 			c++
 			if c % 100000 == 0 {
-				eprintln('parsed $c statements so far from script $p.cur_script_name ...')
+				eprintln('se ha analizado $c declaraciones hasta ahora del script $p.cur_script_name ...')
 			}
 			if c > 1000000 {
-				p.error_with_pos('parsed over $c statements from script $p.cur_script_name, the parser is probably stuck',
+				p.error_with_pos('se ha analizado sobre $c declaraciones del script $p.cur_script_name, el analizador probablemente esté bloqueado',
 					p.tok.position())
 				return []
 			}
