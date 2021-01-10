@@ -153,10 +153,10 @@ pub fn (mut p Parser) parse_block_no_scope(is_top_level bool) []ast.Stmt {
 			}
 			c++
 			if c % 100000 == 0 {
-				eprintln('parsed $c statements so far from fn $p.cur_script_name ...')
+				eprintln('parsed $c statements so far from script $p.cur_script_name ...')
 			}
 			if c > 1000000 {
-				p.error_with_pos('parsed over $c statements from fn $p.cur_script_name, the parser is probably stuck',
+				p.error_with_pos('parsed over $c statements from script $p.cur_script_name, the parser is probably stuck',
 					p.tok.position())
 				return []
 			}
@@ -413,30 +413,13 @@ fn (mut p Parser) const_decl() ast.Const {
 fn (mut p Parser) local_stmt() ast.Stmt {
 	for {
 		match p.tok.kind {
-			.key_var {
-				return p.parse_var_stmt(false)
-			}
-			.key_free {
-				return p.parse_free_stmt()
-			}
-			.key_if {
-				return ast.ExprStmt{
+			.key_var { return p.parse_var_stmt(false) }
+			.key_free { return p.parse_free_stmt() }
+			.key_if { return ast.ExprStmt{
 					expr: p.if_expr(false)
-				}
-			}
-			.key_question {
-				return p.question_stmt()
-			}
-			.key_checkgender {
-				return p.checkgender_stmt()
-			}
-			.dollar {
-				if p.peek_tok.kind == .key_if {
-					return ast.ExprStmt{
-						expr: p.if_expr(true)
-					}
-				}
-			}
+				} }
+			.key_question { return p.question_stmt() }
+			.key_checkgender { return p.checkgender_stmt() }
 			/*
 			.key_continue, .key_break {
 				tok := p.tok
@@ -453,9 +436,7 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 				}
 			}
 			*/
-			else {
-				p.error('declaración de nivel local "' + p.tok.lit + '" desconocido')
-			}
+			else { p.error('declaración de nivel local "' + p.tok.lit + '" desconocido') }
 		}
 	}
 	return ast.Stmt{}

@@ -12,3 +12,4 @@ script main {
    var d = fmt("", -1);
 #endif
 }
+

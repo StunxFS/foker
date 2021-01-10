@@ -3,20 +3,10 @@
 module parser
 
 import compiler.ast
-import compiler.token
 
+// import compiler.token
 fn (mut p Parser) if_expr(is_comptime bool) ast.IfExpr {
-	was_inside_ct_if_exor := p.inside_ct_if_expr
-	defer {
-		p.inside_ct_if_expr = was_inside_ct_if_exor
-	}
-	pos := if is_comptime {
-		p.inside_ct_if_expr = true
-		p.next() // saltar '$'
-		p.prev_tok.position().extend(p.tok.position())
-	} else {
-		p.tok.position()
-	}
+	pos := p.tok.position()
 	mut branches := []ast.IfBranch{}
 	for p.tok.kind in [.key_if, .key_elif, .key_else] {
 		p.inside_if = true
@@ -47,17 +37,6 @@ fn (mut p Parser) if_expr(is_comptime bool) ast.IfExpr {
 			scope: p.scope
 		}
 		p.close_scope()
-		if is_comptime {
-			if p.tok.kind == .key_else {
-				p.error("use '\$else' en vez de 'else', en los branches de 'if' en tiempo de compilación")
-			}
-			if p.tok.kind == .key_elif {
-				p.error("use '\$elif' en vez de 'elif', en los branches de 'if' en tiempo de compilación")
-			}
-			if p.peek_tok.kind in [.key_else, .key_elif] {
-				p.check(.dollar)
-			}
-		}
 		if p.tok.kind == .key_else {
 			p.check(.key_else)
 			if p.tok.kind == .key_match {
@@ -78,29 +57,16 @@ fn (mut p Parser) if_expr(is_comptime bool) ast.IfExpr {
 				p.close_scope()
 				break
 			}
-			if is_comptime {
-				p.check(.dollar)
-			}
 		}
 		if p.tok.kind == .key_if {
-			p.error("use '" + if is_comptime {
-				'\$elif'
-			} else {
-				'elif'
-			} +
-				"' en vez de '" + if is_comptime {
-				'\$else \$if'
-			} else {
-				'else if'
-			} +
-				"'")
+			p.error("use 'elif' en vez de 'else if'")
 		}
 		if p.tok.kind !in [.key_else, .key_elif] {
 			break
 		}
 	}
 	return ast.IfExpr{
-		is_comptime: is_comptime
+		is_comptime: is_comptime // TODO: remover esta wea de aqui
 		branches: branches
 		pos: pos
 	}

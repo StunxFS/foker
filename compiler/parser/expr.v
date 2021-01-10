@@ -18,12 +18,6 @@ fn (mut p Parser) expr(precedence int) ast.Expr {
 		.number {
 			node = p.parse_number_literal()
 		}
-		.dollar {
-			match p.peek_tok.kind {
-				.key_if { return p.if_expr(true) }
-				else { p.error_with_pos("'$' inesperado", p.peek_tok.position()) }
-			}
-		}
 		.key_true, .key_false {
 			node = ast.BoolLiteral{
 				lit: (p.tok.kind == .key_true).str()
