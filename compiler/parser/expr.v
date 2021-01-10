@@ -96,7 +96,7 @@ fn (mut p Parser) prefix_expr() ast.PrefixExpr {
 	pos := p.tok.position()
 	op := p.tok.kind
 	p.next()
-	right := p.expr(token.Precedence.prefix)
+	right := p.expr(int(token.Precedence.prefix))
 	return ast.PrefixExpr{
 		op: op
 		pos: pos
