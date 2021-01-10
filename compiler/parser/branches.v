@@ -2,8 +2,8 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module parser
 
-// import compiler.token
 import compiler.ast
+import compiler.token
 
 fn (mut p Parser) if_expr(is_comptime bool) ast.IfExpr {
 	was_inside_ct_if_exor := p.inside_ct_if_expr
@@ -154,4 +154,3 @@ fn (mut p Parser) checkgender_stmt() ast.CheckgenderStmt {
 		girl_stmts: girl_stmts
 	}
 }
-
