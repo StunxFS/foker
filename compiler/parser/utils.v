@@ -15,6 +15,12 @@ pub fn (mut p Parser) warn(s string) {
 	p.warn_with_pos(s, p.tok.position())
 }
 
+pub fn (mut p Parser) error_and_warn(msg1 string, pos1 token.Position, msg2 string, pos2 token.Position) {
+	eprintln(util.formatted_error('error:', msg1, p.file_name, pos1))
+	eprintln(util.formatted_error('nota:', msg2, p.file_name, pos2))
+	exit(1)
+}
+
 pub fn (mut p Parser) error_with_pos(s string, pos token.Position) {
 	eprintln(util.formatted_error('error:', s, p.file_name, pos))
 	exit(1)

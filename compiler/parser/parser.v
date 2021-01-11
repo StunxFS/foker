@@ -364,6 +364,9 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 		}
 	}
 	mut stmts := p.parse_block()
+	if p.table.exists_script(script_name) {
+		p.error_and_warn('script $script_name duplicado', script_pos.extend(name_pos)
+	}
 	cmd := ast.ScriptDecl{
 		name: script_name
 		is_extern: is_extern

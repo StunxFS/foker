@@ -14,3 +14,5 @@ script main {
 	var d1 = 200;
 }
 
+script main {
+}
