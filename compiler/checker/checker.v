@@ -2,12 +2,12 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module checker
 
-import os
-import strings
+//import os
+//import strings
 import compiler.ast
 import compiler.token
 import compiler.prefs
-import compiler.util
+//import compiler.util
 import compiler.errors
 
 const (
@@ -48,10 +48,10 @@ pub fn new_checker(table &ast.Table, pref &prefs.Preferences) Checker {
 
 pub fn (mut c Checker) check(ast_file &ast.File) {
 	c.file = ast_file
-	for stmt in ast_file.prog.stmts {
+	/*for stmt in ast_file.prog.stmts {
 		c.expr_level = 0
-		c.stmt(stmt)
-	}
+		//c.stmt(stmt)
+	}*/
 	c.check_scope_vars(c.file.prog.scope)
 }
 
@@ -84,7 +84,7 @@ fn (mut c Checker) check_div_mod_by_zero(expr ast.Expr, op_kind token.Kind) {
 
 // =============================================================================================
 
-[inline]
+/*[inline]
 fn (mut c Checker) check_loop_label(label string, pos token.Position) {
 	if label.len == 0 {
 		return
@@ -131,57 +131,7 @@ pub fn (mut c Checker) expr(node ast.Expr) ast.Type {
 		}
 		else {}
 	}
-}
-
-pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
-	if ident.kind == .blank_ident {
-		if ident.tok_kind == [.assign {
-			c.error("identificador '_' indefinido", ident.pos)
-		}
-		return .unknown
-	}
-	if ident.kind in [.constant, .variable] {
-		info := ident.info as ast.IdentVar
-		return info.typ
-	} else if ident.kind == .unresolved {
-		if obj := ident.scope.find(ident.name) {
-			match mut obj {
-				ast.Var {
-					obj.is_used = true
-					if ident.pos.pos < obj.pos.pos {
-						c.error('variable indefinida: `$ident.name` (usada antes de la declaración)', ident.pos)
-					}
-					if obj.typ == .unknown {
-						if mut obj.expr is ast.Ident {
-							if obj.expr.kind == .unresolved {
-								c.error('variable no resolvida `$ident.name`', ident.pos)
-								return .unknown
-							}
-						}
-					}
-					ident.obj = obj
-					return obj.typ
-				}
-				ast.Const {
-					mut typ := obj.typ
-					if typ == .unknown {
-						typ = c.expr(obj.expr)
-					}
-					ident.kind = .constant
-					ident.info = ast.IdentVar{
-						typ: typ
-					}
-					obj.typ = typ
-					ident.obj = obj
-					return typ
-				}
-				else {}
-			}
-		}
-	}
-	c.error('undefined ident: `$ident.name`', ident.pos)
-	return .unknown
-}
+}*/
 
 // =============================================================================================
 

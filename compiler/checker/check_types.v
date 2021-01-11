@@ -2,7 +2,7 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module checker
 
-import compiler.token
+//import compiler.token
 import compiler.ast
 
 pub fn (mut c Checker) check_basic(got ast.Type, expected ast.Type) bool {
