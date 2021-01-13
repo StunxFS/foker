@@ -9,6 +9,11 @@ import compiler.util
 import compiler.scanner
 import compiler.ast
 
+const (
+	exepath       = os.dir(os.real_path(prefs.zsexe_path()))
+	builtins_file = os.join_path(exepath, 'compiler', 'builtins.zs')
+)
+
 pub struct Parser {
 	file_base     string // "hello.fkr"
 	file_name     string // /home/user/hello.fkr
@@ -354,7 +359,7 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 		p.next()
 	}
 	if p.file_name == builtins_file {
-		p.error("no se pueden declarar scripts en el archivo de builtins")
+		p.error('no se pueden declarar scripts en el archivo de builtins')
 	}
 	script_pos := p.tok.position()
 	p.check(.key_script)
