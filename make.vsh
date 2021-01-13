@@ -17,7 +17,7 @@ $if macos {
 }
 exe_name := $if windows { 'zubat.exe' } $else { 'zubat' }
 exe_symlink := $if windows { 'zubat-symlink.exe' } $else { 'zubat-symlink' }
-exec_symlink := $if windows { '.\zubat-symlink.exe' } $else { './zubat-symlink' }
+exec_symlink := $if windows { r'.\zubat-symlink.exe' } $else { './zubat-symlink' }
 if os.args.len > 2 || os.args.len == 1 {
 	eprintln('make.vsh necesita un comando para funcionar')
 	help()
@@ -47,12 +47,12 @@ match cmd {
 		if !exists(exe_symlink) {
 			println('> Compilando la herramienta para symlink...')
 			system('v -prod -o $exe_symlink cmd/tools/zs_symlink.v')
-			println('> Ejecutando ${exe_symlink}...')
-			system(exec_symlink)
-			rm(exe_symlink)
 		} else {
 			println('> Saltando la compilación para la herramienta de symlinking, esto ya está compilado...')
 		}
+		println('> Ejecutando ${exe_symlink}...')
+		system(exec_symlink)
+		rm(exe_symlink)
 	}
 	else {
 		eprintln('make.vsh: comando `$cmd` desconocido')
