@@ -37,9 +37,9 @@ pub struct Preferences {
 pub mut:
 	// ROM en el que se usará el script generado. Esto es usado para
 	// generar código exacto sin problemas.
-	game              Game    = .firered_leafgreen
-	backend           Backend = .binary
-	rom               string // la rom en la que se insertará el script
+	game    Game    = .firered_leafgreen
+	backend Backend = .binary
+	rom     string // la rom en la que se insertará el script
 	// Por defecto se coge este archivo, ya que se crea automaticamente
 	// con todas las variables y banderas disponibles. Si en ella hay
 	// una variable o flag ocupada, simplemente abrir el archivo y borrarla.

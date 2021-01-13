@@ -8,11 +8,11 @@ import compiler.errors
 // Esto representa un archivo de script ZubatScript
 pub struct File {
 pub:
-	path    string
-	prog    Program
+	path string
+	prog Program
 pub mut:
 	warnings []errors.Report
-	errors	[]errors.Report
+	errors   []errors.Report
 }
 
 /*
@@ -40,13 +40,13 @@ pub:
 	is_pub bool
 	pos    token.Position
 pub mut:
-	typ    Type
+	typ Type
 }
 
 pub struct Var {
 pub:
-	name    string
-	expr    Expr
+	name string
+	expr Expr
 pub mut:
 	typ     Type
 	pos     token.Position
@@ -85,7 +85,7 @@ pub:
 	pos     token.Position
 	is_expr bool
 mut:
-	typ		Type
+	typ Type
 }
 
 pub struct ScriptDecl {
@@ -97,7 +97,7 @@ pub:
 	body_pos      token.Position
 	// file			string
 pub mut:
-	stmts         []Stmt
+	stmts []Stmt
 }
 
 pub struct Param {
@@ -124,10 +124,10 @@ pub:
 
 pub struct AssignStmt {
 pub:
-	right      Expr
-	op         token.Kind
-	pos        token.Position
-	offset     string
+	right  Expr
+	op     token.Kind
+	pos    token.Position
+	offset string
 pub mut:
 	left       Expr
 	left_type  Type
@@ -139,7 +139,7 @@ pub:
 	pos    token.Position
 	is_yes bool // false for 'no'
 pub mut:
-	stmts  []Stmt
+	stmts []Stmt
 }
 
 pub struct QuestionStmt {
@@ -166,7 +166,7 @@ pub:
 	is_inf bool // for {}
 	pos    token.Position
 pub mut:
-	label  string // label: for {
+	label string // label: for {
 }
 
 pub struct ForInStmt {
@@ -208,15 +208,15 @@ pub:
 	pos      token.Position
 	body_pos token.Position
 pub mut:
-	stmts    []Stmt
-	scope    &Scope = 0
+	stmts []Stmt
+	scope &Scope = 0
 }
 
 pub struct MatchStmt {
 pub:
-	cond          Expr
-	branches      []MatchBranch
-	pos           token.Position
+	cond     Expr
+	branches []MatchBranch
+	pos      token.Position
 pub mut:
 	cond_type     Type
 	expected_type Type
@@ -270,9 +270,9 @@ pub:
 
 pub struct CallExpr {
 pub:
-	pos                token.Position
-	left               Expr
-	mod                string
+	pos  token.Position
+	left Expr
+	mod  string
 pub mut:
 	name               string
 	args               []CallArg
@@ -283,8 +283,8 @@ pub struct CallArg {
 pub:
 	expr Expr
 pub mut:
-	typ  Type
-	pos  token.Position
+	typ Type
+	pos token.Position
 }
 
 pub enum IdentKind {
@@ -302,16 +302,16 @@ pub:
 	tok_kind token.Kind
 	pos      token.Position
 pub mut:
-	obj      ScopeObject
-	name     string
-	kind     IdentKind
+	obj  ScopeObject
+	name string
+	kind IdentKind
 }
 
 // left op right
 pub struct InfixExpr {
 pub:
-	op         token.Kind
-	pos        token.Position
+	op  token.Kind
+	pos token.Position
 pub mut:
 	left       Expr
 	right      Expr
@@ -329,9 +329,9 @@ pub:
 
 pub struct PrefixExpr {
 pub:
-	op         token.Kind
-	right      Expr
-	pos        token.Position
+	op    token.Kind
+	right Expr
+	pos   token.Position
 pub mut:
 	right_type Type
 }

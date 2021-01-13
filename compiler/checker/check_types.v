@@ -2,18 +2,19 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module checker
 
-//import compiler.token
+// import compiler.token
 import compiler.ast
 
 pub fn (mut c Checker) check_basic(got ast.Type, expected ast.Type) bool {
 	if got == expected {
 		return true
 	}
-	//t := c.table
+	// t := c.table
 	return false
 }
 
-/*pub fn (mut ch Checker) check_expected(got ast.Type, expected ast.Type) ? {
+/*
+pub fn (mut ch Checker) check_expected(got ast.Type, expected ast.Type) ? {
 	if c.check_types(got, expected) {
 		return
 	}

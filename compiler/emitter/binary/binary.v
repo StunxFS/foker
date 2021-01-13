@@ -23,7 +23,7 @@ pub enum HexOutput {
 
 struct FScript {
 pub:
-	name           string
+	name string
 mut:
 	dynamic        string = '800000'
 	fvf            gen.FVF

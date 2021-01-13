@@ -7,8 +7,9 @@ import os
 
 fn help() {
 	eprintln('make.vsh solo reconoce los siguientes comandos:')
-	eprintln('    build      Para compilar el proyecto')
-	eprintln('    symlink    Para hacer un symlink del compilador')
+	eprintln('    build           Para compilar el proyecto')
+	eprintln('    build-and-test  Para compilar el proyecto y correr una prueba rápida')
+	eprintln('    symlink         Para hacer un symlink del compilador')
 }
 
 $if macos {
@@ -30,6 +31,17 @@ match cmd {
 		}
 		println('> Compilando a ZubatScript...')
 		system('v -prod -o $exe_name cmd/zubat.v')
+	}
+	'build-and-test' {
+		if exists(exe_name) {
+			println('> Removiendo el antiguo compilador...')
+			rm(exe_name)
+		}
+		println('> Compilando a ZubatScript...')
+		if system('v -prod -o $exe_name cmd/zubat.v') == 0 {
+			println('> Ejecutando el ejecutable generado para ver si funciona...')
+			system('./zubat compiler/tests/zubat_test.zs')
+		}
 	}
 	'symlink' {
 		if !exists(exe_symlink) {

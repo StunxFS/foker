@@ -2,12 +2,12 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module checker
 
-//import os
-//import strings
+// import os
+// import strings
+// import compiler.util
 import compiler.ast
 import compiler.token
 import compiler.prefs
-//import compiler.util
 import compiler.errors
 
 const (
@@ -18,20 +18,20 @@ const (
 )
 
 pub struct Checker {
-	pref           &prefs.Preferences
+	pref &prefs.Preferences
 pub mut:
-	table          &ast.Table
-	file           &ast.File = 0
-	nr_errors      int
-	nr_warnings    int
-	errors         []errors.Report
-	warnings       []errors.Report
-	error_lines    []int // para evitar imprimir multiple errores para la misma linea :)
-	expected_type  ast.Type
-	cur_script     &ast.ScriptDecl
-	const_decl     string
-	const_names    []string
-	in_for_count   int // si checker está actualmente en un bucle for
+	table         &ast.Table
+	file          &ast.File = 0
+	nr_errors     int
+	nr_warnings   int
+	errors        []errors.Report
+	warnings      []errors.Report
+	error_lines   []int // para evitar imprimir multiple errores para la misma linea :)
+	expected_type ast.Type
+	cur_script    &ast.ScriptDecl
+	const_decl    string
+	const_names   []string
+	in_for_count  int // si checker está actualmente en un bucle for
 mut:
 	expr_level     int // para evitar una recursion infinita que implique bugs del compilador
 	errors_details []string
@@ -48,10 +48,12 @@ pub fn new_checker(table &ast.Table, pref &prefs.Preferences) Checker {
 
 pub fn (mut c Checker) check(ast_file &ast.File) {
 	c.file = ast_file
-	/*for stmt in ast_file.prog.stmts {
+	/*
+	for stmt in ast_file.prog.stmts {
 		c.expr_level = 0
 		//c.stmt(stmt)
-	}*/
+	}
+	*/
 	c.check_scope_vars(c.file.prog.scope)
 }
 
@@ -83,8 +85,8 @@ fn (mut c Checker) check_div_mod_by_zero(expr ast.Expr, op_kind token.Kind) {
 }
 
 // =============================================================================================
-
-/*[inline]
+/*
+[inline]
 fn (mut c Checker) check_loop_label(label string, pos token.Position) {
 	if label.len == 0 {
 		return
@@ -131,10 +133,9 @@ pub fn (mut c Checker) expr(node ast.Expr) ast.Type {
 		}
 		else {}
 	}
-}*/
-
+}
+*/
 // =============================================================================================
-
 pub fn (mut c Checker) warn(s string, pos token.Position) {
 	allow_warnings := !(c.pref.optlevel == .fast || c.pref.warns_are_errors)
 	c.warn_or_error(s, pos, allow_warnings)

@@ -4,9 +4,10 @@ module ast
 
 pub struct Table {
 pub mut:
-	scripts map[string]ScriptDecl
-	cmds    map[string]CmdDecl
-	alias   map[string]string
+	scripts       map[string]ScriptDecl
+	cmds          map[string]CmdDecl
+	alias         map[string]string
+	builtins_cmds []string
 }
 
 pub fn new_table() &Table {
@@ -21,11 +22,12 @@ pub fn (t &Table) exists_script(name string) bool {
 // retorna -> (existe, es alias)
 [inline]
 pub fn (t &Table) exists_cmd(name string) (bool, bool) {
+	name_in_t_cmds := name in t.cmds
 	// soporte para alias
 	if name in t.alias {
-		return true, true
+		return name_in_t_cmds, true
 	}
-	return name in t.cmds, false
+	return name_in_t_cmds, false
 }
 
 [inline]

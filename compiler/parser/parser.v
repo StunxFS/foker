@@ -10,10 +10,10 @@ import compiler.scanner
 import compiler.ast
 
 pub struct Parser {
-	file_base       string // "hello.fkr"
-	file_name       string // /home/user/hello.fkr
-	file_name_dir   string // home/user
-	pref            &prefs.Preferences
+	file_base     string // "hello.fkr"
+	file_name     string // /home/user/hello.fkr
+	file_name_dir string // home/user
+	pref          &prefs.Preferences
 mut:
 	scanner         &scanner.Scanner
 	tok             token.Token
@@ -292,6 +292,25 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 	}
 	p.check(.rparen)
 	p.check(.semicolon)
+	ecmd, is_alias := p.table.exists_cmd(name)
+	if ecmd {
+		mut msg := "duplicación del comando '$name'"
+		if is_alias {
+			msg += ', existe un alias con este nombre'
+			p.error_with_pos(msg, name_pos)
+		} else {
+			if name !in p.table.builtins_cmds {
+				p.error_and_warn(msg, name_pos, 'esto fue previamente declarado aquí',
+					p.table.cmds[name].pos)
+			} else {
+				p.error_with_pos('esto tiene un nombre de comando usado en los comandos built-ins de ZubatScript',
+					name_pos)
+			}
+		}
+	}
+	if p.file_name == builtins_file {
+		p.table.builtins_cmds << name
+	}
 	cmd := ast.CmdDecl{
 		name: name
 		params: params
@@ -364,14 +383,16 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 		}
 	}
 	mut stmts := p.parse_block()
+	spenp := script_pos.extend(name_pos)
 	if p.table.exists_script(script_name) {
-		p.error_and_warn('script $script_name duplicado', script_pos.extend(name_pos)
+		p.error_and_warn("duplicación del script '$script_name'", spenp, 'esto fue previamente declarado aquí',
+			p.table.scripts[script_name].pos)
 	}
 	cmd := ast.ScriptDecl{
 		name: script_name
 		is_extern: is_extern
 		stmts: stmts
-		pos: script_pos.extend(name_pos)
+		pos: spenp
 	}
 	p.table.scripts[script_name] = cmd
 	return cmd
