@@ -1,24 +1,20 @@
-<div align="center">
+<img src="https://github.com/StunxFS/zubatscript/blob/master/logo.png?raw=true" alt="Janet logo" width=200 align="left"/>
 
-<p>
-    <img width="80" src="https://github.com/StunxFS/zubatscript/blob/master/logo.png?raw=true">
-</p>
+<!--[![Discord][DiscordBadge]][DiscordUrl]-->
 
-<!--- ![ZubatScript's logo](logo.png) --->
-
+<div align="left">
+    
 <h1>El lenguaje de scripting ZubatScript</h1>
-
+    
 [Documentación](/docs/docs.pdf) |
 [Changelog](CHANGELOG.md) |
 [Limitaciones](LIMITACIONES.md) |
 [Código de conducta](CODE_OF_CONDUCT.md)
 <!-- | [Contribuciones](CONTRIBUTING.md) -->
 
-<!--[![Discord][DiscordBadge]][DiscordUrl]-->
+</div>
 
 Bienvenido al repositorio oficial del lenguaje de scripting para los juegos de la 3ra generación de Pokémon en GBA. Yeah, este lenguaje funciona solo con el binario (por ahora), si se desea usar un lenguaje parecido o familiar para los proyectos de decompilación, puede recurrir a [Poryscript](https://github.com/huderlem/poryscript), que es desarrollado por el usuario [huderlem](https://github.com/huderlem).
-
-</div>
 
 ## :question: ¿Qué es esto?
 
