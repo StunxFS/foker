@@ -29,7 +29,7 @@ fn setup_symlink(zsexe string) {
 	mut ret := os.exec('ln -sf $zsexe $link_path') or { panic(err) }
 	if ret.exit_code == 0 {
 		println('Symlink "$link_path" has been created')
-	} else if os.system("uname -o | grep -q \'[A/a]ndroid\'") == 0 {
+	} else if os.system("uname -o | grep -q '[A/a]ndroid'") == 0 {
 		println('Failed to create symlink "$link_path". Trying again with Termux path for Android.')
 		link_path = '/data/data/com.termux/files/usr/bin/v'
 		ret = os.exec('ln -sf $zsexe $link_path') or { panic(err) }

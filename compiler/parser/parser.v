@@ -66,6 +66,7 @@ pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences) ast.Fi
 
 [inline]
 fn (mut p Parser) get_builtins_stmt() []ast.Stmt {
+	builtins_code := util.read_file(builtins_file) or { panic(err) }
 	mut b_file := if p.file_name != builtins_file { parse_text(builtins_code, builtins_file,
 			p.table, p.pref) } else { ast.File{} }
 	return b_file.prog.stmts
@@ -296,15 +297,16 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 	if ecmd {
 		mut msg := "duplicación del comando '$name'"
 		if is_alias {
-			msg += ', existe un alias con este nombre'
+			// TODO: implementar un error mejor
+			msg += ', ya existe un alias con este nombre'
 			p.error_with_pos(msg, name_pos)
 		} else {
-			if name !in p.table.builtins_cmds {
+			if name in p.table.builtins_cmds {
+				p.error_and_warn2(msg, name_pos, 'esto fue previamente declarado en los builtins, aquí',
+					p.table.cmds[name].pos, builtins_file)
+			} else {
 				p.error_and_warn(msg, name_pos, 'esto fue previamente declarado aquí',
 					p.table.cmds[name].pos)
-			} else {
-				p.error_with_pos('esto tiene un nombre de comando usado en los comandos built-ins de ZubatScript',
-					name_pos)
 			}
 		}
 	}
@@ -350,6 +352,9 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	is_extern := p.tok.kind == .key_extern
 	if is_extern {
 		p.next()
+	}
+	if p.file_name == builtins_file {
+		p.error("no se pueden declarar scripts en el archivo de builtins")
 	}
 	script_pos := p.tok.position()
 	p.check(.key_script)
