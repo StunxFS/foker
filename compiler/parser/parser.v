@@ -271,12 +271,12 @@ fn (mut p Parser) parse_alias_stmt() ast.Stmt {
 	p.check(.key_alias)
 	alias_name_pos := p.tok.position()
 	alias_name := p.check_name()
-	ecmd1, alias1:= p.table.exists_cmd(alias_name)
+	ecmd1, alias1 := p.table.exists_cmd(alias_name)
 	if alias1 {
-		p.error_with_pos("ya existe un alias con este nombre, por favor use otro", alias_name_pos)
+		p.error_with_pos('ya existe un alias con este nombre, por favor use otro', alias_name_pos)
 	}
 	if ecmd1 {
-		p.error_with_pos("ya existe un comando con este nombre, por favor use otro", alias_name_pos)
+		p.error_with_pos('ya existe un comando con este nombre, por favor use otro', alias_name_pos)
 	}
 	p.check(.assign)
 	alias_target_pos := p.tok.position()
@@ -289,7 +289,7 @@ fn (mut p Parser) parse_alias_stmt() ast.Stmt {
 		p.error_with_pos('no existe un comando con este nombre', alias_target_pos)
 	}
 	p.check(.semicolon)
-	//println('alias $alias_name = $alias_target;')
+	// println('alias $alias_name = $alias_target;')
 	p.table.alias[alias_name] = alias_target
 	return ast.Stmt{}
 }

@@ -153,7 +153,7 @@ pub const (
 		'extern':      Kind.key_extern
 		'free':        Kind.key_free
 		'text':        Kind.key_text
-		'alias':		Kind.key_alias
+		'alias':       Kind.key_alias
 		'match':       Kind.key_match
 		'if':          Kind.key_if
 		'elif':        Kind.key_elif
