@@ -2,8 +2,8 @@
 
 <!--[![Discord][DiscordBadge]][DiscordUrl]-->
 
-<div align="left">
-    
+<div align="center">
+
 <h1>El lenguaje de scripting ZubatScript</h1>
 
 [Documentación](/docs/docs.md) |
@@ -12,9 +12,9 @@
 [Código de conducta](CODE_OF_CONDUCT.md)
 <!-- | [Contribuciones](CONTRIBUTING.md) -->
 
-</div>
-
 Bienvenido al repositorio oficial del lenguaje de scripting para los juegos de la 3ra generación de Pokémon en GBA.
+
+</div>
 
 ## :question: ¿Qué es esto?
 
