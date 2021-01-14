@@ -5,8 +5,8 @@
 <div align="left">
     
 <h1>El lenguaje de scripting ZubatScript</h1>
-    
-[Documentación](/docs/docs.pdf) |
+
+[Documentación](/docs/docs.md) |
 [Changelog](CHANGELOG.md) |
 [Limitaciones](LIMITACIONES.md) |
 [Código de conducta](CODE_OF_CONDUCT.md)
@@ -87,7 +87,7 @@ sudo v run make.vsh symlink
 v run make.vsh symlink
 ```
 
-¡Listo! Ya tienes compilado ZubatScript, ahora ejecuta ``./zubat`` (o en Windows: ``.\zubat.exe``), si te muestra algún mensaje de ayuda todo está correcto.
+¡Listo! Ya tienes compilado ZubatScript, ahora ejecuta ``zubat`` (o en Windows: ``zubat.exe``), si te muestra algún mensaje de ayuda todo está correcto.
 
 ## :blue_book: Ejemplos de ZubatScript
 
