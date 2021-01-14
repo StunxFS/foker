@@ -290,7 +290,10 @@ fn (mut p Parser) parse_alias_stmt() ast.Stmt {
 	}
 	p.check(.semicolon)
 	// println('alias $alias_name = $alias_target;')
-	p.table.alias[alias_name] = alias_target
+	if p.file_name == builtins_file {
+		p.table.builtins_cmds << alias_name
+	}
+	p.table.alias[alias_name] = ast.Alias{alias_target, alias_name_pos}
 	return ast.Stmt{}
 }
 
@@ -313,12 +316,14 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 				typ: typ_param
 				pos: pos
 				def_value: expr
+				has_def_val: true
 			}
 		} else {
 			params << ast.Param{
 				name: param_name
 				typ: typ_param
 				pos: pos
+				has_def_val: false
 			}
 		}
 		if p.tok.kind == .comma {
@@ -329,19 +334,33 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 	p.check(.rparen)
 	p.check(.semicolon)
 	ecmd, is_alias := p.table.exists_cmd(name)
-	if ecmd {
-		mut msg := "duplicación del comando '$name'"
+	if ecmd || is_alias {
+		is_builtin := name in p.table.builtins_cmds
 		if is_alias {
-			// TODO: implementar un error mejor
-			msg += ', ya existe un alias con este nombre'
-			p.error_with_pos(msg, name_pos)
+			msg := "un alias contiene el nombre del comando '$name'"
+			if is_builtin {
+				p.error_and_warn2(msg, name_pos, 'el alias se encuentra en los builtins',
+					p.table.alias[name].pos, builtins_file)
+			} else {
+				p.error_and_warn(msg, name_pos, 'el alias se encuentra aquí', p.table.alias[name].pos)
+			}
 		} else {
-			if name in p.table.builtins_cmds {
-				p.error_and_warn2(msg, name_pos, 'esto fue previamente declarado en los builtins, aquí',
+			msg := "duplicación del comando '$name'"
+			if is_builtin {
+				p.error_and_warn2(msg, name_pos, 'previamente declarado en los builtins, aquí',
 					p.table.cmds[name].pos, builtins_file)
 			} else {
-				p.error_and_warn(msg, name_pos, 'esto fue previamente declarado aquí',
-					p.table.cmds[name].pos)
+				p.error_and_warn(msg, name_pos, 'previamente declarado aquí', p.table.cmds[name].pos)
+			}
+		}
+	}
+	// chequear el correcto uso de la declaración de parámetros
+	bad_msg := 'solo se pueden declarar argumentos con valores por defecto al final de la declaración'
+	for i, param in params {
+		next_n := i + 1
+		if next_n < params.len {
+			if param.has_def_val && !params[next_n].has_def_val {
+				p.error_with_pos(bad_msg, param.pos)
 			}
 		}
 	}
@@ -503,6 +522,10 @@ fn (mut p Parser) text_decl() ast.Stmt {
 fn (mut p Parser) local_stmt() ast.Stmt {
 	for {
 		match p.tok.kind {
+			.name {
+				// llamadas a comandos: msgbox("string", 23);
+				return p.parse_call_stmt()
+			}
 			.key_var {
 				return p.parse_var_stmt(false)
 			}
@@ -661,4 +684,9 @@ fn (mut p Parser) parse_free_stmt() ast.Stmt {
 		ident: var
 		pos: pos
 	}
+}
+
+fn (mut p Parser) parse_call_stmt() ast.Stmt {
+	//
+	return ast.Stmt{}
 }

@@ -2,11 +2,13 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module ast
 
+import compiler.token
+
 pub struct Table {
 pub mut:
 	scripts       map[string]ScriptDecl
 	cmds          map[string]CmdDecl
-	alias         map[string]string
+	alias         map[string]Alias
 	builtins_cmds []string
 }
 
@@ -28,4 +30,10 @@ pub fn (t &Table) exists_cmd(name string) (bool, bool) {
 [inline]
 pub fn (t &Table) exists_alias(name string) bool {
 	return name in t.alias
+}
+
+pub struct Alias {
+pub:
+	target string
+	pos    token.Position
 }

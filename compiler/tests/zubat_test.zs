@@ -9,6 +9,8 @@ movement Mov1 {
 	walk_down * 4
 }
 
+cmd msg();
+
 // Probando preprocesador :)
 script main {
 	var d1 = 200;

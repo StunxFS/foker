@@ -102,10 +102,11 @@ pub mut:
 
 pub struct Param {
 pub:
-	name      string
-	typ       Type
-	pos       token.Position
-	def_value Expr // para valores por defecto
+	name        string
+	typ         Type
+	pos         token.Position
+	def_value   Expr // para valores por defecto
+	has_def_val bool
 }
 
 // para: extern cmd msgbox(msg: string, type: byte = 6);
