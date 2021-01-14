@@ -9,6 +9,7 @@ fn help() {
 	eprintln('make.vsh solo reconoce los siguientes comandos:')
 	eprintln('    build           Para compilar el proyecto')
 	eprintln('    build-and-test  Para compilar el proyecto y correr una prueba rápida')
+	eprintln('    test            Para hacer una prueba rápida')
 	eprintln('    symlink         Para hacer un symlink del compilador')
 }
 
@@ -41,6 +42,14 @@ match cmd {
 		if system('v -prod -o $exe_name cmd/zubat.v') == 0 {
 			println('> Ejecutando el ejecutable generado para ver si funciona...')
 			system('./zubat compiler/tests/zubat_test.zs')
+		}
+	}
+	'test' {
+		if exists(exe_name) {
+			println('> Ejecutando el compilador para ver si funciona...')
+			system('./zubat compiler/tests/zubat_test.zs')
+		} else {
+			println('> Use el comando build-and-test')
 		}
 	}
 	'symlink' {

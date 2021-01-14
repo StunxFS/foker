@@ -12,4 +12,4 @@ var LASTRESULT at 0x8000: int;
 
 //! Comandos básicos de ROMHacking
 cmd msgbox(msg: string, type: int = 6);
-// TODO: alias msg = msgbox;
+alias msg = msgbox;

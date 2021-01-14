@@ -13,6 +13,3 @@ movement Mov1 {
 script main {
 	var d1 = 200;
 }
-
-cmd msgbox();
-

@@ -22,12 +22,7 @@ pub fn (t &Table) exists_script(name string) bool {
 // retorna -> (existe, es alias)
 [inline]
 pub fn (t &Table) exists_cmd(name string) (bool, bool) {
-	name_in_t_cmds := name in t.cmds
-	// soporte para alias
-	if name in t.alias {
-		return name_in_t_cmds, true
-	}
-	return name_in_t_cmds, false
+	return name in t.cmds, name in t.alias
 }
 
 [inline]

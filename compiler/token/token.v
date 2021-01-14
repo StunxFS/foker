@@ -109,6 +109,7 @@ pub enum Kind {
 	key_extern
 	key_free
 	key_text
+	key_alias
 	key_match
 	key_if
 	key_elif
@@ -152,6 +153,7 @@ pub const (
 		'extern':      Kind.key_extern
 		'free':        Kind.key_free
 		'text':        Kind.key_text
+		'alias':		Kind.key_alias
 		'match':       Kind.key_match
 		'if':          Kind.key_if
 		'elif':        Kind.key_elif
@@ -227,6 +229,7 @@ fn build_tokenstr() []string {
 	k[Kind.key_extern] = 'extern'
 	k[Kind.key_free] = 'free'
 	k[Kind.key_text] = 'text'
+	k[Kind.key_alias] = 'alias'
 	k[Kind.key_match] = 'match'
 	k[Kind.key_if] = 'if'
 	k[Kind.key_elif] = 'elif'
@@ -248,13 +251,13 @@ fn build_tokenstr() []string {
 
 pub enum Precedence {
 	lowest
-	cond // 'or' or 'and'
+	cond // 'or' o 'and'
 	assign // =
-	eq // == or !=
+	eq // == o !=
 	sum // + -
 	product // * /
-	prefix // -X or !X
-	postfix // ++ or --
+	prefix // -X o !X
+	postfix // ++ o --
 	call // cmd(x)
 }
 
