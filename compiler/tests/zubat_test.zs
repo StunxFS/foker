@@ -9,8 +9,8 @@ movement Mov1 {
 	walk_down * 4
 }
 
-cmd msgchan(arg1: int, arg1: int = 0);
-
 script main {
 	var d1 = 200;
+	msg();
+	msg2();
 }

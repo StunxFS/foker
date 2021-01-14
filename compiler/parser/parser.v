@@ -308,7 +308,8 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 		pos := p.tok.position()
 		param_name := p.check_name()
 		if param_name in params_name {
-			p.error_with_pos('argumento `$param_name` duplicado', pos)
+			p.error_with_pos("el nombre del parámetro '$param_name' es un duplicado",
+				pos)
 		}
 		params_name << param_name
 		p.check(.colon)
@@ -360,7 +361,7 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 		}
 	}
 	// chequear el correcto uso de la declaración de parámetros
-	bad_msg := 'solo se pueden declarar argumentos con valores por defecto al final de la declaración'
+	bad_msg := 'los parámetros opcionales deben aparecer después de todos los parámetros obligatorios'
 	for i, param in params {
 		next_n := i + 1
 		if next_n < params.len {
@@ -692,6 +693,22 @@ fn (mut p Parser) parse_free_stmt() ast.Stmt {
 }
 
 fn (mut p Parser) parse_call_stmt() ast.Stmt {
-	//
-	return ast.Stmt{}
+	// En tiempo de compilación los alias se convierten a sus nombres
+	// reales. Es decir, los alias solo funcionan en tiempo de compilación.
+	/*
+	cmd_pos := p.tok.position()
+	mut cmd_name := p.check_name()
+	ecmd, is_alias := p.table.exists_cmd(cmd_name)
+	if !ecmd && !is_alias {
+		p.error_with_pos("no existe un comando con este nombre", cmd_pos)
+	}
+	if is_alias {
+		cmd_name = p.table.alias[cmd_name].target
+	}
+	println(cmd_name)
+	p.check(.lparen)
+	p.check(.rparen)
+	p.check(.semicolon)
+	*/
+	return ast.CallStmt{}
 }
