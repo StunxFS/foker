@@ -303,9 +303,14 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 	name := p.check_name()
 	p.check(.lparen)
 	mut params := []ast.Param{}
+	mut params_name := []string{}
 	for p.tok.kind != .rparen {
 		pos := p.tok.position()
 		param_name := p.check_name()
+		if param_name in params_name {
+			p.error_with_pos('argumento `$param_name` duplicado', pos)
+		}
+		params_name << param_name
 		p.check(.colon)
 		typ_param := p.parse_type()
 		if p.tok.kind == .assign {
