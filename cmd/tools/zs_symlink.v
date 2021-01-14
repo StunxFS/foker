@@ -29,15 +29,6 @@ fn setup_symlink(zsexe string) {
 	mut ret := os.exec('ln -sf $zsexe $link_path') or { panic(err) }
 	if ret.exit_code == 0 {
 		println('Symlink "$link_path" has been created')
-	} else if os.system("uname -o | grep -q '[A/a]ndroid'") == 0 {
-		println('Failed to create symlink "$link_path". Trying again with Termux path for Android.')
-		link_path = '/data/data/com.termux/files/usr/bin/v'
-		ret = os.exec('ln -sf $zsexe $link_path') or { panic(err) }
-		if ret.exit_code == 0 {
-			println('Symlink "$link_path" has been created')
-		} else {
-			eprintln('Failed to create symlink "$link_path". Try again with sudo.')
-		}
 	} else {
 		eprintln('Failed to create symlink "$link_path". Try again with sudo.')
 	}
@@ -47,7 +38,6 @@ fn setup_symlink_windows(zsexe string) {
 	$if windows {
 		// Create a symlink in a new local folder (.\.bin\.zubat.exe)
 		// Puts `zubat` in %PATH% without polluting it with anything else (like make.bat).
-		// This will make `zubat` available on cmd.exe, PowerShell, and MinGW(MSYS)/WSL/Cygwin
 		vdir := os.real_path(os.dir(zsexe))
 		vsymlinkdir := os.join_path(vdir, '.bin')
 		mut vsymlink := os.join_path(vsymlinkdir, 'zubat.exe')
