@@ -57,7 +57,7 @@ pub mut:
 pub type ScopeObject = Const | Var
 
 // Statements
-pub type Stmt = AssignStmt | Block | BranchStmt | CallStmt | CheckgenderStmt | CmdDecl |
+pub type Stmt = AssignStmt | Block | BranchStmt | CallStmt | CallCmdStmt | CheckgenderStmt | CmdDecl |
 	Const | DynamicStmt | ExprStmt | ForInStmt | ForStmt | FreeStmt | GotoLabel | GotoStmt |
 	IfStmt | Include | MatchStmt | QuestionStmt | ScriptDecl
 
@@ -160,7 +160,15 @@ pub:
 	girl_stmts []Stmt
 }
 
+// para: call my_script;
 pub struct CallStmt {
+pub:
+	pos token.Position // posicion de 'my_script' en 'call my_script;
+	script string // script a llamar
+}
+
+// para: msgbox("hola", type: 6);
+pub struct CallCmdStmt {
 pub:
 	pos  token.Position
 	left Expr
@@ -414,6 +422,6 @@ pub fn (expr Expr) is_lit() bool {
 
 pub fn (stmt Stmt) position() token.Position {
 	match stmt {
-		AssignStmt, Block, BranchStmt, CallStmt, Const, ExprStmt, ForStmt, ForInStmt, GotoLabel, GotoStmt, IfStmt, CmdDecl, DynamicStmt, FreeStmt, Include, QuestionStmt, ScriptDecl, CheckgenderStmt, MatchStmt { return stmt.pos }
+		AssignStmt, Block, BranchStmt, CallStmt, CallCmdStmt, Const, ExprStmt, ForStmt, ForInStmt, GotoLabel, GotoStmt, IfStmt, CmdDecl, DynamicStmt, FreeStmt, Include, QuestionStmt, ScriptDecl, CheckgenderStmt, MatchStmt { return stmt.pos }
 	}
 }

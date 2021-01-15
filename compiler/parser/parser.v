@@ -15,8 +15,8 @@ const (
 )
 
 pub struct Parser {
-	file_base     string // "hello.fkr"
-	file_name     string // /home/user/hello.fkr
+	file_base     string // "hello.zs"
+	file_name     string // /home/user/hello.zs
 	file_name_dir string // home/user
 	pref          &prefs.Preferences
 mut:
@@ -72,7 +72,7 @@ pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences) ast.Fi
 [inline]
 fn (mut p Parser) get_builtins_stmt() []ast.Stmt {
 	builtins_code := util.read_file(builtins_file) or { panic(err) }
-	mut b_file := if p.file_name != builtins_file { parse_text(builtins_code, builtins_file,
+	b_file := if p.file_name != builtins_file { parse_text(builtins_code, builtins_file,
 			p.table, p.pref) } else { ast.File{} }
 	return b_file.prog.stmts
 }
@@ -458,6 +458,16 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	return cmd
 }
 
+fn (p &Parser) check_const_name(name string, pos token.Position) {
+	if !util.is_pure_capital(name) {
+		p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas',
+			pos)
+	}
+	if name in p.consts_names {
+		p.error_with_pos("constante '$name' duplicada", pos)
+	}
+}
+
 fn (mut p Parser) const_decl() ast.Const {
 	// start_pos := p.tok.position()
 	// end_pos := p.tok.position()
@@ -466,13 +476,7 @@ fn (mut p Parser) const_decl() ast.Const {
 	pos := p.tok.position()
 	name := p.check_name()
 	mut type_const := ast.Type._auto
-	if !util.is_pure_capital(name) {
-		p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas',
-			pos)
-	}
-	if name in p.consts_names {
-		p.error_with_pos("constante '$name' duplicada", pos)
-	}
+	p.check_const_name(name, pos)
 	p.consts_names << name
 	if p.tok.kind == .colon {
 		p.next()
@@ -498,13 +502,7 @@ fn (mut p Parser) text_decl() ast.Stmt {
 	p.check(.key_text)
 	pos := p.tok.position()
 	name := p.check_name()
-	if !util.is_pure_capital(name) {
-		p.error_with_pos('los nombres de las constantes de cadenas deben ser puras mayúsculas',
-			pos)
-	}
-	if name in p.consts_names {
-		p.error_with_pos("constante de cadena '$name' duplicada", pos)
-	}
+	p.check_const_name(name, pos)
 	p.consts_names << name
 	p.check(.assign)
 	expr := p.expr(0)
@@ -709,5 +707,5 @@ fn (mut p Parser) parse_call_stmt() ast.Stmt {
 	p.check(.rparen)
 	p.check(.semicolon)
 	*/
-	return ast.CallStmt{}
+	return ast.CallCmdStmt{}
 }
