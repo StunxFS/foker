@@ -187,6 +187,8 @@ Créditos al usuario [huderlem](https://github.com/huderlem/), creador de [Porys
 
 Créditos a GNOME y a los desarrolladores del lenguaje de programación Vala, proyecto de donde se tomó el código usado para el preprocesador implementado aquí.
 
+Créditos a [cosarara](https://github.com/cosarara/) por su proyecto [Red Alien](https://github.com/cosarara/red-alien), de donde se obtuvo los archivos de cabecera .RBH (obtenido desde XSE) de la carpeta compiler/stdlib.
+
 * * *
 
 (C) 2020-2021 StunxFS. Todos los derechos reservados.
