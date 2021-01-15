@@ -80,6 +80,12 @@ Opciones:
         Ejemplo de uso:
             $program -g fr miarchivo.zs
 
+    -library
+        Esta opción le dice al compilador que el archivo a compilar es una librería, y no debe pedir
+        un script 'main' para su correcta compilación.
+        Ejemplo de uso:
+            $program -library mis_utilidades.zs
+
     -fast, -debug
         Estas opciones le dicen al compilador que nivel de optimización debe usar para generar
         el script, esto permite realizar un script que pueda ser feo y lento (-debug), o uno rápido

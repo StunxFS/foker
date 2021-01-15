@@ -52,6 +52,7 @@ pub mut:
 	is_verbose        bool   // el compilador debe detallar cada cosa que hace
 	use_color         UseColor
 	only_check_syntax bool
+	is_library        bool // para evitar pedir un script 'main'
 	defines           []string = ['FRLF', 'FIREREDLEAFGREEN', 'BINARY']
 }
 
@@ -154,6 +155,9 @@ pub fn parse_args_and_get_prefs() &Preferences {
 			}
 			'-only-check-syntax' {
 				res.only_check_syntax = true
+			}
+			'-library' {
+				res.is_library = true
 			}
 			else {
 				if arg.ends_with('.zs') {
