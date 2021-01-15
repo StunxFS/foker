@@ -11,6 +11,7 @@ movement Mov1 {
 
 script main {
 	var d1 = 200;
-	msg();
-	msg2();
+	//msg();
+	//msg2();
+	call my_script;
 }

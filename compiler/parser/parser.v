@@ -9,6 +9,8 @@ import compiler.util
 import compiler.scanner
 import compiler.ast
 
+// TODO: Mover los chequeos de existencia de comandos y alias, y scripts
+// al checker.
 const (
 	exepath       = os.dir(os.real_path(prefs.zsexe_path()))
 	builtins_file = os.join_path(exepath, 'compiler', 'builtins.zs')
@@ -271,6 +273,7 @@ fn (mut p Parser) parse_alias_stmt() ast.Stmt {
 	p.check(.key_alias)
 	alias_name_pos := p.tok.position()
 	alias_name := p.check_name()
+	/*
 	ecmd1, alias1 := p.table.exists_cmd(alias_name)
 	if alias1 {
 		p.error_with_pos('ya existe un alias con este nombre, por favor use otro', alias_name_pos)
@@ -278,9 +281,11 @@ fn (mut p Parser) parse_alias_stmt() ast.Stmt {
 	if ecmd1 {
 		p.error_with_pos('ya existe un comando con este nombre, por favor use otro', alias_name_pos)
 	}
+	*/
 	p.check(.assign)
-	alias_target_pos := p.tok.position()
+	// alias_target_pos := p.tok.position()
 	alias_target := p.check_name()
+	/*
 	ecmd, alias := p.table.exists_cmd(alias_target)
 	if alias {
 		p.error_with_pos('no se puede declarar un alias para otro alias', alias_target_pos)
@@ -288,6 +293,7 @@ fn (mut p Parser) parse_alias_stmt() ast.Stmt {
 	if !ecmd {
 		p.error_with_pos('no existe un comando con este nombre', alias_target_pos)
 	}
+	*/
 	p.check(.semicolon)
 	if p.file_name == builtins_file {
 		p.table.builtins_cmds << alias_name
@@ -338,6 +344,7 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 	}
 	p.check(.rparen)
 	p.check(.semicolon)
+	/*
 	ecmd, is_alias := p.table.exists_cmd(name)
 	if ecmd || is_alias {
 		is_builtin := name in p.table.builtins_cmds
@@ -359,6 +366,7 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 			}
 		}
 	}
+	*/
 	// chequear el correcto uso de la declaración de parámetros
 	bad_msg := 'los parámetros opcionales deben aparecer después de todos los parámetros obligatorios'
 	for i, param in params {
@@ -444,10 +452,12 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	}
 	mut stmts := p.parse_block()
 	spenp := script_pos.extend(name_pos)
+	/*
 	if p.table.exists_script(script_name) {
 		p.error_and_warn("duplicación del script '$script_name'", spenp, 'esto fue previamente declarado aquí',
 			p.table.scripts[script_name].pos)
 	}
+	*/
 	cmd := ast.ScriptDecl{
 		name: script_name
 		is_extern: is_extern
@@ -458,7 +468,7 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	return cmd
 }
 
-fn (p &Parser) check_const_name(name string, pos token.Position) {
+fn (mut p Parser) check_const_name(name string, pos token.Position) {
 	if !util.is_pure_capital(name) {
 		p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas',
 			pos)
@@ -532,8 +542,7 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 				return p.parse_free_stmt()
 			}
 			.key_call {
-				// return p.parser_call_script_stmt() TODO
-				return ast.Stmt{}
+				return p.parser_call_script_stmt()
 			}
 			.key_if {
 				return p.if_stmt()
@@ -571,6 +580,17 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 		}
 	}
 	return ast.Stmt{}
+}
+
+fn (mut p Parser) parser_call_script_stmt() ast.Stmt {
+	p.check(.key_call)
+	script_pos := p.tok.position()
+	script := p.check_name()
+	p.check(.semicolon)
+	return ast.CallStmt{
+		pos: script_pos
+		script: script
+	}
 }
 
 fn (mut p Parser) parse_type() ast.Type {

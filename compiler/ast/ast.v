@@ -57,9 +57,9 @@ pub mut:
 pub type ScopeObject = Const | Var
 
 // Statements
-pub type Stmt = AssignStmt | Block | BranchStmt | CallStmt | CallCmdStmt | CheckgenderStmt | CmdDecl |
-	Const | DynamicStmt | ExprStmt | ForInStmt | ForStmt | FreeStmt | GotoLabel | GotoStmt |
-	IfStmt | Include | MatchStmt | QuestionStmt | ScriptDecl
+pub type Stmt = AssignStmt | Block | BranchStmt | CallCmdStmt | CallStmt | CheckgenderStmt |
+	CmdDecl | Const | DynamicStmt | ExprStmt | ForInStmt | ForStmt | FreeStmt | GotoLabel |
+	GotoStmt | IfStmt | Include | MatchStmt | QuestionStmt | ScriptDecl
 
 pub struct Block {
 pub:
@@ -163,7 +163,7 @@ pub:
 // para: call my_script;
 pub struct CallStmt {
 pub:
-	pos token.Position // posicion de 'my_script' en 'call my_script;
+	pos    token.Position // posición de 'my_script' en 'call my_script;
 	script string // script a llamar
 }
 
