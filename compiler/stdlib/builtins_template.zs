@@ -8,6 +8,10 @@
 //! Para comparar los resultados de ciertos comandos que utilizan esta
 //! variable para depositar valores. (ejemplo: checkgender)
 var LASTRESULT at 0x8000: int;
+var LASTTALKED at 0x800F: int;
+
+<stdlib.zs>
+
 #endif
 
 //! Comandos básicos de ROMHacking

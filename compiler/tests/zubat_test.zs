@@ -15,4 +15,7 @@ script main {
 	msgbox(2020, name: arg);
 	clearvar(myvar);
 	call my_script;
+	if myvar == 100 {
+		call got_2;
+	}
 }

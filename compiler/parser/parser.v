@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021 StunxFS. All rights reserved. Use of this source code is
+// (C) 2020-2021 StunxFS. All rights reserved. Use of this source code is
 // governed by an MIT license that can be found in the LICENSE file.
 module parser
 
@@ -13,7 +13,7 @@ import compiler.ast
 // al checker.
 const (
 	exepath       = os.dir(os.real_path(prefs.zsexe_path()))
-	builtins_file = os.join_path(exepath, 'compiler', 'builtins.zs')
+	builtins_file = os.join_path(exepath, 'compiler', 'stdlib', 'builtins.zs')
 )
 
 pub struct Parser {
@@ -468,16 +468,18 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	return cmd
 }
 
+/*
 fn (mut p Parser) check_const_name(name string, pos token.Position) {
-	if !util.is_pure_capital(name) {
+	mut is_pure_capital := false
+	for ch in name {
+		is_pure_capital = ch.is_capital()
+	}
+	if !is_pure_capital {
 		p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas',
 			pos)
 	}
-	if name in p.consts_names {
-		p.error_with_pos("constante '$name' duplicada", pos)
-	}
 }
-
+*/
 fn (mut p Parser) const_decl() ast.Const {
 	// start_pos := p.tok.position()
 	// end_pos := p.tok.position()
@@ -486,7 +488,10 @@ fn (mut p Parser) const_decl() ast.Const {
 	pos := p.tok.position()
 	name := p.check_name()
 	mut type_const := ast.Type._auto
-	p.check_const_name(name, pos)
+	// p.check_const_name(name, pos)
+	if name in p.consts_names {
+		p.error_with_pos("constante '$name' duplicada", pos)
+	}
 	p.consts_names << name
 	if p.tok.kind == .colon {
 		p.next()
@@ -512,7 +517,10 @@ fn (mut p Parser) text_decl() ast.Stmt {
 	p.check(.key_text)
 	pos := p.tok.position()
 	name := p.check_name()
-	p.check_const_name(name, pos)
+	// p.check_const_name(name, pos)
+	if name in p.consts_names {
+		p.error_with_pos("constante '$name' de texto duplicada", pos)
+	}
 	p.consts_names << name
 	p.check(.assign)
 	expr := p.expr(0)
@@ -738,7 +746,8 @@ fn (mut p Parser) parse_call_args() []ast.CallArg {
 	start_pos := p.tok.position()
 	for p.tok.kind != .rparen {
 		if p.tok.kind == .eof {
-			p.error_with_pos('unexpected eof reached, while parsing call argument', start_pos)
+			p.error_with_pos('final del archivo inesperado alcanzado, mientras se analiza el argumento de llamada',
+				start_pos)
 		}
 		arg_start_pos := p.tok.position()
 		if p.tok.kind == .name && p.peek_tok.kind == .colon {
