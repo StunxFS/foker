@@ -710,11 +710,9 @@ fn (mut p Parser) parse_free_stmt() ast.Stmt {
 }
 
 fn (mut p Parser) parse_call_stmt() ast.Stmt {
-	// En tiempo de compilación los alias se convierten a sus nombres
-	// reales. Es decir, los alias solo funcionan en tiempo de compilación.
-	/*
 	cmd_pos := p.tok.position()
-	mut cmd_name := p.check_name()
+	cmd_name := p.check_name()
+	/*
 	ecmd, is_alias := p.table.exists_cmd(cmd_name)
 	if !ecmd && !is_alias {
 		p.error_with_pos("no existe un comando con este nombre", cmd_pos)
@@ -722,10 +720,51 @@ fn (mut p Parser) parse_call_stmt() ast.Stmt {
 	if is_alias {
 		cmd_name = p.table.alias[cmd_name].target
 	}
-	println(cmd_name)
+	*/
 	p.check(.lparen)
+	args := p.parse_call_args()
+	last_pos := p.tok.position()
 	p.check(.rparen)
 	p.check(.semicolon)
-	*/
-	return ast.CallCmdStmt{}
+	return ast.CallCmdStmt{
+		pos: cmd_pos.extend(last_pos)
+		name: cmd_name
+		args: args
+	}
+}
+
+fn (mut p Parser) parse_call_args() []ast.CallArg {
+	mut args := []ast.CallArg{}
+	start_pos := p.tok.position()
+	for p.tok.kind != .rparen {
+		if p.tok.kind == .eof {
+			p.error_with_pos('unexpected eof reached, while parsing call argument', start_pos)
+		}
+		arg_start_pos := p.tok.position()
+		if p.tok.kind == .name && p.peek_tok.kind == .colon {
+			// optional argument
+			name := p.tok.lit
+			p.next()
+			p.check(.colon)
+			e := p.expr(0)
+			pos := arg_start_pos.extend(p.prev_tok.position())
+			args << ast.CallArg{
+				name: name
+				expr: e
+				pos: pos
+				is_opt: true
+			}
+		} else {
+			e := p.expr(0)
+			pos := arg_start_pos.extend(p.prev_tok.position())
+			args << ast.CallArg{
+				expr: e
+				pos: pos
+			}
+		}
+		if p.tok.kind != .rparen {
+			p.check(.comma)
+		}
+	}
+	return args
 }

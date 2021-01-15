@@ -11,7 +11,8 @@ movement Mov1 {
 
 script main {
 	var d1 = 200;
-	//msg();
-	//msg2();
+	msgbox("Hola mundo!");
+	msgbox(2020, name: arg);
+	clearvar(myvar);
 	call my_script;
 }

@@ -170,8 +170,7 @@ pub:
 // para: msgbox("hola", type: 6);
 pub struct CallCmdStmt {
 pub:
-	pos  token.Position
-	left Expr
+	pos token.Position
 pub mut:
 	name               string
 	args               []CallArg
@@ -180,10 +179,12 @@ pub mut:
 
 pub struct CallArg {
 pub:
+	name string // para args. opcionales.
 	expr Expr
 pub mut:
-	typ Type
-	pos token.Position
+	typ    Type
+	pos    token.Position
+	is_opt bool // es argumento opcional
 }
 
 pub struct ForStmt {
