@@ -10,7 +10,7 @@
 var LASTRESULT at 0x8000: int;
 var LASTTALKED at 0x800F: int;
 
-// Desde: "stdpoke.rbh" =======
+// Desde: "stdpoke.rbh"
 const PKMN_MISSINGNO = 0x0;
 const PKMN_BULBASAUR = 0x1;
 const PKMN_IVYSAUR = 0x2;
@@ -786,7 +786,7 @@ const JIRACHI = 0x199;
 const DEOXYS = 0x19A;
 const CHIMECHO = 0x19B;
 
-// Desde: "stdabilities.rbh" =======
+// Desde: "stdabilities.rbh"
 const STENCH = 1;
 const DRIZZLE = 2;
 const SPEED_BOOST = 3;
@@ -865,7 +865,7 @@ const SHELL_ARMOR = 0x4B;
 const CACOPHONY = 0x4C;
 const AIR_LOCK = 0x4D;
 
-// Desde: "stdeffects.rbh" =======
+// Desde: "stdeffects.rbh"
 const NO_ADDED_EFFECT = 0;
 const PUTS_TARGET_TO_SLEEP = 1;
 const POSION_THE_TARGET = 2;
@@ -1070,7 +1070,7 @@ const RAISES_USERS_SPECIAL_ATTACK_AND_SPECIAL_DEFENSE = 211;
 const RAISES_USERS_ATTACK_AND_SPEED = 212;
 const CAMOUFLAGE = 213;
 
-// Desde: "stdtypes.rbh" =======
+// Desde: "stdtypes.rbh"
 const NORMAL = 0;
 const FIGHTING = 1;
 const FLYING = 2;
@@ -1090,7 +1090,7 @@ const ICE = 0xF;
 const DRAGON = 0x10;
 const DARK = 0x11;
 
-// Desde: "std.rbh" =======
+// Desde: "std.rbh"
 const PLAYERFACING = 0x800C;
 const FACE_DOWN = 0x1;
 const FACE_UP = 0x2;
@@ -1111,43 +1111,8 @@ const SP_CHOOSEPKMN = 0x9C;
 const SP_CATCHPKMN = 0x9D;
 const SP_FRNATIONAL = 0x16F;
 const SP_EMNATIONAL = 0x1F3;
-const RS_PKMNMENU = 0x800;
-const RS_POKEDEX = 0x801;
-const RS_POKENAV = 0x802;
-const RS_RUNNINGSHOES = 0x860;
-const RS_BADGE1 = 0x807;
-const RS_BADGE2 = 0x808;
-const RS_BADGE3 = 0x809;
-const RS_BADGE4 = 0x80A;
-const RS_BADGE5 = 0x80B;
-const RS_BADGE6 = 0x80C;
-const RS_BADGE7 = 0x80D;
-const RS_BADGE8 = 0x80E;
-const EM_PKMNMENU = 0x860;
-const EM_POKEDEX = 0x861;
-const EM_POKENAV = 0x862;
-const EM_RUNNINGSHOES = 0x8C0;
-const EM_BADGE1 = 0x867;
-const EM_BADGE2 = 0x868;
-const EM_BADGE3 = 0x869;
-const EM_BADGE4 = 0x86A;
-const EM_BADGE5 = 0x86B;
-const EM_BADGE6 = 0x86C;
-const EM_BADGE7 = 0x86D;
-const EM_BADGE8 = 0x86E;
-const FR_PKMNMENU = 0x828;
-const FR_POKEDEX = 0x829;
-const FR_RUNNINGSHOES = 0x82F;
-const FR_BADGE1 = 0x820;
-const FR_BADGE2 = 0x821;
-const FR_BADGE3 = 0x822;
-const FR_BADGE4 = 0x823;
-const FR_BADGE5 = 0x824;
-const FR_BADGE6 = 0x825;
-const FR_BADGE7 = 0x826;
-const FR_BADGE8 = 0x827;
 
-// Desde: "stdattacks.rbh" =======
+// Desde: "stdattacks.rbh"
 const ATK_NONE = 0x0;
 const ATK_POUND = 0x1;
 const ATK_KARATECHOP = 0x2;
@@ -1504,7 +1469,7 @@ const ATK_WATERPULSE = 0x160;
 const ATK_DOOMDESIRE = 0x161;
 const ATK_PSYCHOBOOST = 0x162;
 
-// Desde: "stditems.rbh" =======
+// Desde: "stditems.rbh"
 const ITEM_NONE = 0x0;
 const ITEM_MASTERBALL = 0x1;
 const ITEM_ULTRABALL = 0x2;
@@ -1933,6 +1898,51 @@ const DEC_WAILMERDOLL = 0x75;
 const DEC_REGIROCKDOLL = 0x76;
 const DEC_REGICEDOLL = 0x77;
 const DEC_REGISTEELDOLL = 0x78;
+
+// Desde "stdlib.rbh", constantes por juego
+#if RS
+const RS_PKMNMENU = 0x800;
+const RS_POKEDEX = 0x801;
+const RS_POKENAV = 0x802;
+const RS_RUNNINGSHOES = 0x860;
+const RS_BADGE1 = 0x807;
+const RS_BADGE2 = 0x808;
+const RS_BADGE3 = 0x809;
+const RS_BADGE4 = 0x80A;
+const RS_BADGE5 = 0x80B;
+const RS_BADGE6 = 0x80C;
+const RS_BADGE7 = 0x80D;
+const RS_BADGE8 = 0x80E;
+#endif
+
+#if EM
+const EM_PKMNMENU = 0x860;
+const EM_POKEDEX = 0x861;
+const EM_POKENAV = 0x862;
+const EM_RUNNINGSHOES = 0x8C0;
+const EM_BADGE1 = 0x867;
+const EM_BADGE2 = 0x868;
+const EM_BADGE3 = 0x869;
+const EM_BADGE4 = 0x86A;
+const EM_BADGE5 = 0x86B;
+const EM_BADGE6 = 0x86C;
+const EM_BADGE7 = 0x86D;
+const EM_BADGE8 = 0x86E;
+#endif
+
+#if FR
+const FR_PKMNMENU = 0x828;
+const FR_POKEDEX = 0x829;
+const FR_RUNNINGSHOES = 0x82F;
+const FR_BADGE1 = 0x820;
+const FR_BADGE2 = 0x821;
+const FR_BADGE3 = 0x822;
+const FR_BADGE4 = 0x823;
+const FR_BADGE5 = 0x824;
+const FR_BADGE6 = 0x825;
+const FR_BADGE7 = 0x826;
+const FR_BADGE8 = 0x827;
+#endif
 
 #endif
 
