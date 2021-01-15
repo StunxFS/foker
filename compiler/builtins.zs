@@ -4,7 +4,7 @@
 * NOTA: Por favor, usar este código con cuidado.
 */
 
-#if !DECOMP
+#if BINARY
 //! Para comparar los resultados de ciertos comandos que utilizan esta
 //! variable para depositar valores. (ejemplo: checkgender)
 var LASTRESULT at 0x8000: int;
@@ -13,7 +13,7 @@ var LASTRESULT at 0x8000: int;
 //! Comandos básicos de ROMHacking
 cmd msgbox(
 	msg: string
-#if !DECOMP
+#if !BINARY
 	, type: int = 6
 #endif
 );

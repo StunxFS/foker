@@ -110,6 +110,7 @@ pub enum Kind {
 	key_free
 	key_text
 	key_alias
+	key_call // para: call my_script;
 	key_match
 	key_if
 	key_elif
@@ -154,6 +155,7 @@ pub const (
 		'free':        Kind.key_free
 		'text':        Kind.key_text
 		'alias':       Kind.key_alias
+		'call':        Kind.key_call
 		'match':       Kind.key_match
 		'if':          Kind.key_if
 		'elif':        Kind.key_elif
@@ -230,6 +232,7 @@ fn build_tokenstr() []string {
 	k[Kind.key_free] = 'free'
 	k[Kind.key_text] = 'text'
 	k[Kind.key_alias] = 'alias'
+	k[Kind.key_call] = 'call'
 	k[Kind.key_match] = 'match'
 	k[Kind.key_if] = 'if'
 	k[Kind.key_elif] = 'elif'

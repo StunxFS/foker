@@ -289,7 +289,6 @@ fn (mut p Parser) parse_alias_stmt() ast.Stmt {
 		p.error_with_pos('no existe un comando con este nombre', alias_target_pos)
 	}
 	p.check(.semicolon)
-	// println('alias $alias_name = $alias_target;')
 	if p.file_name == builtins_file {
 		p.table.builtins_cmds << alias_name
 	}
@@ -420,10 +419,6 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	p.check(.key_script)
 	name_pos := p.tok.position()
 	script_name := p.check_name()
-	if util.contains_capital(script_name) && script_name[0].is_capital() {
-		p.error_with_pos_and_details('no uses el estilo PascalCase para nombrar scripts, usa el estilo camelCase',
-			p.prev_tok.position(), "en vez de usar, por ejemplo, 'MiNameScript', use 'miNameScript'")
-	}
 	p.cur_script_name = script_name
 	if is_extern { // extern script name; | extern script name2 at 0x90034;
 		mut extern_offset := ''
@@ -538,6 +533,10 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 			.key_free {
 				return p.parse_free_stmt()
 			}
+			.key_call {
+				// return p.parser_call_script_stmt() TODO
+				return ast.Stmt{}
+			}
 			.key_if {
 				return p.if_stmt()
 			}
@@ -590,7 +589,7 @@ fn (mut p Parser) check_undefined_variables(expr ast.Expr, val ast.Expr) {
 		ast.Ident {
 			if expr is ast.Ident {
 				if expr.name == val.name {
-					p.error_with_pos('variable indefinida `$val.name`', val.pos)
+					p.error_with_pos("variable indefinida '$val.name'", val.pos)
 				}
 			}
 		}
