@@ -17,7 +17,7 @@ var LASTTALKED at 0x800F: int;
 //! Comandos básicos de ROMHacking
 cmd msgbox(
 	msg: string
-#if !BINARY
+#if BINARY
 	, type: int = 6
 #endif
 );
