@@ -4,81 +4,52 @@ module emitter
 
 import os
 
-const (
-	separator = '#-- ponga aqui abajo sus flags --#'
-)
-
 struct FVF {
 mut:
-	vars  map[string]bool
-	flags map[string]bool
+	content  map[string]bool
 }
 
-pub fn new_fvf(file string) ?FVF {
-	content := os.read_file(file) ?
-	content_splitted := content.split(separator)
-	mut vars := map[string]bool{}
-	mut flags := map[string]bool{}
-	if content_splitted.len == 2 {
-		for v in content_splitted[0].split('\n') { // variables
-			if v != '' {
-				vars[v] = false
-			}
-		}
-		for f in content_splitted[1].split('\n') { // flags
-			if f != '' {
-				flags[f] = false
-			}
-		}
+pub fn new_fvf(text string) FVF {
+	content_splitted := text.split('\n')
+	mut cnt := map[string]bool{}
+	for c in content_splitted {
+		cnt[c] = false
 	}
 	return FVF{
-		vars: vars
-		flags: flags
+		content: cnt
 	}
 }
 
-pub fn (mut fvf FVF) get_var() ?string {
-	for k, v in fvf.vars {
+pub fn new_fvf_from_file(file string) ?FVF {
+	content := os.read_file(file) ?
+	content_splitted := content.split('\n')
+	mut cnt := map[string]bool{}
+	for c in content_splitted {
+		cnt[c] = false
+	}
+	return FVF{
+		content: cnt
+	}
+}
+
+pub fn (mut fvf FVF) get() ?string {
+	for k, v in fvf.content {
 		if !v { // no used
+			fvf.content[k] = true
 			return k
 		}
 	}
 	return error('no se ha podido obtener una variable, ya que todas están ocupadas')
 }
 
-pub fn (mut fvf FVF) get_flag() ?string {
-	for k, v in fvf.flags {
-		if !v { // no used
-			return k
-		}
-	}
-	return error('no se ha podido obtener una flag, ya que todas están ocupadas')
-}
-
-pub fn (mut fvf FVF) free_var(var string) ? {
-	if var in fvf.vars {
-		if fvf.vars[var] { // used
-			fvf.vars[var] = false
+pub fn (mut fvf FVF) free(id string) ? {
+	if id in fvf.content {
+		if fvf.content[id] { // used
+			fvf.content[id] = false
 		} else {
-			return error("imposible liberar la variable '$var': no está en uso tal variable")
+			return error("imposible liberar el id '$id': no está en uso tal id")
 		}
 	} else {
-		return error("imposible liberar la variable '$var': no existe tal variable")
+		return error("imposible liberar el id '$id': no existe tal id")
 	}
-}
-
-pub fn (mut fvf FVF) free_flag(flag string) ? {
-	if flag in fvf.flags {
-		if fvf.flags[flag] { // used
-			fvf.flags[flag] = false
-		} else {
-			return error("imposible liberar la flag '$flag': no está en uso tal flag")
-		}
-	} else {
-		return error("imposible liberar la flag '$flag': no existe tal flag")
-	}
-}
-
-pub fn make_new_fvf_file() ? {
-	os.write_file('fvf.txt', separator) ?
 }
