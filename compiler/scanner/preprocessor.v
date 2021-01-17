@@ -122,7 +122,12 @@ fn (mut s Scanner) parse_pp_ident() string {
 
 fn (mut s Scanner) parse_pp_define() {
 	s.pp_space()
+	start_pos := s.pos
 	identifier := s.parse_pp_ident()
+	if identifier.starts_with('__') && identifier.starts_with('__') {
+		s.pos -= start_pos
+		s.error_with_len('esta forma de declaración está reservada para compilador', identifier.len)	
+	}
 	s.pp_eol()
 	if s.pref.is_verbose {
 		println('> [scanner/preprocesador] definiendo: $identifier')

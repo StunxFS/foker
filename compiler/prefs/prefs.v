@@ -53,7 +53,7 @@ pub mut:
 	use_color         UseColor
 	only_check_syntax bool
 	is_library        bool // para evitar pedir un script 'main'
-	defines           []string = ['FRLF', 'FIREREDLEAFGREEN', 'BINARY']
+	defines           []string = ['__FRLF__', '__FIRERED_LEAFGREEN__', '__BINARY__']
 }
 
 // parse_arg_and_get_prefs, trabaja con los argumentos del programa para obtener un struct
@@ -74,7 +74,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 					}
 					'decomp' {
 						res.backend = .decomp
-						res.defines[res.defines.index('BINARY')] = 'DECOMP'
+						res.defines[res.defines.index('__BINARY__')] = '__DECOMP__'
 					}
 					else {
 						util.err("la opción $arg solo soporta los valores 'binary' o 'decomp'")
@@ -86,6 +86,9 @@ pub fn parse_args_and_get_prefs() &Preferences {
 				to_define := cmdline.option(current_args, arg, '')
 				if to_define.to_lower() in ['true', 'false'] {
 					util.err('no se puede definir valores booleanos constantes (true y false)')
+				}
+				if to_define.starts_with('__') && to_define.ends_with('__') {
+					util.err("esta forma de declaración está reservada por el compilador")
 				}
 				if to_define != '' {
 					if to_define !in res.defines {
@@ -107,16 +110,16 @@ pub fn parse_args_and_get_prefs() &Preferences {
 				match target_game {
 					'rs', 'rubysapphire' {
 						res.game = .ruby_sapphire
-						res.defines[res.defines.index('FRLF')] = 'RS'
-						res.defines[res.defines.index('FIREREDLEAFGREEN')] = 'RUBYSAPPHIRE'
+						res.defines[res.defines.index('FRLF')] = '__RS__'
+						res.defines[res.defines.index('FIREREDLEAFGREEN')] = '__RUBY_SAPPHIRE__'
 					}
 					'frlf', 'fireredleafgreen' {
 						res.game = .firered_leafgreen
 					}
 					'e', 'emerald' {
 						res.game = .emerald
-						res.defines[res.defines.index('FRLF')] = 'E'
-						res.defines[res.defines.index('FIREREDLEAFGREEN')] = 'EMERALD'
+						res.defines[res.defines.index('FRLF')] = '__EM__'
+						res.defines[res.defines.index('FIREREDLEAFGREEN')] = '__EMERALD__'
 					}
 					else {
 						util.err('la opción $arg solo soporta los valores: rs, rubysapphire, frlf, fireredleafgreen, e, emerald')
