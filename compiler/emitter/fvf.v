@@ -13,6 +13,13 @@ pub fn new_fvf(text string) FVF {
 	content_splitted := text.split('\n')
 	mut cnt := map[string]bool{}
 	for c in content_splitted {
+		if c.starts_with('#') || c == "" { // comentarios
+			continue
+		}
+		mut d := c
+		if d.contains('#') {
+			d = d.all_after('#').trim_space()
+		}
 		cnt[c] = false
 	}
 	return FVF{
@@ -22,14 +29,7 @@ pub fn new_fvf(text string) FVF {
 
 pub fn new_fvf_from_file(file string) ?FVF {
 	content := os.read_file(file) ?
-	content_splitted := content.split('\n')
-	mut cnt := map[string]bool{}
-	for c in content_splitted {
-		cnt[c] = false
-	}
-	return FVF{
-		content: cnt
-	}
+	return new_fvf(content)
 }
 
 pub fn (mut fvf FVF) get() ?string {
@@ -39,7 +39,7 @@ pub fn (mut fvf FVF) get() ?string {
 			return k
 		}
 	}
-	return error('no se ha podido obtener una variable, ya que todas están ocupadas')
+	return error('no se ha podido obtener un id, ya que todos están ocupados')
 }
 
 pub fn (mut fvf FVF) free(id string) ? {
