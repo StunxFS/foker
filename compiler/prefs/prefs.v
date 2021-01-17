@@ -88,7 +88,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 					util.err('no se puede definir valores booleanos constantes (true y false)')
 				}
 				if to_define.starts_with('__') && to_define.ends_with('__') {
-					util.err("esta forma de declaración está reservada por el compilador")
+					util.err('esta forma de declaración está reservada por el compilador')
 				}
 				if to_define != '' {
 					if to_define !in res.defines {

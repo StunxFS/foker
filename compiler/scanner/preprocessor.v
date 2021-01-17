@@ -126,7 +126,8 @@ fn (mut s Scanner) parse_pp_define() {
 	identifier := s.parse_pp_ident()
 	if identifier.starts_with('__') && identifier.starts_with('__') {
 		s.pos -= start_pos
-		s.error_with_len('esta forma de declaración está reservada para compilador', identifier.len)	
+		s.error_with_len('esta forma de declaración está reservada por el compilador',
+			identifier.len)
 	}
 	s.pp_eol()
 	if s.pref.is_verbose {
@@ -141,7 +142,8 @@ fn (mut s Scanner) parse_pp_if() {
 	s.pp_eol()
 	s.conditional_stack << Conditional{}
 	if condition &&
-		(s.conditional_stack.len == 1 || !s.conditional_stack[s.conditional_stack.len - 2].skip_section) {
+		(s.conditional_stack.len == 1 || !s.conditional_stack[s.conditional_stack.len - 2].skip_section)
+	{
 		// condition true => process code within if
 		s.conditional_stack[s.conditional_stack.len - 1].matched = true
 	} else {
@@ -159,7 +161,8 @@ fn (mut s Scanner) parse_pp_elif() {
 		return
 	}
 	if condition && !s.conditional_stack[s.conditional_stack.len - 1].matched &&
-		(s.conditional_stack.len == 1 || !s.conditional_stack[s.conditional_stack.len - 2].skip_section) {
+		(s.conditional_stack.len == 1 || !s.conditional_stack[s.conditional_stack.len - 2].skip_section)
+	{
 		// condition true => process code within if
 		s.conditional_stack[s.conditional_stack.len - 1].matched = true
 		s.conditional_stack[s.conditional_stack.len - 1].skip_section = false
@@ -175,7 +178,8 @@ fn (mut s Scanner) parse_pp_else() {
 		s.error_with_len('no se esperaba #else', 5)
 	}
 	if !s.conditional_stack[s.conditional_stack.len - 1].matched &&
-		(s.conditional_stack.len == 1 || !s.conditional_stack[s.conditional_stack.len - 2].skip_section) {
+		(s.conditional_stack.len == 1 || !s.conditional_stack[s.conditional_stack.len - 2].skip_section)
+	{
 		// condition true => process code within if
 		s.conditional_stack[s.conditional_stack.len - 1].matched = true
 		s.conditional_stack[s.conditional_stack.len - 1].skip_section = false
