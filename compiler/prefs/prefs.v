@@ -53,7 +53,7 @@ pub mut:
 	use_color         UseColor
 	only_check_syntax bool
 	is_library        bool // para evitar pedir un script 'main'
-	defines           []string = ['__FRLF__', '__FIRERED_LEAFGREEN__', '__BINARY__']
+	defines           []string = ['__FRLF__', '__FIRERED_LEAFGREEN__', '__BINARY__', '__DEBUG__']
 }
 
 // parse_arg_and_get_prefs, trabaja con los argumentos del programa para obtener un struct
@@ -137,6 +137,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 			}
 			'-fast' {
 				res.optlevel = .fast
+				res.defines[res.defines.index('__DEBUG__')] = '__FAST__'
 			}
 			'-debug' {
 				res.optlevel = .debug
