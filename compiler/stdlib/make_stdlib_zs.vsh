@@ -14,8 +14,6 @@ headers := files.filter(it.ends_with('.rbh'))
 mut stdlib_zs := strings.new_builder(100)
 builtins := read_file('builtins_template.zs')?
 
-mut gflags := map[string][]string{}
-
 for header in headers {
 	if header in ignored { continue }
 	content := read_file(header)?
@@ -31,25 +29,11 @@ for header in headers {
 					name = '_' + name
 				}
 				val := tokens[2]
-				taks := name.split('_')
-				if taks[0] in ['RS', 'EM', 'FR'] {
-					g := taks[0]
-					gflags[g] << 'const $name = $val;'
-					continue
-				}
 				stdlib_zs.writeln('const $name = $val;')
 			}
 			else {}
 		}
 	}
-	stdlib_zs.writeln('')
-}
-
-stdlib_zs.writeln('// Desde "stdlib.rbh", constantes por juego')
-for k, v in gflags {
-	stdlib_zs.writeln('#if $k')
-	stdlib_zs.writeln(v.join('\n'))
-	stdlib_zs.writeln('#endif')
 	stdlib_zs.writeln('')
 }
 

@@ -31,14 +31,14 @@ fn (mut s Scanner) pp_whitespace() bool {
 }
 
 fn (mut s Scanner) pp_comment() {
-	is_comment := (s.pos < s.text.len && s.text[s.pos] == `/` && s.look_ahead(1) in [`/`, `*`])
+	is_comment := (s.pos < s.text.len && s.text[s.pos] == `/` && s.look_ahead(1) == `/`)
 	if is_comment {
-		s.error_with_len('los comentarios no son soportados en esta área', 2)
+		s.eat_to_end_of_line()
 	}
 }
 
 fn (mut s Scanner) pp_space() {
-	s.pp_comment() // no permitir comentarios al lado de las directivas: #if Ol //comment
+	s.pp_comment()
 	for s.pp_whitespace() {}
 }
 
@@ -102,7 +102,7 @@ fn (mut s Scanner) pp_directive() {
 
 fn (mut s Scanner) pp_eol() {
 	s.pp_space()
-	if s.pos >= s.text.len || s.text[s.pos] != `\n` {
+	if s.pos >= s.text.len || !util.is_nl(s.text[s.pos]) {
 		s.error('se esperaba una nueva línea')
 	}
 }
@@ -125,7 +125,7 @@ fn (mut s Scanner) parse_pp_define() {
 	identifier := s.parse_pp_ident()
 	s.pp_eol()
 	if s.pref.is_verbose {
-		println('> scanner/pp: definiendo: $identifier')
+		println('> [scanner/preprocesador] definiendo: $identifier')
 	}
 	s.pref.defines << identifier
 }

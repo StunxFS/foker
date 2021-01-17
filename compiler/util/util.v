@@ -10,9 +10,9 @@ pub fn full_zubatscript_version() string {
 	return 'ZubatScript $about.version'
 }
 
-pub fn set_fsroot_folder(fsroot_path string) {
-	fsname := if os.user_os() == 'windows' { 'zubatc.exe' } else { 'zubatc' }
-	os.setenv('FSEXE', os.real_path(os.join_path(fsroot_path, fsname)), true)
+pub fn set_zroot_folder(fsroot_path string) {
+	fsname := if os.user_os() == 'windows' { 'zubat.exe' } else { 'zubat' }
+	os.setenv('ZEXE', os.real_path(os.join_path(fsroot_path, fsname)), true)
 }
 
 pub fn quote_path(s string) string {
