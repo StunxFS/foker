@@ -140,10 +140,8 @@ pub fn (mut p Parser) close_scope() {
 
 pub fn (mut p Parser) parse_block() []ast.Stmt {
 	p.open_scope()
-	// println('parse block')
 	stmts := p.parse_block_no_scope(false)
 	p.close_scope()
-	// println('nr exprs in block = $exprs.len')
 	return stmts
 }
 
@@ -607,7 +605,12 @@ fn (mut p Parser) parse_type() ast.Type {
 		p.error_with_pos('se esperaba uno de los siguientes tipos: ' + ast.type_names.join(', '),
 			p.prev_tok.position())
 	}
-	return ast.get_type_from_string(typ_name)
+	t := ast.get_type_from_string(typ_name)
+	return if t != .unknown {
+		t
+	} else {
+		ast.Type._auto
+	}
 }
 
 fn (mut p Parser) check_undefined_variables(expr ast.Expr, val ast.Expr) {
