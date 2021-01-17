@@ -3,7 +3,7 @@
 module ast
 
 pub const (
-	type_names = ['string', 'movement', 'byte', 'int', 'long', 'any']
+	type_names = ['string', 'movement', 'bool', 'byte', 'int', 'long', 'any']
 )
 
 // solo tenemos disponibles los siguientes tipos
@@ -12,7 +12,7 @@ pub enum Type {
 	unknown // desconocido
 	string
 	movement
-	flag // flag / bool
+	bool // flag / bool
 	byte // 89
 	int // word -> 89 A1
 	long // dword -> 89 A1 89 A1
@@ -27,6 +27,7 @@ pub fn get_type_from_string(name string) Type {
 		'int' { Type.int }
 		'long' { Type.long }
 		'any' { Type.any }
+		'bool' { Type.bool }
 		else { Type.unknown }
 	}
 }
