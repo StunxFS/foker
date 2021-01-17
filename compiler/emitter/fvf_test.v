@@ -7,6 +7,6 @@ fn test_fvf() {
 80AB
 801B
 ')
-	_ := fvf.get() or {panic(err)}
-	_ := fvf.get() or {panic(err)}
+	_ := fvf.get() or { panic(err) }
+	_ := fvf.get() or { panic(err) }
 }

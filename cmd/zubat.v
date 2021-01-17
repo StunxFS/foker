@@ -8,9 +8,9 @@ import compiler.util
 import compiler.about
 import compiler.prefs
 import compiler.parser
-//import compiler.checker
-//import compiler.emitter.binary
 
+// import compiler.checker
+// import compiler.emitter.binary
 fn main() {
 	if os.args.len == 1 || (os.args.len == 2 && os.args[1] in ['-h', '-a', 'help', 'ayuda']) {
 		about.help()
@@ -33,16 +33,18 @@ fn go_compile() {
 		println(file)
 	}
 	if !pref.only_check_syntax {
-		//mut c := checker.new_checker(table, pref)
-		//c.check(file)
+		// mut c := checker.new_checker(table, pref)
+		// c.check(file)
 		match pref.backend {
 			.binary {
-				/*$if bingen_test ? {
+				/*
+				$if bingen_test ? {
 					binary.bingen_to_file(file, table, pref) or {
 						util.err(err)
 						exit(1)
 					}
-				}*/
+				}
+				*/
 			}
 			.decomp {
 				// TODO: decomp.generate(file)

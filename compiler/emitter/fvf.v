@@ -6,14 +6,14 @@ import os
 
 struct FVF {
 mut:
-	content  map[string]bool
+	content map[string]bool
 }
 
 pub fn new_fvf(text string) FVF {
 	content_splitted := text.split('\n')
 	mut cnt := map[string]bool{}
 	for c in content_splitted {
-		if c.starts_with('#') || c == "" { // comentarios
+		if c.starts_with('#') || c == '' { // comentarios
 			continue
 		}
 		mut d := c
