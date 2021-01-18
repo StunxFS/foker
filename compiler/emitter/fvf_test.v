@@ -2,7 +2,9 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module emitter
 
-const vars = '80AB
+const vars = '
+# Comentario bonito :)
+80AB # Comentario al lado de una variable
 801B'
 
 fn test_get() {

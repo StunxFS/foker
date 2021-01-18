@@ -18,9 +18,9 @@ pub fn new_fvf(text string) FVF {
 		}
 		mut d := c
 		if d.contains('#') {
-			d = d.all_after('#').trim_space()
+			d = d.all_before('#').trim_space()
 		}
-		cnt[c] = false
+		cnt[d] = false
 	}
 	return FVF{
 		content: cnt
