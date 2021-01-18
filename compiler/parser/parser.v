@@ -281,7 +281,6 @@ fn (mut p Parser) parse_raw_stmt() ast.Stmt {
 		p.next()
 	}
 	p.check(.semicolon)
-	println(raw_text)
 	return ast.RawStmt{
 		text: raw_text
 		pos: pos
