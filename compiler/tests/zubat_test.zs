@@ -12,6 +12,9 @@ movement Mov1 {
 raw `
 #org @main2
 end
+`
+`
+noooo
 `;
 
 script main {

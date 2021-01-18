@@ -272,10 +272,16 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 
 fn (mut p Parser) parse_raw_stmt() ast.Stmt {
 	p.check(.key_raw)
-	pos := p.tok.position()
-	raw_text := p.tok.lit.trim_space()
+	mut pos := p.tok.position()
+	mut raw_text := p.tok.lit
 	p.check(.raw_text)
+	for p.tok.kind == .raw_text {
+		raw_text += p.tok.lit
+		pos = pos.extend(p.tok.position())
+		p.next()
+	}
 	p.check(.semicolon)
+	println(raw_text)
 	return ast.RawStmt{
 		text: raw_text
 		pos: pos
