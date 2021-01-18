@@ -3,8 +3,7 @@
 module emitter
 
 const vars = '80AB
-801B
-'
+801B'
 
 fn test_get() {
 	mut fvf := new_fvf(vars)
