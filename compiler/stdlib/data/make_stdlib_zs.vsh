@@ -37,4 +37,4 @@ for header in headers {
 	stdlib_zs.writeln('')
 }
 
-write_file('builtins.zs', builtins.replace('<stdlib.zs>', stdlib_zs.str().trim_space()))?
+write_file(join_path('..', 'builtins.zs'), builtins.replace('<stdlib.zs>', stdlib_zs.str().trim_space()))?

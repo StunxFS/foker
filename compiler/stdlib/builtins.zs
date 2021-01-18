@@ -1939,7 +1939,7 @@ const DEC_REGISTEELDOLL = 0x78;
 //! Comandos básicos de ROMHacking
 cmd msgbox(
 	msg: string
-#if !BINARY
+#if BINARY
 	, type: int = 6
 #endif
 );
