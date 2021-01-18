@@ -8,9 +8,10 @@ import compiler.token
 import compiler.util
 
 const (
-	single_quote = `\'`
-	double_quote = `"`
-	num_sep      = `_`
+	single_quote  = `\'`
+	single_quote2 = `\``
+	double_quote  = `"`
+	num_sep       = `_`
 )
 
 pub struct Scanner {
@@ -401,6 +402,10 @@ pub fn (mut s Scanner) scan() token.Token {
 			`$` {
 				return s.new_token(.dollar, '', 1)
 			}
+			single_quote2 {
+				raw_text := s.read_raw_text()
+				return s.new_token(.raw_text, raw_text, raw_text.len)
+			}
 			else {}
 		}
 		$if windows {
@@ -427,6 +432,45 @@ fn (s &Scanner) count_symbol_before(p int, sym byte) int {
 		count++
 	}
 	return count
+}
+
+fn (mut s Scanner) read_raw_text() string {
+	mut n_cr_chars := 0
+	mut start := s.pos
+	s.pos++
+	for {
+		s.pos++
+		if s.pos >= s.text.len {
+			s.error('texto raw sin terminar')
+		}
+		c := s.text[s.pos]
+		if c == single_quote2 {
+			break
+		}
+		if c == `\r` {
+			n_cr_chars++
+		}
+		if c == `\n` {
+			s.inc_line_number()
+		}
+	}
+	mut lit := ''
+	if s.text[start] == single_quote2 {
+		start++
+	}
+	end := s.pos
+	if start <= s.pos {
+		mut string_so_far := s.text[start..end]
+		if n_cr_chars > 0 {
+			string_so_far = string_so_far.replace('\r', '')
+		}
+		if string_so_far.contains('\\\n') {
+			lit = trim_slash_line_break(string_so_far)
+		} else {
+			lit = string_so_far
+		}
+	}
+	return lit
 }
 
 fn (mut s Scanner) ident_string() string {

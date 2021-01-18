@@ -15,16 +15,6 @@ pub mut:
 	errors   []errors.Report
 }
 
-/*
-pub fn (mut f File) show_reports() {
-	for report in f.reports {
-		eprintln(report)
-	}
-	if f.reports.len > 0 {
-		unsafe { f.reports.free() }
-	}
-}
-*/
 pub struct Program {
 pub:
 	pos   token.Position
@@ -59,7 +49,13 @@ pub type ScopeObject = Const | Var
 // Statements
 pub type Stmt = AssignStmt | Block | BranchStmt | CallCmdStmt | CallStmt | CheckgenderStmt |
 	CmdDecl | Const | DynamicStmt | ExprStmt | ForInStmt | ForStmt | FreeStmt | GotoLabel |
-	GotoStmt | IfStmt | Include | MatchStmt | QuestionStmt | ScriptDecl
+	GotoStmt | IfStmt | Include | MatchStmt | QuestionStmt | RawStmt | ScriptDecl
+
+pub struct RawStmt {
+pub:
+	text string
+	pos  token.Position
+}
 
 pub struct Block {
 pub:
@@ -423,6 +419,6 @@ pub fn (expr Expr) is_lit() bool {
 
 pub fn (stmt Stmt) position() token.Position {
 	match stmt {
-		AssignStmt, Block, BranchStmt, CallStmt, CallCmdStmt, Const, ExprStmt, ForStmt, ForInStmt, GotoLabel, GotoStmt, IfStmt, CmdDecl, DynamicStmt, FreeStmt, Include, QuestionStmt, ScriptDecl, CheckgenderStmt, MatchStmt { return stmt.pos }
+		AssignStmt, Block, BranchStmt, CallStmt, CallCmdStmt, Const, ExprStmt, ForStmt, ForInStmt, GotoLabel, GotoStmt, IfStmt, CmdDecl, DynamicStmt, FreeStmt, Include, QuestionStmt, ScriptDecl, CheckgenderStmt, MatchStmt, RawStmt { return stmt.pos }
 	}
 }

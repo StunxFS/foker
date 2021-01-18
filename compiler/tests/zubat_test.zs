@@ -9,6 +9,11 @@ movement Mov1 {
 	walk_down * 4
 }
 
+raw `
+#org @main2
+end
+`;
+
 script main {
 	var d1 = 200;
 	msgbox("Hola mundo!");

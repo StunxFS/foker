@@ -223,6 +223,9 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 	extern_bad_msg := "la palabra clave 'extern' solo se puede usar en conjunto a 'script': 'extern script xxx;'"
 	for {
 		match p.tok.kind {
+			.key_raw {
+				return p.parse_raw_stmt()
+			}
 			.key_include {
 				if p.pref.backend == .binary {
 					p.error("'include' se puede usar solo al principio del archivo")
@@ -265,6 +268,18 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 		}
 	}
 	return ast.Stmt{}
+}
+
+fn (mut p Parser) parse_raw_stmt() ast.Stmt {
+	p.check(.key_raw)
+	pos := p.tok.position()
+	raw_text := p.tok.lit.trim_space()
+	p.check(.raw_text)
+	p.check(.semicolon)
+	return ast.RawStmt{
+		text: raw_text
+		pos: pos
+	}
 }
 
 fn (mut p Parser) parse_alias_stmt() ast.Stmt {
@@ -579,6 +594,9 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 					p.error("no se puede usar '$k' fuera de un ciclo for")
 					return ast.Stmt{}
 				}
+			}
+			.key_raw {
+				return p.parse_raw_stmt()
 			}
 			else {
 				p.error('declaración de nivel local "' + p.tok.lit + '" desconocido')

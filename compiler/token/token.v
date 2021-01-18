@@ -94,6 +94,7 @@ pub enum Kind {
 	rbrace
 	lbracket
 	rbracket
+	raw_text
 	// keywords
 	keyword_begin
 	key_include
@@ -111,6 +112,7 @@ pub enum Kind {
 	key_text
 	key_alias
 	key_call // para: call my_script;
+	key_raw
 	key_match
 	key_if
 	key_elif
@@ -156,6 +158,7 @@ pub const (
 		'text':        Kind.key_text
 		'alias':       Kind.key_alias
 		'call':        Kind.key_call
+		'raw':         Kind.key_raw
 		'match':       Kind.key_match
 		'if':          Kind.key_if
 		'elif':        Kind.key_elif
@@ -218,6 +221,7 @@ fn build_tokenstr() []string {
 	k[Kind.rbrace] = '}'
 	k[Kind.lbracket] = '['
 	k[Kind.rbracket] = ']'
+	k[Kind.raw_text] = 'raw text'
 	k[Kind.key_include] = 'include'
 	k[Kind.key_script] = 'script'
 	k[Kind.key_cmd] = 'cmd'
@@ -233,6 +237,7 @@ fn build_tokenstr() []string {
 	k[Kind.key_text] = 'text'
 	k[Kind.key_alias] = 'alias'
 	k[Kind.key_call] = 'call'
+	k[Kind.key_raw] = 'raw'
 	k[Kind.key_match] = 'match'
 	k[Kind.key_if] = 'if'
 	k[Kind.key_elif] = 'elif'
@@ -311,12 +316,23 @@ pub fn (tok Token) is_scalar() bool {
 // is_unary returns true if the token can be in a unary expression
 pub fn (tok Token) is_unary() bool {
 	return tok.kind in [
-		/* `+` | `-` | `!` `*` */.plus, .minus, .key_not, .mul]
+		/* `+` | `-` | `!` `*` */.plus,
+		.minus,
+		.key_not,
+		.mul,
+	]
 }
 
 pub fn (tok Kind) is_relational() bool {
-	return tok in [
-		/* `<` | `<=` | `>` | `>=` */.lte, .lt, .gte, .gt, .eq, .neq]
+	return tok in
+			[
+		/* `<` | `<=` | `>` | `>=` */.lte,
+		.lt,
+		.gte,
+		.gt,
+		.eq,
+		.neq,
+	]
 }
 
 pub fn (kind Kind) is_prefix() bool {

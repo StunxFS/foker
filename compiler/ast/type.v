@@ -19,6 +19,13 @@ pub enum Type {
 	any // any number between a byte to a long
 }
 
+pub fn type_to_str(t Type) string {
+	return match t {
+		.unknown, ._auto { '<rare-type>' }
+		else { t.str() }
+	}
+}
+
 pub fn get_type_from_string(name string) Type {
 	return match name {
 		'string' { Type.string }
