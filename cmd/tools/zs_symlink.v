@@ -8,6 +8,7 @@ import compiler.prefs
 $if windows {
 	$if tinyc {
 		#flag -lAdvapi32
+
 		#flag -lUser32
 	}
 }

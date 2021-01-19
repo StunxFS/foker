@@ -141,46 +141,25 @@ pub fn (k Kind) str() string {
 	return tokens_str[int(k)]
 }
 
-pub const (
-	keywords = {
-		'include':     Kind.key_include
-		'script':      Kind.key_script
-		'cmd':         Kind.key_cmd
-		'var':         Kind.key_var
-		'const':       Kind.key_const
-		'dynamic':     Kind.key_dynamic
-		'movement':    Kind.key_movement
-		'checkgender': Kind.key_checkgender
-		'boy':         Kind.key_boy
-		'girl':        Kind.key_girl
-		'extern':      Kind.key_extern
-		'free':        Kind.key_free
-		'text':        Kind.key_text
-		'alias':       Kind.key_alias
-		'call':        Kind.key_call
-		'raw':         Kind.key_raw
-		'match':       Kind.key_match
-		'if':          Kind.key_if
-		'elif':        Kind.key_elif
-		'else':        Kind.key_else
-		'and':         Kind.key_and
-		'or':          Kind.key_or
-		'not':         Kind.key_not
-		'question':    Kind.key_question
-		'yes':         Kind.key_yes
-		'no':          Kind.key_no
-		'as':          Kind.key_as
-		'at':          Kind.key_at
-		'true':        Kind.key_true
-		'false':       Kind.key_false
-		'continue':    Kind.key_continue
-		'break':       Kind.key_break
-	}
-)
-
 const (
 	nr_tokens  = int(Kind._end_)
 	tokens_str = build_tokenstr()
+)
+
+// build_keys - genera un mapa con keywords de tipo string:
+// keywords['return'] == .key_return
+// NB: Esto es pub debido a un bug raro en el compilador de V
+pub fn build_keys() map[string]Kind {
+	mut res := map[string]Kind{}
+	for t in int(Kind.keyword_begin) + 1 .. int(Kind.keyword_end) {
+		key := tokens_str[t]
+		res[key] = Kind(t)
+	}
+	return res
+}
+
+pub const (
+	keywords = build_keys()
 )
 
 fn build_tokenstr() []string {

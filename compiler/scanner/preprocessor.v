@@ -75,6 +75,11 @@ fn (mut s Scanner) pp_directive() {
 				s.parse_pp_define()
 			}
 		}
+		8 {
+			if s.expect('undefine', start_pos) {
+				s.parse_pp_undefine()
+			}
+		}
 		else {
 			s.error_with_len('directiva de preprocesador inválida', len + 1)
 		}
@@ -129,11 +134,34 @@ fn (mut s Scanner) parse_pp_define() {
 		s.error_with_len('esta forma de declaración está reservada por el compilador',
 			identifier.len)
 	}
+	if identifier in s.pref.defines {
+		s.pos -= start_pos
+		s.error_with_len('esta bandera ya está definida', identifier.len)
+	}
 	s.pp_eol()
 	if s.pref.is_verbose {
 		println('> [scanner/preprocesador] definiendo: $identifier')
 	}
 	s.pref.defines << identifier
+}
+
+fn (mut s Scanner) parse_pp_undefine() {
+	s.pp_space()
+	start_pos := s.pos
+	identifier := s.parse_pp_ident()
+	if identifier.starts_with('__') && identifier.starts_with('__') {
+		s.pos -= start_pos
+		s.error_with_len('esta tipo de banderas no se pueden indefinir', identifier.len)
+	}
+	if identifier !in s.pref.defines {
+		s.pos -= start_pos
+		s.error_with_len('esta bandera no está definida', identifier.len)
+	}
+	s.pp_eol()
+	if s.pref.is_verbose {
+		println('> [scanner/preprocesador] indefiniendo: $identifier')
+	}
+	s.pref.defines.delete(s.pref.defines.index(identifier))
 }
 
 fn (mut s Scanner) parse_pp_if() {

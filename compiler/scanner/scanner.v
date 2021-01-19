@@ -404,7 +404,7 @@ pub fn (mut s Scanner) scan() token.Token {
 			}
 			single_quote2 {
 				raw_text := s.read_raw_text()
-				return s.new_token(.raw_text, raw_text, raw_text.len)
+				return s.new_token(.raw_text, raw_text, raw_text.len + 2)
 			}
 			else {}
 		}
