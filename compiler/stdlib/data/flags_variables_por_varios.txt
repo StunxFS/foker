@@ -22,3 +22,29 @@ Desde la 0x1000 hasta la 0x109F
 
 # =========================================
 
+# hendrix =================================
+
+usa de las 4011 pa lante
+variables
+y flags 500 en adelante
+
+# ===========================================
+
+#night ==
+Las de fire red
+Flags Libres:
+
+200 - 22F | 23E & 242
+
+24C & 25A | 25C - 25D
+
+25F - 262 | 267 - 26B
+
+277 & 279 | 28E - 28F
+
+292 & 299 | 2A4 & 2F4
+
+2A7 - 2AB | 2AD - 2BA
+
+2DE - 2E0 | 2E5 - 2EB
+=========

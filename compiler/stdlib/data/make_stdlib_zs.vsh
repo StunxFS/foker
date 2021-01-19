@@ -29,7 +29,11 @@ for header in headers {
 					name = '_' + name
 				}
 				val := tokens[2]
-				stdlib_zs.writeln('const $name = $val;')
+				if val.len == 5 && name[..3] in ['EM_', 'RS_', 'FR_'] { // flags
+					stdlib_zs.writeln('var $name at $val: bool /* o flag */;')
+				} else {
+					stdlib_zs.writeln('const $name = $val;')
+				}
 			}
 			else {}
 		}
