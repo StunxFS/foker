@@ -14,7 +14,7 @@ script main {
 	msgbox("Hola mundo!");
 	msgbox(2020, name: arg);
 	call my_script;
-	if myvar == 100 {
+	if (3) {
 		call got_2;
 	}
 }

@@ -11,8 +11,8 @@ pub fn (mut c Checker) check_basic(got ast.Type, expected ast.Type) bool {
 	return false
 }
 
-pub fn (mut ch Checker) check_expected(got ast.Type, expected ast.Type) ? {
-	if c.check_types(got, expected) {
+pub fn (mut c Checker) check_expected(got ast.Type, expected ast.Type) ? {
+	if c.check_basic(got, expected) {
 		return
 	}
 	return error(c.expected_msg(got, expected))

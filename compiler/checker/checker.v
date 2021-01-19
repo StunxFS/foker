@@ -48,12 +48,10 @@ pub fn new_checker(table &ast.Table, pref &prefs.Preferences) Checker {
 
 pub fn (mut c Checker) check(ast_file &ast.File) {
 	c.file = ast_file
-	/*
 	for stmt in ast_file.prog.stmts {
 		c.expr_level = 0
-		//c.stmt(stmt)
+		c.stmt(stmt)
 	}
-	*/
 	c.check_scope_vars(c.file.prog.scope)
 }
 
@@ -73,18 +71,17 @@ pub fn (mut c Checker) check_scope_vars(sc &ast.Scope) {
 	}
 }
 
-fn (mut c Checker) check_div_mod_by_zero(expr ast.Expr, op_kind token.Kind) {
+fn (mut c Checker) check_div_by_zero(expr ast.Expr, op_kind token.Kind) {
 	match mut expr {
 		ast.IntegerLiteral {
 			if expr.lit.int() == 0 {
-				c.error('division by zero', expr.pos)
+				c.error('division por zero', expr.pos)
 			}
 		}
 		else {}
 	}
 }
 
-// =============================================================================================
 /*
 [inline]
 fn (mut c Checker) check_loop_label(label string, pos token.Position) {
@@ -97,8 +94,12 @@ fn (mut c Checker) check_loop_label(label string, pos token.Position) {
 	}
 	c.loop_label = label
 }
-
+*/
+//¿como te fue en el paseo?
 fn (mut c Checker) stmt(node ast.Stmt) {
+	if node is ast.CallStmt {
+		println(node)
+	}
 	match mut node {
 		ast.Block {
 			//c.stmts(node.stmts)
@@ -107,10 +108,22 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 			node.typ = c.expr(node.expr)
 			c.expected_type = .unknown
 		}
-		else {} // TODO: implementar el resto de las declaraciones
+		ast.CallStmt { // call my_script;
+			if !c.table.exists_script(node.script) {
+				c.error("no existe un script con este nombre", node.pos)
+			}
+			println('call')
+		}
+		ast.IfStmt {
+			if c.expr(node.cond) != .bool {
+				c.error("se espera una expresión condicional", node.pos)
+			}
+		}
+		else {println(typeof(node).name)} // TODO: implementar el resto de las declaraciones
 	}
 }
 
+// Expresiones ============================================
 pub fn (mut c Checker) expr(node ast.Expr) ast.Type {
 	c.expr_level++
 	defer {
@@ -122,62 +135,69 @@ pub fn (mut c Checker) expr(node ast.Expr) ast.Type {
 	}
 	match mut node {
 		ast.BoolLiteral {
-			return .flag
+			return .bool
 		}
-		ast.Ident {
+		/*ast.Ident {
 			res := c.ident(mut node)
 			return res
-		}
+		}*/
 		ast.IntegerLiteral {
 			return .int
 		}
+		ast.StringLiteral, ast.FmtStringLiteral {
+			return .string
+		}
+		ast.MovementExpr {
+			return .movement
+		}
+		ast.InfixExpr {
+			return c.infix_expr(mut node)
+		}
 		else {}
 	}
-}
-*/
-// =============================================================================================
-pub fn (mut c Checker) warn(s string, pos token.Position) {
-	allow_warnings := !(c.pref.optlevel == .fast || c.pref.warns_are_errors)
-	c.warn_or_error(s, pos, allow_warnings)
+	return .unknown
 }
 
-pub fn (mut c Checker) error(message string, pos token.Position) {
-	if c.pref.is_verbose {
-		print_backtrace()
+fn (mut c Checker) infix_expr(mut infix_expr ast.InfixExpr) ast.Type {
+	former_expected_type := c.expected_type
+	defer {
+		c.expected_type = former_expected_type
 	}
-	c.warn_or_error(message, pos, false)
-}
-
-fn (mut c Checker) warn_or_error(message string, pos token.Position, warn bool) {
-	mut details := ''
-	if c.errors_details.len > 0 {
-		details = c.errors_details.join('\n')
-		c.errors_details = []
-	}
-	if warn && !c.pref.skip_warnings {
-		c.nr_warnings++
-		wrn := errors.Report{
-			message: message
-			file_path: c.file.path
-			pos: pos
-			kind: .warning
-		}
-		c.file.warnings << wrn
-		c.warnings << wrn
-		return
-	}
-	if !warn {
-		c.nr_errors++
-		if pos.line_nr !in c.error_lines {
-			err := errors.Report{
-				message: message
-				pos: pos
-				file_path: c.file.path
-				kind: .error
+	c.expected_type = .unknown
+	left_type := c.expr(infix_expr.left)
+	infix_expr.left_type = left_type
+	c.expected_type = left_type
+	right_type := c.expr(infix_expr.right)
+	infix_expr.right_type = right_type
+	left_pos := infix_expr.left.position()
+	right_pos := infix_expr.right.position()
+	return_type := left_type
+	match infix_expr.op {
+		.plus, .minus, .mul, .div {
+			if infix_expr.op == .div {
+				c.check_div_by_zero(infix_expr.right, infix_expr.op)
 			}
-			c.file.errors << err
-			c.errors << err
-			c.error_lines << pos.line_nr
 		}
+		.key_and, .key_or {
+			if infix_expr.left_type != ast.Type.bool {
+				c.error('left operand for `$infix_expr.op` is not a boolean', infix_expr.left.position())
+			}
+			if infix_expr.right_type != ast.Type.bool {
+				c.error('right operand for `$infix_expr.op` is not a boolean', infix_expr.right.position())
+			}
+			// use `()` to make the boolean expression clear error
+			// for example: `(a && b) || c` instead of `a && b || c`
+			if mut infix_expr.left is ast.InfixExpr {
+				if infix_expr.left.op != infix_expr.op && infix_expr.left.op in [.key_and, .key_or] {
+					c.error('use `()` to make the boolean expression clear', infix_expr.pos)
+				}
+			}
+		}
+		else {}
+	}
+	return if infix_expr.op.is_relational() {
+		ast.Type.bool
+	} else {
+		return_type
 	}
 }

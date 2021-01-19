@@ -8,5 +8,3 @@
 zubat
 SECRET.txt
 make
-compiler/stdlib/data # linux
-compiler\stdlib\data # windows

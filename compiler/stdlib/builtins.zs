@@ -724,6 +724,7 @@ const SP_CHOOSEPKMN = 0x9C;
 const SP_CATCHPKMN = 0x9D;
 const SP_FRNATIONAL = 0x16F;
 const SP_EMNATIONAL = 0x1F3;
+
 var RS_PKMNMENU at 0x800: bool /* o flag */;
 var RS_POKEDEX at 0x801: bool /* o flag */;
 var RS_POKENAV at 0x802: bool /* o flag */;
@@ -1428,6 +1429,7 @@ const ITEM_RUBY = 0x175;
 const ITEM_SAPPHIRE = 0x176;
 const ITEM_MAGMAEMBLEM = 0x177;
 const ITEM_OLDSEAMAP = 0x178;
+
 const DEC_SMALLDESK = 0x1;
 const DEC_POKEMONDESK = 0x2;
 const DEC_HEAVYDESK = 0x3;

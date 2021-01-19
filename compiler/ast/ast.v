@@ -80,7 +80,7 @@ pub:
 	expr    Expr
 	pos     token.Position
 	is_expr bool
-mut:
+pub mut:
 	typ Type
 }
 

@@ -8,8 +8,9 @@ import compiler.util
 import compiler.about
 import compiler.prefs
 import compiler.parser
+import compiler.checker
+import compiler.errors
 
-// import compiler.checker
 // import compiler.emitter.binary
 fn main() {
 	if os.args.len == 1 || (os.args.len == 2 && os.args[1] in ['-h', '-a', 'help', 'ayuda']) {
@@ -33,8 +34,13 @@ fn go_compile() {
 		println(file)
 	}
 	if !pref.only_check_syntax {
-		// mut c := checker.new_checker(table, pref)
-		// c.check(file)
+		mut c := checker.new_checker(table, pref)
+		c.check(file)
+		show_reports(file.errors)
+		show_reports(file.warnings)
+		if file.errors.len > 0 {
+			exit(1)
+		}
 		match pref.backend {
 			.binary {
 				/*
@@ -53,15 +59,12 @@ fn go_compile() {
 	}
 }
 
-fn show_reports(reports []util.Report) {
+fn show_reports(reports []errors.Report) {
 	mut err_count := 0
 	for report in reports {
 		if report.kind == .error {
 			err_count++
 		}
-		eprintln(report.msg)
-	}
-	if err_count > 0 {
-		exit(1)
+		eprintln(report.message)
 	}
 }
