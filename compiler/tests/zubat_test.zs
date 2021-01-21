@@ -2,6 +2,7 @@
 include "stdlib.rbh";
 
 const AGE = 10 * 20;
+const BOOLEAN = true;
 text MSG = "Mensaje real";
 
 movement Mov1 {
@@ -9,12 +10,12 @@ movement Mov1 {
 	walk_down * 4
 }
 
+script my_script {}
+
 script main {
-	var d1 = 200;
+	var _ = 200;
 	msgbox("Hola mundo!");
 	msgbox(2020, name: arg);
 	call my_script;
-	if (3) {
-		call got_2;
-	}
+	var kapo = ""+"";
 }

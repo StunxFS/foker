@@ -49,6 +49,7 @@ fn (mut p Parser) if_stmt() ast.IfStmt {
 					pos: start_pos.extend(end_pos2)
 					body_pos: body_pos2.extend(p.tok.position())
 					scope: p.scope
+					is_else: true
 				}
 				p.close_scope()
 				break

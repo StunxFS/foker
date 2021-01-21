@@ -32,8 +32,8 @@ fn (mut c Checker) warn_or_error(message string, pos token.Position, warn bool) 
 			pos: pos
 			kind: .warning
 		}
-		c.file.warnings << wrn
-		c.warnings << wrn
+		c.file.reports << wrn
+		// c.warnings << wrn
 		return
 	}
 	if !warn {
@@ -45,10 +45,9 @@ fn (mut c Checker) warn_or_error(message string, pos token.Position, warn bool) 
 				file_path: c.file.path
 				kind: .error
 			}
-			c.file.errors << err
-			c.errors << err
+			c.file.reports << err
+			// c.errors << err
 			c.error_lines << pos.line_nr
 		}
 	}
 }
-

@@ -136,23 +136,20 @@ pub fn (mut p Parser) parse_ident() ast.Ident {
 				name: '_'
 				kind: .blank_ident
 				pos: pos
-				// scope: p.scope
+				scope: p.scope
 			}
-		}
-		if p.expr_mod.len > 0 {
-			name = '${p.expr_mod}.$name'
 		}
 		return ast.Ident{
 			tok_kind: p.tok.kind
 			kind: .unresolved
 			name: name
 			pos: pos
-			// scope: p.scope
+			scope: p.scope
 		}
 	}
 	p.error('token `$p.tok.lit` inesperado')
 	return ast.Ident{
-		// scope: p.scope
+		scope: p.scope
 	}
 }
 

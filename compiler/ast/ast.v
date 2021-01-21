@@ -11,8 +11,7 @@ pub:
 	path string
 	prog Program
 pub mut:
-	warnings []errors.Report
-	errors   []errors.Report
+	reports []errors.Report
 }
 
 pub struct Program {
@@ -218,7 +217,6 @@ pub:
 
 pub struct IfStmt {
 pub:
-	cond     Expr
 	pos      token.Position
 	body_pos token.Position
 pub mut:
@@ -229,6 +227,7 @@ pub mut:
 pub struct IfBranch {
 pub:
 	cond     Expr
+	is_else  bool
 	pos      token.Position
 	body_pos token.Position
 pub mut:
@@ -255,7 +254,7 @@ pub:
 }
 
 // Expressions
-pub type Expr = BinaryExpr | BoolLiteral | FmtStringLiteral | Ident | InfixExpr | IntegerLiteral |
+pub type Expr = BoolLiteral | FmtStringLiteral | Ident | InfixExpr | IntegerLiteral |
 	MovementExpr | ParExpr | PostfixExpr | PrefixExpr | StringLiteral
 
 pub struct IntegerLiteral {
@@ -297,8 +296,6 @@ pub enum IdentKind {
 	blank_ident
 	variable
 	constant
-	global
-	function
 }
 
 // A single identifier
@@ -307,9 +304,10 @@ pub:
 	tok_kind token.Kind
 	pos      token.Position
 pub mut:
-	obj  ScopeObject
-	name string
-	kind IdentKind
+	obj   ScopeObject
+	name  string
+	kind  IdentKind
+	scope &Scope = 0
 }
 
 // left op right
@@ -347,14 +345,6 @@ pub:
 	pos  token.Position
 }
 
-pub struct BinaryExpr {
-pub:
-	left  Expr
-	op    token.Kind
-	right Expr
-	pos   token.Position
-}
-
 pub enum MovKind {
 	walk_up
 	walk_down
@@ -388,7 +378,7 @@ pub fn (expr Expr) is_blank_ident() bool {
 pub fn (expr Expr) position() token.Position {
 	match expr { // /*ConcatExpr, */  /*RangeExpr, */ 
 		BoolLiteral, Ident, IntegerLiteral, ParExpr, PostfixExpr, PrefixExpr, StringLiteral, FmtStringLiteral,
-		BinaryExpr, MovementExpr {
+		MovementExpr {
 			return expr.pos
 		}
 		InfixExpr {

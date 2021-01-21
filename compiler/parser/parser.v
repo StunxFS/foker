@@ -505,7 +505,7 @@ fn (mut p Parser) const_decl() ast.Const {
 	p.check(.key_const)
 	pos := p.tok.position()
 	name := p.check_name()
-	mut type_const := ast.Type._auto
+	mut type_const := ast.Type.unknown
 	// p.check_const_name(name, pos)
 	if name in p.consts_names {
 		p.error_with_pos("constante '$name' duplicada", pos)
@@ -632,7 +632,7 @@ fn (mut p Parser) parse_type() ast.Type {
 	return if t != .unknown {
 		t
 	} else {
-		ast.Type._auto
+		ast.Type.unknown
 	}
 }
 
@@ -671,7 +671,7 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 	if is_top_level && name.name == '_' {
 		p.error_with_pos("no se puede usar '_' como nombre de una variable global", p.prev_tok.position())
 	}
-	mut type_var := ast.Type._auto
+	mut type_var := ast.Type.unknown
 	if p.tok.kind == .key_at {
 		pos := p.tok.position()
 		p.next()

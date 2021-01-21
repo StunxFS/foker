@@ -8,7 +8,6 @@ pub const (
 
 // solo tenemos disponibles los siguientes tipos
 pub enum Type {
-	_auto // tenemos que definir el tipo con el checker
 	unknown // desconocido
 	string
 	movement
@@ -21,7 +20,7 @@ pub enum Type {
 
 pub fn type_to_str(t Type) string {
 	return match t {
-		.unknown, ._auto { '<rare-type>' }
+		.unknown { '<rare-type>' }
 		else { t.str() }
 	}
 }

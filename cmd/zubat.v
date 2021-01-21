@@ -17,10 +17,10 @@ fn main() {
 		about.help()
 		exit(1)
 	}
-	go_compile()
+	compile()
 }
 
-fn go_compile() {
+fn compile() {
 	pref := prefs.parse_args_and_get_prefs()
 	if pref.use_color == .always {
 		util.emanager.set_support_color(true)
@@ -36,11 +36,7 @@ fn go_compile() {
 	if !pref.only_check_syntax {
 		mut c := checker.new_checker(table, pref)
 		c.check(file)
-		show_reports(file.errors)
-		show_reports(file.warnings)
-		if file.errors.len > 0 {
-			exit(1)
-		}
+		show_reports(file.reports)
 		match pref.backend {
 			.binary {
 				/*
@@ -66,5 +62,8 @@ fn show_reports(reports []errors.Report) {
 			err_count++
 		}
 		eprintln(report.message)
+	}
+	if err_count > 0 {
+		exit(1)
 	}
 }
