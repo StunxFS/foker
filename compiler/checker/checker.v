@@ -8,7 +8,7 @@ module checker
 import compiler.util
 import compiler.ast
 import compiler.prefs
-import compiler.errors
+//import compiler.errors
 
 const (
 	max_nr_errors                 = 300
@@ -24,16 +24,15 @@ pub mut:
 	file          &ast.File = 0
 	nr_errors     int
 	nr_warnings   int
-	errors        []errors.Report
-	warnings      []errors.Report
+	//errors        []errors.Report
+	//warnings      []errors.Report
 	error_lines   []int // para evitar imprimir multiple errores para la misma linea :)
 	expected_type ast.Type
 	cur_script    &ast.ScriptDecl
 	const_decl    string
-	const_names   []string
 	in_for_count  int // si checker está actualmente en un bucle for
 mut:
-	expr_level     int // para evitar una recursion infinita que implique bugs del compilador
+	expr_level     int // para evitar una recursion infinita que implique bugs en el compilador
 	errors_details []string
 	loop_label     string // obtiene valor cuando se está dentro de un bucle for etiquetado
 	has_main       bool
@@ -115,6 +114,10 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 			if !c.table.exists_script(node.script) {
 				c.error('no existe un script con este nombre', node.pos)
 			}
+		}
+		ast.Const {
+			node.typ = c.expr(node.expr)
+			c.expected_type = .unknown
 		}
 		ast.IfStmt {
 			for branch in node.branches {

@@ -34,8 +34,8 @@ pub fn (mut c Checker) expr(node ast.Expr) ast.Type {
 			return .bool
 		}
 		ast.Ident {
-			res := c.ident(mut node)
-			return res
+			//res := 
+			return c.ident(mut node)
 		}
 		ast.IntegerLiteral {
 			return .int
@@ -140,8 +140,13 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 	}
 	// segundo uso
 	if ident.kind in [.constant, .variable] {
-		info := ident.obj as ast.Var
-		return info.typ
+		info := ident.obj
+		//return info.typ
+		if info is ast.Var {
+			return info.typ
+		} else if info is ast.Const {
+			return info.typ
+		}
 	} else if ident.kind == .unresolved {
 		// primer uso
 		if obj := ident.scope.find(ident.name) {

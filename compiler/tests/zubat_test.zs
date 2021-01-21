@@ -2,7 +2,7 @@
 include "stdlib.rbh";
 
 const OTHER = 2;
-const AGE = 5 * OTHER2 / 2;
+const AGE = OTHER * 200;
 const BOOLEAN = true;
 text MSG = "Mensaje real";
 
@@ -17,4 +17,6 @@ script main {
 	msgbox("Hola mundo!");
 	msgbox(2020, name: arg);
 	call my_script;
+	if BOOLEAN {}
 }
+

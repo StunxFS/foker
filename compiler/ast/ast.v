@@ -26,7 +26,6 @@ pub struct Const {
 pub:
 	name   string
 	expr   Expr
-	is_pub bool
 	pos    token.Position
 pub mut:
 	typ Type
