@@ -110,8 +110,7 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 		}
 		ast.IfStmt {
 			for branch in node.branches {
-				typ := c.expr(branch.cond)
-				if !branch.is_else && typ != .bool {
+				if !branch.is_else && c.expr(branch.cond) != .bool {
 					c.error('se espera una expresión condicional', branch.cond.position())
 				}
 			}

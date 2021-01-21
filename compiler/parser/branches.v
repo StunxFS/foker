@@ -55,7 +55,7 @@ fn (mut p Parser) if_stmt() ast.IfStmt {
 				break
 			}
 		}
-		if p.tok.kind == .key_if {
+		if p.prev_tok.kind == .key_else && p.tok.kind == .key_if {
 			p.error("use 'elif' en vez de 'else if'")
 		}
 		if p.tok.kind !in [.key_else, .key_elif] {
