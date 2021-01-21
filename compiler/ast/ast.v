@@ -120,10 +120,11 @@ pub:
 
 pub struct AssignStmt {
 pub:
-	right  Expr
-	op     token.Kind
-	pos    token.Position
-	offset string
+	right   Expr
+	op      token.Kind
+	pos     token.Position
+	offset  string
+	is_decl bool
 pub mut:
 	left       Expr
 	left_type  Type

@@ -13,9 +13,10 @@ movement Mov1 {
 script my_script {}
 
 script main {
-	var _ = 200;
 	msgbox("Hola mundo!");
 	msgbox(2020, name: arg);
 	call my_script;
-	var kapo = ""+"";
+	var kapo: bool = true;
+	var kapo2 = kapo;
+	if kapo2 {}
 }

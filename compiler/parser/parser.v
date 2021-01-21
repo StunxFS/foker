@@ -695,11 +695,16 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 		name.obj = obj
 		p.scope.register(obj)
 		return ast.AssignStmt{
-			right: name
+			left: name
 			offset: offset
 			pos: pos
-			right_type: type_var
+			left_type: type_var
+			is_decl: true
 		}
+	}
+	if p.tok.kind == .colon {
+		p.check(.colon)
+		type_var = p.parse_type()
 	}
 	if is_top_level && p.tok.kind == .assign {
 		p.error('no se pueden definir variables en el ámbito global')
@@ -708,10 +713,6 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 	pos := p.tok.position()
 	expr := p.expr(0)
 	p.check_undefined_variables(name, expr)
-	if p.tok.kind == .colon {
-		p.next()
-		type_var = p.parse_type()
-	}
 	// println('var stmt: "${name}", expr: ${expr}')
 	p.check(.semicolon)
 	if p.scope.known_var(name.name) {
@@ -725,10 +726,12 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 	name.obj = obj
 	p.scope.register(obj)
 	return ast.AssignStmt{
-		right: name
+		left: name
 		op: token.Kind.assign
-		left: expr
+		right: expr
 		pos: pos
+		is_decl: true
+		left_type: type_var
 	}
 }
 
