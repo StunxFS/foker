@@ -2,12 +2,7 @@
 
 <!--
 ## v<version> (<fecha>)
-
-* Añadidos
-
-* Cambios
-
-* Arreglos
+* <cambios>
 -->
 
 ## v0.1.0 (No lanzado aún)

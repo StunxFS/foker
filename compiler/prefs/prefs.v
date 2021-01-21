@@ -37,13 +37,11 @@ pub struct Preferences {
 pub mut:
 	// ROM en el que se usará el script generado. Esto es usado para
 	// generar código exacto sin problemas.
-	game    Game    = .firered_leafgreen
-	backend Backend = .binary
-	rom     string // la rom en la que se insertará el script
-	// Por defecto se coge este archivo, ya que se crea automaticamente
-	// con todas las variables y banderas disponibles. Si en ella hay
-	// una variable o flag ocupada, simplemente abrir el archivo y borrarla.
-	flags_vars_file   string = 'fvf.txt'
+	game              Game    = .firered_leafgreen
+	backend           Backend = .binary
+	rom               string // la rom en la que se insertará el script
+	flags_file        string = 'flags.data.txt'
+	vars_file         string = 'vars.data.txt'
 	output            string // nombre de salida del script
 	optlevel          Optlevel = .debug
 	skip_warnings     bool   // saltarse las advertencias
@@ -56,8 +54,7 @@ pub mut:
 	defines           []string = ['__FRLF__', '__FIRERED_LEAFGREEN__', '__BINARY__', '__DEBUG__']
 }
 
-// parse_arg_and_get_prefs, trabaja con los argumentos del programa para obtener un struct
-// &Preferences
+// parse_arg_and_get_prefs, trabaja con los argumentos del programa
 pub fn parse_args_and_get_prefs() &Preferences {
 	app := os.args[0]
 	args := os.args[1..]

@@ -183,5 +183,6 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 			else {}
 		}
 	}
+	c.error("ident indefinido: '$ident.name'", ident.pos)
 	return .unknown
 }

@@ -10,8 +10,8 @@ import compiler.prefs
 import compiler.parser
 import compiler.checker
 import compiler.errors
+import compiler.emitter.binary
 
-// import compiler.emitter.binary
 fn main() {
 	if os.args.len == 1 || (os.args.len == 2 && os.args[1] in ['-h', '-a', 'help', 'ayuda']) {
 		about.help()
@@ -39,14 +39,13 @@ fn compile() {
 		show_reports(file.reports)
 		match pref.backend {
 			.binary {
-				/*
-				$if bingen_test ? {
-					binary.bingen_to_file(file, table, pref) or {
-						util.err(err)
-						exit(1)
-					}
+				make_rbh_file := pref.rom == ''
+				if make_rbh_file { // generar un archivo .rbh
+					mut gen := binary.new_gen(file, pref, table)
+					gen.gen()
+				} else {
+					// TODO: Inyección directa en la ROM
 				}
-				*/
 			}
 			.decomp {
 				// TODO: decomp.generate(file)

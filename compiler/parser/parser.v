@@ -37,7 +37,7 @@ mut:
 	inside_for      bool
 	consts_names    []string
 	movs_tmp        int
-	includes		[]string // para evitar duplicación de cabeceras
+	includes        []string // para evitar duplicación de cabeceras
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences) ast.File {
@@ -536,6 +536,9 @@ fn (mut p Parser) const_decl() ast.Const {
 	}
 	p.scope.register(field)
 	p.check(.semicolon)
+	if expr is ast.IntegerLiteral && name !in p.table.constantes {
+		p.table.constantes[name] = (expr as ast.IntegerLiteral).lit.int()
+	}
 	return field
 }
 

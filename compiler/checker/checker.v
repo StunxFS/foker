@@ -4,8 +4,8 @@ module checker
 
 // import os
 // import strings
-// import compiler.util
 // import compiler.token
+import compiler.util
 import compiler.ast
 import compiler.prefs
 import compiler.errors
@@ -36,6 +36,8 @@ mut:
 	expr_level     int // para evitar una recursion infinita que implique bugs del compilador
 	errors_details []string
 	loop_label     string // obtiene valor cuando se está dentro de un bucle for etiquetado
+	has_main       bool
+	constants      map[string]int
 }
 
 pub fn new_checker(table &ast.Table, pref &prefs.Preferences) Checker {
@@ -53,6 +55,9 @@ pub fn (mut c Checker) check(ast_file &ast.File) {
 		c.stmt(stmt)
 	}
 	c.check_scope_vars(c.file.prog.scope)
+	if !c.pref.is_library && !c.has_main {
+		util.err('Este script no tiene una entrada principal (script main {})')
+	}
 }
 
 pub fn (mut c Checker) check_scope_vars(sc &ast.Scope) {
@@ -90,6 +95,9 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 			c.assign_stmt(mut node)
 		}
 		ast.ScriptDecl {
+			if node.name == 'main' && !c.has_main {
+				c.has_main = true
+			}
 			for stmt in node.stmts {
 				c.stmt(stmt)
 			}
@@ -137,10 +145,12 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 		left_type = right_type
 	}
 	if (left_type == .string || right_type == .string) && is_decl {
-		c.error("no se puede declarar variables de tipo string, use 'text' para esto", assign_stmt.pos)
+		c.error("no se puede declarar variables de tipo string, use 'text' para esto",
+			assign_stmt.pos)
 	}
 	if right_type == .string && !is_decl {
-		c.error("no se pueden usar valores de tipo string en variables, use 'text' para esto", assign_stmt.pos)
+		c.error("no se pueden usar valores de tipo string en variables, use 'text' para esto",
+			assign_stmt.pos)
 	}
 	c.expected_type = left_type
 	if is_decl {

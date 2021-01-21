@@ -1,7 +1,8 @@
 // ZubatTest | ValenLoveForever
 include "stdlib.rbh";
 
-const AGE = 10 * 20;
+const OTHER = 2;
+const AGE = 5 * OTHER2 / 2;
 const BOOLEAN = true;
 text MSG = "Mensaje real";
 
@@ -16,7 +17,4 @@ script main {
 	msgbox("Hola mundo!");
 	msgbox(2020, name: arg);
 	call my_script;
-	if MSG {}
-	if BOOLEAN {}
-	if AGE {}
 }

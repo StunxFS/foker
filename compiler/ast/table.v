@@ -10,6 +10,7 @@ pub mut:
 	cmds          map[string]CmdDecl
 	alias         map[string]Alias
 	builtins_cmds []string
+	constantes    map[string]int
 }
 
 pub fn new_table() &Table {
