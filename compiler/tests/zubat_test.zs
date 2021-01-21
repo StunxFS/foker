@@ -1,5 +1,6 @@
 // ZubatTest | ValenLoveForever
 include "stdlib.rbh";
+include "stdlib.rbh";
 
 const AGE = 10 * 20;
 const BOOLEAN = true;
@@ -16,7 +17,4 @@ script main {
 	msgbox("Hola mundo!");
 	msgbox(2020, name: arg);
 	call my_script;
-	var kapo: bool = true;
-	var kapo2 = kapo;
-	if kapo2 {}
 }

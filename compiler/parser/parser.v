@@ -37,6 +37,7 @@ mut:
 	inside_for      bool
 	consts_names    []string
 	movs_tmp        int
+	includes		[]string // para evitar duplicación de cabeceras
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences) ast.File {
@@ -211,6 +212,13 @@ fn (mut p Parser) include_stmt() ast.Include {
 	p.check(.key_include)
 	pos := p.tok.position()
 	file := p.tok.lit
+	if !file.ends_with('.rbh') {
+		p.error('se espera un archivo de cabecera válido (.rbh)')
+	}
+	if file in p.includes {
+		p.error('el archivo a incluir está duplicado')
+	}
+	p.includes << file
 	p.check(.string)
 	p.check(.semicolon)
 	return ast.Include{

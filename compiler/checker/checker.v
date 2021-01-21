@@ -137,6 +137,12 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 	if left_type == .unknown {
 		left_type = right_type
 	}
+	if (left_type == .string || right_type == .string) && is_decl {
+		c.error("no se puede declarar variables de tipo string, use 'text' para esto", assign_stmt.pos)
+	}
+	if right_type == .string && !is_decl {
+		c.error("no se pueden usar valores de tipo string en variables, use 'text' para esto", assign_stmt.pos)
+	}
 	c.expected_type = left_type
 	if is_decl {
 		if left_type == ast.Type.int {
