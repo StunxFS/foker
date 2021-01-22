@@ -12,9 +12,11 @@ pub fn (mut c Checker) warn(s string, pos token.Position) {
 }
 
 pub fn (mut c Checker) error(message string, pos token.Position) {
+	/*
 	if c.pref.is_verbose {
 		print_backtrace()
 	}
+	*/
 	c.warn_or_error(message, pos, false)
 }
 

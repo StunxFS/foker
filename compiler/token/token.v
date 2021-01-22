@@ -296,9 +296,9 @@ pub fn (tok Token) is_unary() bool {
 	]
 }
 
-pub fn (tok Kind) is_relational() bool {
+pub fn (kind Kind) is_relational() bool {
 	//`<` | `<=` | `>` | `>=`
-	return tok in [.lte, .lt, .gte, .gt, .eq, .neq]
+	return kind in [.lte, .lt, .gte, .gt, .eq, .neq]
 }
 
 pub fn (kind Kind) is_prefix() bool {
@@ -308,4 +308,8 @@ pub fn (kind Kind) is_prefix() bool {
 pub fn (kind Kind) is_infix() bool {
 	return kind in
 		[.plus, .minus, .mul, .div, .eq, .neq, .gt, .lt, .gte, .lte, .key_or, .key_and]
+}
+
+pub fn (kind Kind) is_assign() bool {
+	return kind in [.assign, .plus_assign, .minus_assign, .div_assign, .mul_assign]
 }

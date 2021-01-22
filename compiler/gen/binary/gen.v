@@ -9,9 +9,9 @@ import compiler.prefs
 
 pub struct Gen {
 	prefs &prefs.Preferences
-	table &ast.Table
-	file  &ast.File
 mut:
+	table       &ast.Table
+	file        &ast.File
 	header      strings.Builder
 	includes    strings.Builder
 	defines     strings.Builder
@@ -24,23 +24,30 @@ mut:
 	vars        FVF
 }
 
-pub fn new_gen(file &ast.File, prefs &prefs.Preferences, table &ast.Table) Gen {
+pub fn new_gen(prefs &prefs.Preferences, table &ast.Table) Gen {
 	return Gen{
 		prefs: prefs
 		table: table
-		file: file
 		flags: new_fvf(prefs.flags_file)
 		vars: new_fvf(prefs.vars_file)
+		file: 0
 	}
 }
 
-pub fn (mut g Gen) gen() {
+pub fn (mut g Gen) gen_from_files(files []ast.File) {
 	g.header.writeln('; Generado automáticamente con ZubatScript v$about.version $about.status')
 	g.header.writeln('; Creado por: StunxFS | ADVERTENCIA: No modificar sin saber del tema')
+	for mut file in files {
+		g.file = file
+		g.gen()
+	}
+	println(g.create_content())
+}
+
+pub fn (mut g Gen) gen() {
 	for stmt in g.file.prog.stmts {
 		g.top_stmt(stmt)
 	}
-	println(g.create_content())
 }
 
 pub fn (mut g Gen) create_content() string {
@@ -73,7 +80,9 @@ pub fn (mut g Gen) top_stmt(node ast.Stmt) {
 	match mut node {
 		ast.Const {
 			if node.typ == .int {
-				str := g.define_expr(node.expr).str()
+				val := g.define_expr(node.expr)
+				g.table.constantes[node.name] = val
+				str := val.str()
 				g.defines.writeln('#define $node.name $str')
 			}
 		}

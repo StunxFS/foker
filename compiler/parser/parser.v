@@ -9,10 +9,12 @@ import compiler.scanner
 import compiler.ast
 
 pub const (
-	exepath           = os.dir(os.real_path(prefs.zsexe_path()))
-	stdlib_path       = os.join_path(exepath, 'compiler', 'stdlib')
-	builtins_file     = os.join_path(exepath, 'compiler', 'stdlib', 'builtins.zs')
-	builtins_bin_file = os.join_path(exepath, 'compiler', 'stdlib', 'builtins_bin.zs')
+	exepath              = os.dir(os.real_path(prefs.zsexe_path()))
+	stdlib_path          = os.join_path(exepath, 'compiler', 'stdlib')
+	builtins_file        = os.join_path(exepath, 'compiler', 'stdlib', 'builtins.zs')
+	builtins_bin_file    = os.join_path(exepath, 'compiler', 'stdlib', 'builtins_bin.zs')
+	builtins_decomp_file = os.join_path(exepath, 'compiler', 'stdlib', 'builtins_decomp.zs')
+	builtins             = [builtins_file, builtins_bin_file, builtins_decomp_file]
 )
 
 pub struct Parser {
@@ -534,9 +536,12 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 				if p.peek_tok.kind == .lparen {
 					// llamadas a comandos: msgbox("string", 23);
 					return p.parse_call_stmt()
+				} else if p.peek_tok.kind == .bang && p.peek_tok2.kind == .lparen {
+					// intento de usar una macro: macro!(); - TODO
+					p.error('el soporte de macros aún no está implementado')
 				} else {
 					// myvar = newvalue;
-					// TODO
+					return p.parse_assign_stmt()
 				}
 			}
 			.key_var {
@@ -640,6 +645,23 @@ fn (mut p Parser) check_undefined_variables(expr ast.Expr, val ast.Expr) {
 	}
 }
 
+fn (mut p Parser) parse_assign_stmt() ast.Stmt {
+	left := p.parse_ident()
+	op := p.tok.kind
+	if p.tok.kind.is_assign() {
+		p.check(p.tok.kind)
+	} else {
+		p.error('se espera un operador de asignación')
+	}
+	expr := p.expr(0)
+	p.check(.semicolon)
+	return ast.AssignStmt{
+		right: expr
+		left: left
+		op: op
+	}
+}
+
 fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 	p.check(.key_var)
 	mut name := p.parse_ident()
@@ -669,7 +691,7 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 			name: name.name
 			offset: offset
 			pos: name.pos
-			is_used: p.file_name == builtins_file || p.file_name == builtins_bin_file
+			is_used: p.file_name in builtins
 		})
 		name.obj = obj
 		p.scope.register(obj)

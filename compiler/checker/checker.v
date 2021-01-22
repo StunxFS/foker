@@ -142,8 +142,8 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 	}
 	// izquierda
 	is_decl := assign_stmt.is_decl
+	mut left_type := c.expr(assign_stmt.left)
 	left := assign_stmt.left
-	mut left_type := assign_stmt.left_type
 	is_blank_ident := left.is_blank_ident()
 	// derecha
 	right := assign_stmt.right
@@ -181,7 +181,7 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 					}
 				}
 				if is_large {
-					c.error('desbordamiento en tipo implícito `int`, use conversión de tipo explícito en su lugar',
+					c.error("desbordamiento en tipo implícito 'int', use el tipo 'long' en su lugar",
 						expr.pos)
 				}
 			}

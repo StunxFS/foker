@@ -147,6 +147,7 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 						}
 					}
 					ident.kind = .variable
+					ident.obj = obj
 					return typ
 				}
 				else {}
