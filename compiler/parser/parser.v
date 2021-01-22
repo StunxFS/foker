@@ -536,8 +536,13 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 	for {
 		match p.tok.kind {
 			.name {
-				// llamadas a comandos: msgbox("string", 23);
-				return p.parse_call_stmt()
+				if p.peek_tok.kind == .lparen {
+					// llamadas a comandos: msgbox("string", 23);
+					return p.parse_call_stmt()
+				} else {
+					// myvar = newvalue;
+					// TODO
+				}
 			}
 			.key_var {
 				return p.parse_var_stmt(false)

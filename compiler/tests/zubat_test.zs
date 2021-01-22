@@ -1,8 +1,8 @@
 // ZubatTest | ValenLoveForever
 include "stdlib.rbh";
 
-const OTHER = 2;
-const AGE = OTHER * 200;
+const ANIO_ACTUAL = 2020;
+const AGE = ANIO_ACTUAL - 1971;
 const BOOLEAN = true;
 text MSG = "Mensaje real";
 
@@ -18,4 +18,6 @@ script main {
 	msgbox(2020, arg);
 	call my_script;
 	if BOOLEAN {}
+	var myvar: bool = 4;
+	//myvar = 2020;
 }

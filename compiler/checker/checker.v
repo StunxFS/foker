@@ -187,10 +187,10 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 				left_type = right_type
 				assign_stmt.left_type = right_type
 				if assign_stmt.op != .assign {
-					c.error('no se puede modificar el identificador `_` en blanco', left.pos)
+					c.error("no se puede modificar el identificador '_' en blanco", left.pos)
 				}
 			} else if left.obj !is ast.Var {
-				c.error('no se puede asignar a $left.kind `$left.name`', left.pos)
+				c.error("no se puede asignar a $left.kind '$left.name'", left.pos)
 			} else {
 				if assign_stmt.left_type == .unknown {
 					assign_stmt.left_type = left_type
@@ -212,7 +212,7 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 		*/
 		else {
 			if is_decl {
-				c.error('sin nombre `$left` en el lado izquierdo de `=`', left.position())
+				c.error("sin nombre en el lado izquierdo de '='", left.position())
 			}
 		}
 	}
@@ -222,7 +222,8 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 		}
 		// Dual sides check (compatibility check)
 		c.check_expected(right_type, left_type) or {
-			c.error('no se puede asignar a `left`: $err', right.position())
+			name := (left as ast.Ident).name
+			c.error("no se le puede asignar un valor a '$name': $err", right.position())
 		}
 	}
 }
