@@ -5,11 +5,12 @@ module token
 // Token represents a single token in the Wolk lexer.
 pub struct Token {
 pub mut:
-	kind    Kind
-	lit     string
-	len     int
-	line_nr int
-	pos     int
+	kind     Kind
+	filepath string // archivo desde donde se obtiene este token
+	lit      string
+	len      int
+	line_nr  int
+	pos      int
 }
 
 pub fn (t Token) str() string {
@@ -18,13 +19,14 @@ pub fn (t Token) str() string {
 
 pub struct Position {
 pub:
-	len     int
-	line_nr int
-	pos     int
+	filepath string // archivo desde donde se obtiene esta posición
+	len      int
+	line_nr  int
+	pos      int
 }
 
 pub fn (pos Position) str() string {
-	return 'token.Position{ line_nr: $pos.line_nr, pos: $pos.pos, len: $pos.len }'
+	return 'token.Position{ filepath: "$pos.filepath", line_nr: $pos.line_nr, pos: $pos.pos, len: $pos.len }'
 }
 
 pub fn (pos Position) extend(end Position) Position {
@@ -34,22 +36,13 @@ pub fn (pos Position) extend(end Position) Position {
 	}
 }
 
-/*
-pub fn (pos Position) extend_with_last_line(end Position, last_line int) Position {
-	return {
-		len: end.pos - pos.pos + end.len
-		line_nr: pos.line_nr
-		last_line: last_line - 1
-		pos: pos.pos
-	}
-}
-*/
 [inline]
 pub fn (tok &Token) position() Position {
 	return Position{
 		len: tok.len
 		line_nr: tok.line_nr - 1
 		pos: tok.pos
+		filepath: tok.filepath
 	}
 }
 
@@ -97,7 +90,7 @@ pub enum Kind {
 	raw_text
 	// keywords
 	keyword_begin
-	key_include
+	key_import
 	key_script
 	key_cmd
 	key_var
@@ -201,7 +194,7 @@ fn build_tokenstr() []string {
 	k[Kind.lbracket] = '['
 	k[Kind.rbracket] = ']'
 	k[Kind.raw_text] = 'raw text'
-	k[Kind.key_include] = 'include'
+	k[Kind.key_import] = 'import'
 	k[Kind.key_script] = 'script'
 	k[Kind.key_cmd] = 'cmd'
 	k[Kind.key_var] = 'var'

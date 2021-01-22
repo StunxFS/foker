@@ -27,8 +27,8 @@ fn (mut c Checker) warn_or_error(message string, pos token.Position, warn bool) 
 	if warn && !c.pref.skip_warnings {
 		c.nr_warnings++
 		wrn := errors.Report{
-			message: util.formatted_error('advertencia:', message, c.file.path, pos)
-			file_path: c.file.path
+			message: util.formatted_error('advertencia:', message, pos)
+			file_path: pos.filepath
 			pos: pos
 			kind: .warning
 		}
@@ -40,9 +40,9 @@ fn (mut c Checker) warn_or_error(message string, pos token.Position, warn bool) 
 		c.nr_errors++
 		if pos.line_nr !in c.error_lines {
 			err := errors.Report{
-				message: util.formatted_error('error:', message, c.file.path, pos)
+				message: util.formatted_error('error:', message, pos)
 				pos: pos
-				file_path: c.file.path
+				file_path: pos.filepath
 				kind: .error
 			}
 			c.file.reports << err

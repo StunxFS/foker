@@ -5,13 +5,14 @@ module parser
 import os
 import compiler.token
 import compiler.prefs
-import compiler.util
 import compiler.scanner
 import compiler.ast
 
-const (
-	exepath       = os.dir(os.real_path(prefs.zsexe_path()))
-	builtins_file = os.join_path(exepath, 'compiler', 'stdlib', 'builtins.zs')
+pub const (
+	exepath           = os.dir(os.real_path(prefs.zsexe_path()))
+	stdlib_path       = os.join_path(exepath, 'compiler', 'stdlib')
+	builtins_file     = os.join_path(exepath, 'compiler', 'stdlib', 'builtins.zs')
+	builtins_bin_file = os.join_path(exepath, 'compiler', 'stdlib', 'builtins_bin.zs')
 )
 
 pub struct Parser {
@@ -35,7 +36,7 @@ mut:
 	inside_for      bool
 	consts_names    []string
 	movs_tmp        int
-	includes        []string // para evitar duplicación de cabeceras
+	imports         []string // importes locales, para evitar duplicación
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences) ast.File {
@@ -70,17 +71,10 @@ pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences) ast.Fi
 	return p.parse()
 }
 
-[inline]
-fn (mut p Parser) get_builtins_stmt() []ast.Stmt {
-	builtins_code := util.read_file(builtins_file) or { panic(err) }
-	b_file := if p.file_name != builtins_file { parse_text(builtins_code, builtins_file,
-			p.table, p.pref) } else { ast.File{} }
-	return b_file.prog.stmts
-}
-
 pub fn (mut p Parser) parse() ast.File {
 	p.read_first_token()
-	mut stmts := p.get_builtins_stmt()
+	mut stmts := []ast.Stmt{}
+	mut imports := []ast.Import{}
 	if p.pref.is_verbose {
 		println("> Parseando archivo '$p.file_name'")
 	}
@@ -96,11 +90,8 @@ pub fn (mut p Parser) parse() ast.File {
 				p.error('no se puede redefinir el offset a usar dinámicamente')
 			}
 		}
-		if p.tok.kind == .key_include {
-			if p.pref.backend == .decomp {
-				p.error("'include' no es soportado en el backend de decomp")
-			}
-			stmts << p.include_stmt()
+		if p.tok.kind == .key_import {
+			imports << p.import_stmt()
 			continue
 		}
 		break
@@ -111,6 +102,7 @@ pub fn (mut p Parser) parse() ast.File {
 	p.scope.end_pos = p.tok.pos
 	return ast.File{
 		path: p.file_name
+		imports: imports
 		prog: ast.Program{
 			stmts: stmts
 			scope: p.scope
@@ -206,20 +198,27 @@ fn (mut p Parser) check_name() string {
 	return name
 }
 
-fn (mut p Parser) include_stmt() ast.Include {
-	p.check(.key_include)
+fn (mut p Parser) import_stmt() ast.Import {
+	p.check(.key_import)
+	mut is_std := false
+	if p.tok.kind == .name {
+		if p.tok.lit != 'std' {
+			p.error("se espera 'std:'")
+		}
+		p.check(.name)
+		p.check(.colon)
+		is_std = true
+	}
 	pos := p.tok.position()
-	file := p.tok.lit
-	if !file.ends_with('.rbh') {
-		p.error('se espera un archivo de cabecera válido (.rbh)')
+	to_import := p.tok.lit.replace('/', os.path_separator)
+	file := if is_std { os.join_path(stdlib_path, to_import) } else { to_import }
+	if file in p.imports {
+		p.error('el archivo a importar ya está importado')
 	}
-	if file in p.includes {
-		p.error('el archivo a incluir está duplicado')
-	}
-	p.includes << file
+	p.imports << file
 	p.check(.string)
 	p.check(.semicolon)
-	return ast.Include{
+	return ast.Import{
 		pos: pos
 		file: file
 	}
@@ -232,12 +231,8 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 			.key_raw {
 				return p.parse_raw_stmt()
 			}
-			.key_include {
-				if p.pref.backend == .binary {
-					p.error("'include' se puede usar solo al principio del archivo")
-				} else {
-					p.error("'include' no es soportado en el backend de decomp")
-				}
+			.key_import {
+				p.error("'import' solo puede ir al comienzo del archivo")
 			}
 			.key_script {
 				return p.script_stmt()
@@ -358,7 +353,7 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 			msg := "un alias contiene el nombre del comando '$name'"
 			if is_builtin {
 				p.error_and_warn2(msg, name_pos, 'el alias se encuentra en los builtins',
-					p.table.alias[name].pos, builtins_file)
+					p.table.alias[name].pos)
 			} else {
 				p.error_and_warn(msg, name_pos, 'el alias se encuentra aquí', p.table.alias[name].pos)
 			}
@@ -366,7 +361,7 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 			msg := "duplicación del comando '$name'"
 			if is_builtin {
 				p.error_and_warn2(msg, name_pos, 'previamente declarado en los builtins, aquí',
-					p.table.cmds[name].pos, builtins_file)
+					p.table.cmds[name].pos)
 			} else {
 				p.error_and_warn(msg, name_pos, 'previamente declarado aquí', p.table.cmds[name].pos)
 			}
@@ -429,7 +424,7 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 			p.next()
 			extern_offset = p.tok.lit
 			p.check(.number)
-			if !extern_offset.starts_with('0x') || !extern_offset.starts_with('0X') {
+			if !extern_offset.to_lower().starts_with('0x') {
 				p.error('se esperaba un offset/dirección')
 			}
 			p.next()
@@ -674,6 +669,7 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 			name: name.name
 			offset: offset
 			pos: name.pos
+			is_used: p.file_name == builtins_file || p.file_name == builtins_bin_file
 		})
 		name.obj = obj
 		p.scope.register(obj)

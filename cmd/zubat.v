@@ -3,15 +3,16 @@
 module main
 
 import os
+import v.depgraph
 import compiler.ast
 import compiler.util
 import compiler.about
 import compiler.prefs
 import compiler.parser
-import compiler.checker
 import compiler.errors
-import compiler.gen.binary
+import compiler.checker
 
+// import compiler.gen.binary
 fn main() {
 	if os.args.len == 1 || (os.args.len == 2 && os.args[1] in ['-h', '-a', 'help', 'ayuda']) {
 		about.help()
@@ -29,16 +30,61 @@ fn compile() {
 		util.emanager.set_support_color(false)
 	}
 	mut table := ast.new_table()
-	file := parser.parse_file(pref.file, table, pref)
-	$if print_obj_file ? {
-		println(file)
+	mut parsed_files := []ast.File{}
+	mut imports := []string{}
+	parsed_files << parser.parse_file(parser.builtins_file, table, pref)
+	parsed_files << parser.parse_file(pref.file, table, pref)
+	curdir := os.getwd()
+	os.chdir(os.dir(pref.file))
+	for i := 0; i < parsed_files.len; i++ {
+		ast_file := parsed_files[i]
+		for f in ast_file.imports {
+			if f.file in imports {
+				continue
+			}
+			parsed_files << parser.parse_file(f.file, table, pref)
+			imports << f.file
+		}
+	}
+	// resolver dependencias de archivos
+	graph := import_graph(parsed_files)
+	deps_resolved := graph.resolve()
+	if pref.is_verbose {
+		eprintln('------ resolved dependencies graph: ------')
+		eprintln(deps_resolved.display())
+		eprintln('------------------------------------------')
+	}
+	mut mods := []string{}
+	for node in deps_resolved.nodes {
+		mods << node.name
+	}
+	if pref.is_verbose {
+		eprintln('------ archivos importados ------')
+		eprintln(mods.str())
+		eprintln('---------------------------------')
+	}
+	mut reordered_parsed_files := []ast.File{}
+	for m in mods {
+		for pf in parsed_files {
+			if m == pf.path {
+				reordered_parsed_files << pf
+			}
+		}
 	}
 	if !pref.only_check_syntax {
 		mut c := checker.new_checker(table, pref)
-		c.check(file)
-		show_reports(file.reports)
+		c.check_files(reordered_parsed_files)
+		mut err_count := 0
+		for file in reordered_parsed_files {
+			err_count += show_reports(file.reports)
+		}
+		if err_count > 0 {
+			exit(1)
+		}
+		os.chdir(curdir)
 		match pref.backend {
 			.binary {
+				/*
 				make_rbh_file := pref.rom == ''
 				if make_rbh_file { // generar un archivo .rbh
 					mut gen := binary.new_gen(file, pref, table)
@@ -46,6 +92,7 @@ fn compile() {
 				} else {
 					// TODO: Inyección directa en la ROM
 				}
+				*/
 			}
 			.decomp {
 				// TODO: decomp.generate(file)
@@ -54,7 +101,23 @@ fn compile() {
 	}
 }
 
-fn show_reports(reports []errors.Report) {
+// import_graph - graph of all imported modules
+fn import_graph(parsed_files []ast.File) &depgraph.DepGraph {
+	mut graph := depgraph.new_dep_graph()
+	for p in parsed_files {
+		mut deps := []string{}
+		for m in p.imports {
+			if m.file == p.path {
+				continue
+			}
+			deps << m.file
+		}
+		graph.add(p.path, deps)
+	}
+	return graph
+}
+
+fn show_reports(reports []errors.Report) int {
 	mut err_count := 0
 	for report in reports {
 		if report.kind == .error {
@@ -62,7 +125,5 @@ fn show_reports(reports []errors.Report) {
 		}
 		eprintln(report.message)
 	}
-	if err_count > 0 {
-		exit(1)
-	}
+	return err_count
 }

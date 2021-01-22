@@ -16,24 +16,24 @@ pub fn (mut p Parser) warn(s string) {
 }
 
 pub fn (mut p Parser) error_and_warn(msg1 string, pos1 token.Position, msg2 string, pos2 token.Position) {
-	eprintln(util.formatted_error('error:', msg1, p.file_name, pos1))
-	eprintln(util.formatted_error('nota:', msg2, p.file_name, pos2))
+	eprintln(util.formatted_error('error:', msg1, pos1))
+	eprintln(util.formatted_error('nota:', msg2, pos2))
 	exit(1)
 }
 
-pub fn (mut p Parser) error_and_warn2(msg1 string, pos1 token.Position, msg2 string, pos2 token.Position, fpath string) {
-	eprintln(util.formatted_error('error:', msg1, p.file_name, pos1))
-	eprintln(util.formatted_error('nota:', msg2, fpath, pos2))
+pub fn (mut p Parser) error_and_warn2(msg1 string, pos1 token.Position, msg2 string, pos2 token.Position) {
+	eprintln(util.formatted_error('error:', msg1, pos1))
+	eprintln(util.formatted_error('nota:', msg2, pos2))
 	exit(1)
 }
 
 pub fn (mut p Parser) error_with_pos(s string, pos token.Position) {
-	eprintln(util.formatted_error('error:', s, p.file_name, pos))
+	eprintln(util.formatted_error('error:', s, pos))
 	exit(1)
 }
 
 pub fn (mut p Parser) error_with_pos_and_details(s string, pos token.Position, details string) {
-	eprintln(util.formatted_error('error:', s, p.file_name, pos))
+	eprintln(util.formatted_error('error:', s, pos))
 	eprintln('${term.bold('detalles:')} $details')
 	exit(1)
 }
@@ -45,7 +45,7 @@ pub fn (mut p Parser) warn_with_pos(s string, pos token.Position) {
 	if p.pref.skip_warnings {
 		return
 	}
-	eprintln(util.formatted_error('advertencia:', s, p.file_name, pos))
+	eprintln(util.formatted_error('advertencia:', s, pos))
 }
 
 pub fn (mut p Parser) mark_var_as_used(varname string) bool {

@@ -54,6 +54,12 @@ pub fn (mut c Checker) check(ast_file &ast.File) {
 		c.stmt(stmt)
 	}
 	c.check_scope_vars(c.file.prog.scope)
+}
+
+pub fn (mut c Checker) check_files(ast_files []ast.File) {
+	for mut ast_file in ast_files {
+		c.check(ast_file)
+	}
 	if !c.pref.is_library && !c.has_main {
 		util.err('Este script no tiene una entrada principal (script main {})')
 	}
@@ -216,7 +222,7 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 			}
 		}
 	}
-	if !is_blank_ident {
+	if !is_blank_ident && (is_decl && assign_stmt.offset == '') {
 		$if debug ? {
 			println('$left_type = $right_type')
 		}

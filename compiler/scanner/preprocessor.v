@@ -13,10 +13,11 @@ pub mut:
 }
 
 pub fn (mut s Scanner) error_with_len(msg string, len int) {
-	eprintln(util.formatted_error('error:', msg, s.file_path, token.Position{
+	eprintln(util.formatted_error('error:', msg, token.Position{
 		line_nr: s.line_nr
 		pos: s.pos
 		len: len
+		filepath: s.file_path
 	}))
 	exit(1)
 }

@@ -69,6 +69,7 @@ fn (mut s Scanner) new_token(tok_kind token.Kind, lit string, len int) token.Tok
 		line_nr: s.line_nr + 1
 		pos: s.pos - len + 1
 		len: len
+		filepath: s.file_path
 	}
 }
 
@@ -576,16 +577,18 @@ fn (mut s Scanner) inc_line_number() {
 }
 
 pub fn (mut s Scanner) warn(msg string) {
-	eprintln(util.formatted_error('advertencia:', msg, s.file_path, token.Position{
+	eprintln(util.formatted_error('advertencia:', msg, token.Position{
 		line_nr: s.line_nr
 		pos: s.pos
+		filepath: s.file_path
 	}))
 }
 
 pub fn (mut s Scanner) error(msg string) {
-	eprintln(util.formatted_error('error:', msg, s.file_path, token.Position{
+	eprintln(util.formatted_error('error:', msg, token.Position{
 		line_nr: s.line_nr
 		pos: s.pos
+		filepath: s.file_path
 	}))
 	exit(1)
 }

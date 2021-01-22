@@ -59,14 +59,14 @@ fn color(kind string, msg string) string {
 }
 
 // formatted_error - `kind` may be 'error' or 'warn'
-pub fn formatted_error(kind string, emsg string, filepath string, pos token.Position) string {
-	mut path := filepath
+pub fn formatted_error(kind string, emsg string, pos token.Position) string {
+	mut path := pos.filepath
 	// Get relative path
 	workdir := os.getwd() + os.path_separator
 	if path.starts_with(workdir) {
 		path = path.replace(workdir, '')
 	}
-	source, column := filepath_pos_to_source_and_column(filepath, pos)
+	source, column := filepath_pos_to_source_and_column(pos.filepath, pos)
 	position := '$path:${pos.line_nr + 1}:${imax(1, column + 1)}:'
 	scontext := source_context(kind, source, column, pos).join('\n')
 	final_position := bold(position)

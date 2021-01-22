@@ -12,6 +12,7 @@ pub:
 	prog Program
 pub mut:
 	reports []errors.Report
+	imports []Import
 }
 
 pub struct Program {
@@ -47,7 +48,7 @@ pub type ScopeObject = Const | Var
 // Statements
 pub type Stmt = AssignStmt | Block | BranchStmt | CallCmdStmt | CallStmt | CheckgenderStmt |
 	CmdDecl | Const | DynamicStmt | ExprStmt | ForInStmt | ForStmt | FreeStmt | GotoLabel |
-	GotoStmt | IfStmt | Include | MatchStmt | QuestionStmt | RawStmt | ScriptDecl
+	GotoStmt | IfStmt | Import | MatchStmt | QuestionStmt | RawStmt | ScriptDecl
 
 pub struct RawStmt {
 pub:
@@ -67,7 +68,7 @@ pub:
 	dyn_offset string
 }
 
-pub struct Include {
+pub struct Import {
 pub:
 	pos  token.Position
 	file string
@@ -386,6 +387,7 @@ pub fn (expr Expr) position() token.Position {
 				line_nr: expr.pos.line_nr
 				pos: left_pos.pos
 				len: right_pos.pos - left_pos.pos + right_pos.len
+				filepath: left_pos.filepath
 			}
 		}
 	}
@@ -409,7 +411,7 @@ pub fn (expr Expr) is_lit() bool {
 pub fn (stmt Stmt) position() token.Position {
 	match stmt {
 		AssignStmt, Block, BranchStmt, CallStmt, CallCmdStmt, Const, ExprStmt, ForStmt, ForInStmt,
-		GotoLabel, GotoStmt, IfStmt, CmdDecl, DynamicStmt, FreeStmt, Include, QuestionStmt, ScriptDecl,
+		GotoLabel, GotoStmt, IfStmt, CmdDecl, DynamicStmt, FreeStmt, Import, QuestionStmt, ScriptDecl,
 		CheckgenderStmt, MatchStmt, RawStmt { return stmt.pos }
 	}
 }
