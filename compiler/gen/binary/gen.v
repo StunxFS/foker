@@ -6,7 +6,6 @@ import strings
 import compiler.ast
 import compiler.about
 import compiler.prefs
-import compiler.emitter
 
 pub struct Gen {
 	prefs &prefs.Preferences
@@ -21,8 +20,8 @@ mut:
 	strings_tmp strings.Builder
 	moves       strings.Builder
 	moves_tmp   strings.Builder
-	flags       emitter.FVF
-	vars        emitter.FVF
+	flags       FVF
+	vars        FVF
 }
 
 pub fn new_gen(file &ast.File, prefs &prefs.Preferences, table &ast.Table) Gen {
@@ -30,8 +29,8 @@ pub fn new_gen(file &ast.File, prefs &prefs.Preferences, table &ast.Table) Gen {
 		prefs: prefs
 		table: table
 		file: file
-		flags: emitter.new_fvf(prefs.flags_file)
-		vars: emitter.new_fvf(prefs.vars_file)
+		flags: new_fvf(prefs.flags_file)
+		vars: new_fvf(prefs.vars_file)
 	}
 }
 
@@ -73,7 +72,6 @@ pub fn (mut g Gen) create_content() string {
 pub fn (mut g Gen) top_stmt(node ast.Stmt) {
 	match mut node {
 		ast.Const {
-			println(node.typ)
 			if node.typ == .int {
 				g.defines.writeln('#define $node.name ${g.define_expr(node.expr).str()}')
 			}

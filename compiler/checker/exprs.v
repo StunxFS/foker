@@ -34,7 +34,6 @@ pub fn (mut c Checker) expr(node ast.Expr) ast.Type {
 			return .bool
 		}
 		ast.Ident {
-			//res := 
 			return c.ident(mut node)
 		}
 		ast.IntegerLiteral {
@@ -100,7 +99,7 @@ fn (mut c Checker) infix_expr(mut infix_expr ast.InfixExpr) ast.Type {
 			// for example: `(a && b) || c` instead of `a && b || c`
 			if mut infix_expr.left is ast.InfixExpr {
 				if infix_expr.left.op != infix_expr.op && infix_expr.left.op in [.key_and, .key_or] {
-					c.error('use "()" para aclarar la expresión booleana', infix_expr.pos)
+					c.error("use '()' para aclarar la expresión booleana", infix_expr.pos)
 				}
 			}
 		}
@@ -116,7 +115,7 @@ fn (mut c Checker) infix_expr(mut infix_expr ast.InfixExpr) ast.Type {
 pub fn (mut c Checker) postfix_expr(mut node ast.PostfixExpr) ast.Type {
 	typ := c.expr(node.expr)
 	if typ !in [.int, .long] {
-		c.error('operación inválida: $node.op.str() (`$typ` no es un tipo numérico)',
+		c.error("operación inválida: $node.op.str() ('$typ' no es un tipo numérico)",
 			node.pos)
 	}
 	return typ
@@ -134,14 +133,13 @@ pub fn (mut c Checker) prefix_expr(mut node ast.PrefixExpr) ast.Type {
 pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 	if ident.kind == .blank_ident {
 		if ident.tok_kind != .assign {
-			c.error('ident indefinido: `_` (solo se puede usar en asignaciones)', ident.pos)
+			c.error("ident indefinido: '_' (solo se puede usar en asignaciones)", ident.pos)
 		}
 		return .unknown
 	}
 	// segundo uso
 	if ident.kind in [.constant, .variable] {
 		info := ident.obj
-		//return info.typ
 		if info is ast.Var {
 			return info.typ
 		} else if info is ast.Const {
@@ -154,14 +152,14 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 				ast.Var {
 					obj.is_used = true
 					if ident.pos.pos < obj.pos.pos {
-						c.error('variable `$ident.name` indefinida (usada antes de la declaración)',
+						c.error("variable '$ident.name' indefinida (usada antes de la declaración)",
 							ident.pos)
 					}
 					typ := obj.typ
 					if typ == .unknown {
 						if obj.expr is ast.Ident {
 							if obj.expr.kind == .unresolved {
-								c.error('variable no resuelta: `$ident.name`', ident.pos)
+								c.error("variable no resuelta: '$ident.name'", ident.pos)
 								return .unknown
 							}
 						}
@@ -188,6 +186,6 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 			else {}
 		}
 	}
-	c.error("ident indefinido: '$ident.name'", ident.pos)
+	c.error("variable o constante indefinida: '$ident.name'", ident.pos)
 	return .unknown
 }

@@ -10,7 +10,7 @@ import compiler.prefs
 import compiler.parser
 import compiler.checker
 import compiler.errors
-import compiler.emitter.binary
+import compiler.gen.binary
 
 fn main() {
 	if os.args.len == 1 || (os.args.len == 2 && os.args[1] in ['-h', '-a', 'help', 'ayuda']) {
