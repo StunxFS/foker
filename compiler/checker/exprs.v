@@ -154,7 +154,7 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 			}
 		}
 	}
-	if obj := c.file.prog.scope.find(ident.name) {
+	if obj := c.file.global_scope.find(ident.name) {
 		match mut obj {
 			ast.Const {
 				mut typ := obj.typ

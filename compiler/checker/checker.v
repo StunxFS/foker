@@ -4,7 +4,7 @@ module checker
 
 // import os
 // import strings
-// import compiler.token
+import compiler.token
 import compiler.util
 import compiler.ast
 import compiler.prefs
@@ -29,7 +29,7 @@ pub mut:
 	error_lines   []int // para evitar imprimir multiple errores para la misma linea :)
 	expected_type ast.Type
 	cur_script    &ast.ScriptDecl
-	const_decl    string
+	const_names   map[string]token.Position
 	in_for_count  int // si checker está actualmente en un bucle for
 mut:
 	expr_level     int // para evitar una recursion infinita que implique bugs en el compilador
@@ -97,6 +97,14 @@ fn (mut c Checker) check_loop_label(label string, pos token.Position) {
 fn (mut c Checker) stmt(node ast.Stmt) {
 	match mut node {
 		ast.AssignStmt {
+			if node.is_global {
+				obj := (node.left as ast.Ident)
+				if obj.name in c.const_names {
+					c.error("variable global '$obj.name' duplicada", obj.pos)
+					c.warn('previamente declarada aquí', c.const_names[obj.name])
+				}
+				c.const_names[obj.name] = obj.pos
+			}
 			c.assign_stmt(mut node)
 		}
 		ast.ScriptDecl {
@@ -122,8 +130,12 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 			}
 		}
 		ast.Const {
+			if node.name in c.const_names {
+				c.error("constante '$node.name' duplicada", node.pos)
+				c.warn('previamente declarada aquí', c.const_names[node.name])
+			}
+			c.const_names[node.name] = node.pos
 			node.typ = c.expr(node.expr)
-			c.expected_type = .unknown
 		}
 		ast.IfStmt {
 			for branch in node.branches {

@@ -51,7 +51,7 @@ pub mut:
 	use_color         UseColor
 	only_check_syntax bool
 	is_library        bool // para evitar pedir un script 'main'
-	defines           []string = ['__FRLF__', '__FIRERED_LEAFGREEN__', '__BINARY__', '__DEBUG__']
+	defines           []string = ['__FIRERED_LEAFGREEN__', '__BINARY__', '__DEBUG__']
 }
 
 // parse_arg_and_get_prefs, trabaja con los argumentos del programa
@@ -107,16 +107,14 @@ pub fn parse_args_and_get_prefs() &Preferences {
 				match target_game {
 					'rs', 'rubysapphire' {
 						res.game = .ruby_sapphire
-						res.defines[res.defines.index('FRLF')] = '__RS__'
-						res.defines[res.defines.index('FIREREDLEAFGREEN')] = '__RUBY_SAPPHIRE__'
+						res.defines[res.defines.index('__FIRERED_LEAFGREEN__')] = '__RUBY_SAPPHIRE__'
 					}
 					'frlf', 'fireredleafgreen' {
 						res.game = .firered_leafgreen
 					}
 					'e', 'emerald' {
 						res.game = .emerald
-						res.defines[res.defines.index('FRLF')] = '__EM__'
-						res.defines[res.defines.index('FIREREDLEAFGREEN')] = '__EMERALD__'
+						res.defines[res.defines.index('__FIRERED_LEAFGREEN__')] = '__EMERALD__'
 					}
 					else {
 						util.err('la opción $arg solo soporta los valores: rs, rubysapphire, frlf, fireredleafgreen, e, emerald')

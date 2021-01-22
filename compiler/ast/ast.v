@@ -8,8 +8,9 @@ import compiler.errors
 // Esto representa un archivo de script ZubatScript
 pub struct File {
 pub:
-	path string
-	prog Program
+	path         string
+	prog         Program
+	global_scope &Scope
 pub mut:
 	reports []errors.Report
 	imports []Import
@@ -118,11 +119,12 @@ pub:
 
 pub struct AssignStmt {
 pub:
-	right   Expr
-	op      token.Kind
-	pos     token.Position
-	offset  string
-	is_decl bool
+	right     Expr
+	op        token.Kind
+	pos       token.Position
+	offset    string
+	is_decl   bool
+	is_global bool
 pub mut:
 	left       Expr
 	left_type  Type

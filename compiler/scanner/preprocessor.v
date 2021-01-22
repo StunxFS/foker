@@ -91,7 +91,8 @@ fn (mut s Scanner) pp_directive() {
 		for s.pos < s.text.len {
 			if bol && s.text[s.pos] == `#` {
 				// go back to begin of line
-				s.pos -= s.current_column() - 1
+				// s.pos -= s.current_column() - 1
+				s.pos--
 				return
 			}
 			if s.text[s.pos] == `\n` {
@@ -273,7 +274,7 @@ fn (mut s Scanner) parse_pp_unary_expression() bool {
 fn (mut s Scanner) parse_pp_equality_expression() bool {
 	mut left := s.parse_pp_unary_expression()
 	s.pp_space()
-	for true {
+	for {
 		if s.pos < s.text.len - 1 && s.text[s.pos] == `=` && s.text[s.pos + 1] == `=` {
 			s.pos += 2
 			s.pp_space()
@@ -294,8 +295,8 @@ fn (mut s Scanner) parse_pp_equality_expression() bool {
 fn (mut s Scanner) parse_pp_and_expression() bool {
 	mut left := s.parse_pp_equality_expression()
 	s.pp_space()
-	start_pos := s.pos
-	for s.pos < s.text.len - 1 && s.expect('and ', start_pos) {
+	for s.pos < s.text.len - 1 &&
+		s.text[s.pos] == `a` && s.look_ahead(1) == `n` && s.look_ahead(2) == `d` {
 		s.pos += 3
 		s.pp_space()
 		right := s.parse_pp_equality_expression()
@@ -307,8 +308,7 @@ fn (mut s Scanner) parse_pp_and_expression() bool {
 fn (mut s Scanner) parse_pp_or_expression() bool {
 	mut left := s.parse_pp_and_expression()
 	s.pp_space()
-	start_pos := s.pos
-	for s.pos < s.text.len - 1 && s.expect('or ', start_pos) {
+	for s.pos < s.text.len - 1 && s.text[s.pos] == `o` && s.look_ahead(1) == `r` {
 		s.pos += 2
 		s.pp_space()
 		right := s.parse_pp_and_expression()

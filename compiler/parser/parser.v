@@ -32,16 +32,16 @@ mut:
 	table           &ast.Table
 	expr_mod        string
 	scope           &ast.Scope
+	global_scope    &ast.Scope
 	have_dyn_custom bool
 	cur_script_name string
 	inside_if       bool
 	inside_for      bool
-	consts_names    []string
 	movs_tmp        int
 	imports         []string // importes locales, para evitar duplicación
 }
 
-fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences) ast.File {
+fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
 	mut p := Parser{
 		scanner: scanner.new_scanner(text, pref)
 		file_name: path
@@ -51,13 +51,14 @@ fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preference
 		pref: pref
 		scope: &ast.Scope{
 			start_pos: 0
-			parent: 0
+			parent: global_scope
 		}
+		global_scope: global_scope
 	}
 	return p.parse()
 }
 
-pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences) ast.File {
+pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
 	mut p := Parser{
 		scanner: scanner.new_scanner_file(path, pref)
 		table: table
@@ -67,8 +68,9 @@ pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences) ast.Fi
 		pref: pref
 		scope: &ast.Scope{
 			start_pos: 0
-			parent: 0
+			parent: global_scope
 		}
+		global_scope: global_scope
 	}
 	return p.parse()
 }
@@ -105,6 +107,7 @@ pub fn (mut p Parser) parse() ast.File {
 	return ast.File{
 		path: p.file_name
 		imports: imports
+		global_scope: p.global_scope
 		prog: ast.Program{
 			stmts: stmts
 			scope: p.scope
@@ -479,10 +482,6 @@ fn (mut p Parser) const_decl() ast.Const {
 	name := p.check_name()
 	mut type_const := ast.Type.unknown
 	// p.check_const_name(name, pos)
-	if name in p.consts_names {
-		p.error_with_pos("constante '$name' duplicada", pos)
-	}
-	p.consts_names << name
 	if p.tok.kind == .colon {
 		p.next()
 		type_const = p.parse_type()
@@ -498,7 +497,7 @@ fn (mut p Parser) const_decl() ast.Const {
 		pos: pos
 		typ: type_const
 	}
-	p.scope.register(field)
+	p.global_scope.register(field)
 	p.check(.semicolon)
 	if expr is ast.IntegerLiteral && name !in p.table.constantes {
 		p.table.constantes[name] = (expr as ast.IntegerLiteral).lit.int()
@@ -511,10 +510,6 @@ fn (mut p Parser) text_decl() ast.Stmt {
 	pos := p.tok.position()
 	name := p.check_name()
 	// p.check_const_name(name, pos)
-	if name in p.consts_names {
-		p.error_with_pos("constante '$name' de texto duplicada", pos)
-	}
-	p.consts_names << name
 	p.check(.assign)
 	expr := p.expr(0)
 	field := ast.Const{
@@ -523,7 +518,7 @@ fn (mut p Parser) text_decl() ast.Stmt {
 		pos: pos
 		typ: .string
 	}
-	p.scope.register(field)
+	p.global_scope.register(field)
 	p.check(.semicolon)
 	return field
 }
@@ -664,6 +659,7 @@ fn (mut p Parser) parse_assign_stmt() ast.Stmt {
 
 fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 	p.check(.key_var)
+	mut pos := p.tok.position()
 	mut name := p.parse_ident()
 	if is_top_level && p.pref.backend == .decomp {
 		p.error('no se pueden declarar variables en el ámbito global en decomp')
@@ -673,7 +669,7 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 	}
 	mut type_var := ast.Type.unknown
 	if p.tok.kind == .key_at {
-		pos := p.tok.position()
+		pos = p.tok.position()
 		p.next()
 		offset := p.tok.lit
 		p.check(.number)
@@ -684,9 +680,6 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 		p.check(.colon)
 		type_var = p.parse_type()
 		p.check(.semicolon)
-		if p.scope.known_var(name.name) {
-			p.error_with_pos("redefinición de '$name.name'", name.pos)
-		}
 		obj := ast.ScopeObject(ast.Var{
 			name: name.name
 			offset: offset
@@ -694,13 +687,14 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 			is_used: p.file_name in builtins
 		})
 		name.obj = obj
-		p.scope.register(obj)
+		p.global_scope.register(obj)
 		return ast.AssignStmt{
 			left: name
 			offset: offset
 			pos: pos
 			left_type: type_var
 			is_decl: true
+			is_global: true
 		}
 	}
 	if p.tok.kind == .colon {
@@ -711,7 +705,6 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 		p.error('no se pueden definir variables en el ámbito global')
 	}
 	p.next()
-	pos := p.tok.position()
 	expr := p.expr(0)
 	p.check_undefined_variables(name, expr)
 	p.check(.semicolon)

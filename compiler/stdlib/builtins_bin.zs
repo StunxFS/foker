@@ -1,5 +1,6 @@
 /*
-* builtins_bin.zs contiene variables, constantes y mucho más
+* builtins_bin.zs contiene variables y constantes útiles para el ROMHacking
+* binario.
 */
 
 //! Para comparar los resultados de ciertos comandos que utilizan esta
@@ -722,41 +723,45 @@ const SP_CATCHPKMN = 0x9D;
 const SP_FRNATIONAL = 0x16F;
 const SP_EMNATIONAL = 0x1F3;
 
-var RS_PKMNMENU at 0x800: bool /* o flag */;
-var RS_POKEDEX at 0x801: bool /* o flag */;
-var RS_POKENAV at 0x802: bool /* o flag */;
-var RS_RUNNINGSHOES at 0x860: bool /* o flag */;
-var RS_BADGE1 at 0x807: bool /* o flag */;
-var RS_BADGE2 at 0x808: bool /* o flag */;
-var RS_BADGE3 at 0x809: bool /* o flag */;
-var RS_BADGE4 at 0x80A: bool /* o flag */;
-var RS_BADGE5 at 0x80B: bool /* o flag */;
-var RS_BADGE6 at 0x80C: bool /* o flag */;
-var RS_BADGE7 at 0x80D: bool /* o flag */;
-var RS_BADGE8 at 0x80E: bool /* o flag */;
-var EM_PKMNMENU at 0x860: bool /* o flag */;
-var EM_POKEDEX at 0x861: bool /* o flag */;
-var EM_POKENAV at 0x862: bool /* o flag */;
-var EM_RUNNINGSHOES at 0x8C0: bool /* o flag */;
-var EM_BADGE1 at 0x867: bool /* o flag */;
-var EM_BADGE2 at 0x868: bool /* o flag */;
-var EM_BADGE3 at 0x869: bool /* o flag */;
-var EM_BADGE4 at 0x86A: bool /* o flag */;
-var EM_BADGE5 at 0x86B: bool /* o flag */;
-var EM_BADGE6 at 0x86C: bool /* o flag */;
-var EM_BADGE7 at 0x86D: bool /* o flag */;
-var EM_BADGE8 at 0x86E: bool /* o flag */;
-var FR_PKMNMENU at 0x828: bool /* o flag */;
-var FR_POKEDEX at 0x829: bool /* o flag */;
-var FR_RUNNINGSHOES at 0x82F: bool /* o flag */;
-var FR_BADGE1 at 0x820: bool /* o flag */;
-var FR_BADGE2 at 0x821: bool /* o flag */;
-var FR_BADGE3 at 0x822: bool /* o flag */;
-var FR_BADGE4 at 0x823: bool /* o flag */;
-var FR_BADGE5 at 0x824: bool /* o flag */;
-var FR_BADGE6 at 0x825: bool /* o flag */;
-var FR_BADGE7 at 0x826: bool /* o flag */;
-var FR_BADGE8 at 0x827: bool /* o flag */;
+#if __RUBY_SAPPHIRE__
+    var PKMNMENU at 0x800: bool /* o flag */;
+    var POKEDEX at 0x801: bool /* o flag */;
+    var POKENAV at 0x802: bool /* o flag */;
+    var RUNNINGSHOES at 0x860: bool /* o flag */;
+    var BADGE1 at 0x807: bool /* o flag */;
+    var BADGE2 at 0x808: bool /* o flag */;
+    var BADGE3 at 0x809: bool /* o flag */;
+    var BADGE4 at 0x80A: bool /* o flag */;
+    var BADGE5 at 0x80B: bool /* o flag */;
+    var BADGE6 at 0x80C: bool /* o flag */;
+    var BADGE7 at 0x80D: bool /* o flag */;
+    var BADGE8 at 0x80E: bool /* o flag */;
+#elif __EMERALD__
+    var PKMNMENU at 0x860: bool /* o flag */;
+    var POKEDEX at 0x861: bool /* o flag */;
+    var POKENAV at 0x862: bool /* o flag */;
+    var RUNNINGSHOES at 0x8C0: bool /* o flag */;
+    var BADGE1 at 0x867: bool /* o flag */;
+    var BADGE2 at 0x868: bool /* o flag */;
+    var BADGE3 at 0x869: bool /* o flag */;
+    var BADGE4 at 0x86A: bool /* o flag */;
+    var BADGE5 at 0x86B: bool /* o flag */;
+    var BADGE6 at 0x86C: bool /* o flag */;
+    var BADGE7 at 0x86D: bool /* o flag */;
+    var BADGE8 at 0x86E: bool /* o flag */;
+#else
+    var PKMNMENU at 0x828: bool /* o flag */;
+    var POKEDEX at 0x829: bool /* o flag */;
+    var RUNNINGSHOES at 0x82F: bool /* o flag */;
+    var BADGE1 at 0x820: bool /* o flag */;
+    var BADGE2 at 0x821: bool /* o flag */;
+    var BADGE3 at 0x822: bool /* o flag */;
+    var BADGE4 at 0x823: bool /* o flag */;
+    var BADGE5 at 0x824: bool /* o flag */;
+    var BADGE6 at 0x825: bool /* o flag */;
+    var BADGE7 at 0x826: bool /* o flag */;
+    var BADGE8 at 0x827: bool /* o flag */;
+#endif
 
 // Desde: "stdattacks.rbh"
 const ATK_NONE = 0x0;

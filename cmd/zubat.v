@@ -27,6 +27,9 @@ mut:
 	pref         prefs.Preferences
 	table        ast.Table
 	parsed_files []ast.File
+	global_scope &ast.Scope = &ast.Scope{
+	parent: 0
+}
 }
 
 fn new_builder() Builder {
@@ -44,8 +47,9 @@ fn (mut b Builder) compile() {
 		util.emanager.set_support_color(false)
 	}
 	mut imports := []string{}
-	b.parsed_files << parser.parse_file(parser.builtins_file, b.table, b.pref)
-	b.parsed_files << parser.parse_file(b.pref.file, b.table, b.pref)
+	b.parsed_files <<
+		parser.parse_file(parser.builtins_file, b.table, b.pref, b.global_scope)
+	b.parsed_files << parser.parse_file(b.pref.file, b.table, b.pref, b.global_scope)
 	curdir := os.getwd()
 	os.chdir(os.dir(b.pref.file))
 	for i := 0; i < b.parsed_files.len; i++ {
@@ -54,7 +58,7 @@ fn (mut b Builder) compile() {
 			if f.file in imports {
 				continue
 			}
-			b.parsed_files << parser.parse_file(f.file, b.table, b.pref)
+			b.parsed_files << parser.parse_file(f.file, b.table, b.pref, b.global_scope)
 			imports << f.file
 		}
 	}
