@@ -1555,7 +1555,12 @@ const DEC_REGISTEELDOLL = 0x78;
 cmd msgbox(
 	msg: string
 #if BINARY
-	, type: int = 6
+	, type: int
 #endif
 );
 alias msg = msgbox;
+
+// TODO: Soporte de macros:
+// macro msgbox6 {
+//     ($msg: expr) => msgbox($msg, 6);
+// }

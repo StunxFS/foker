@@ -30,33 +30,15 @@ pub fn (mut c Checker) expr(node ast.Expr) ast.Type {
 		return .unknown
 	}
 	match mut node {
-		ast.BoolLiteral {
-			return .bool
-		}
-		ast.Ident {
-			return c.ident(mut node)
-		}
-		ast.IntegerLiteral {
-			return .int
-		}
-		ast.StringLiteral, ast.FmtStringLiteral {
-			return .string
-		}
-		ast.MovementExpr {
-			return .movement
-		}
-		ast.InfixExpr {
-			return c.infix_expr(mut node)
-		}
-		ast.PostfixExpr {
-			return c.postfix_expr(mut node)
-		}
-		ast.PrefixExpr {
-			return c.prefix_expr(mut node)
-		}
-		ast.ParExpr {
-			return c.expr(node.expr)
-		}
+		ast.BoolLiteral { return .bool }
+		ast.Ident { return c.ident(mut node) }
+		ast.IntegerLiteral { return .int }
+		ast.StringLiteral, ast.FmtStringLiteral { return .string }
+		ast.MovementExpr { return .movement }
+		ast.InfixExpr { return c.infix_expr(mut node) }
+		ast.PostfixExpr { return c.postfix_expr(mut node) }
+		ast.PrefixExpr { return c.prefix_expr(mut node) }
+		ast.ParExpr { return c.expr(node.expr) }
 	}
 	return .unknown
 }

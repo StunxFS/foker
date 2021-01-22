@@ -73,10 +73,13 @@ pub fn (mut g Gen) top_stmt(node ast.Stmt) {
 	match mut node {
 		ast.Const {
 			if node.typ == .int {
-				g.defines.writeln('#define $node.name ${g.define_expr(node.expr).str()}')
+				str := g.define_expr(node.expr).str()
+				g.defines.writeln('#define $node.name $str')
 			}
 		}
-		ast.ScriptDecl { g.snippets.writeln('#org @$node.name\n') }
+		ast.ScriptDecl {
+			g.snippets.writeln('#org @$node.name\n')
+		}
 		else {}
 	}
 }

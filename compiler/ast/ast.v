@@ -24,9 +24,9 @@ pub mut:
 
 pub struct Const {
 pub:
-	name   string
-	expr   Expr
-	pos    token.Position
+	name string
+	expr Expr
+	pos  token.Position
 pub mut:
 	typ Type
 }
@@ -96,11 +96,9 @@ pub mut:
 
 pub struct Param {
 pub:
-	name        string
-	typ         Type
-	pos         token.Position
-	def_value   Expr // para valores por defecto
-	has_def_val bool
+	name string
+	typ  Type
+	pos  token.Position
 }
 
 // para: extern cmd msgbox(msg: string, type: byte = 6);

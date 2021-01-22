@@ -15,8 +15,7 @@ script my_script {}
 
 script main {
 	msgbox("Hola mundo!");
-	msgbox(2020, name: arg);
+	msgbox(2020, arg);
 	call my_script;
 	if BOOLEAN {}
 }
-

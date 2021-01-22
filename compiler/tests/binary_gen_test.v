@@ -1,5 +1,5 @@
 import os
-import gen.binary as bin
+import compiler.gen.binary as bin
 
 fn test_simple_gen() {
 	mut script := bin.new_fscript('main')

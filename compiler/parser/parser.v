@@ -9,8 +9,6 @@ import compiler.util
 import compiler.scanner
 import compiler.ast
 
-// TODO: Mover los chequeos de existencia de comandos y alias, y scripts
-// al checker.
 const (
 	exepath       = os.dir(os.real_path(prefs.zsexe_path()))
 	builtins_file = os.join_path(exepath, 'compiler', 'stdlib', 'builtins.zs')
@@ -299,7 +297,6 @@ fn (mut p Parser) parse_alias_stmt() ast.Stmt {
 	p.check(.key_alias)
 	alias_name_pos := p.tok.position()
 	alias_name := p.check_name()
-	/*
 	ecmd1, alias1 := p.table.exists_cmd(alias_name)
 	if alias1 {
 		p.error_with_pos('ya existe un alias con este nombre, por favor use otro', alias_name_pos)
@@ -307,11 +304,9 @@ fn (mut p Parser) parse_alias_stmt() ast.Stmt {
 	if ecmd1 {
 		p.error_with_pos('ya existe un comando con este nombre, por favor use otro', alias_name_pos)
 	}
-	*/
 	p.check(.assign)
-	// alias_target_pos := p.tok.position()
+	alias_target_pos := p.tok.position()
 	alias_target := p.check_name()
-	/*
 	ecmd, alias := p.table.exists_cmd(alias_target)
 	if alias {
 		p.error_with_pos('no se puede declarar un alias para otro alias', alias_target_pos)
@@ -319,7 +314,6 @@ fn (mut p Parser) parse_alias_stmt() ast.Stmt {
 	if !ecmd {
 		p.error_with_pos('no existe un comando con este nombre', alias_target_pos)
 	}
-	*/
 	p.check(.semicolon)
 	if p.file_name == builtins_file {
 		p.table.builtins_cmds << alias_name
@@ -345,23 +339,10 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 		params_name << param_name
 		p.check(.colon)
 		typ_param := p.parse_type()
-		if p.tok.kind == .assign {
-			p.next()
-			expr := p.expr(0)
-			params << ast.Param{
-				name: param_name
-				typ: typ_param
-				pos: pos
-				def_value: expr
-				has_def_val: true
-			}
-		} else {
-			params << ast.Param{
-				name: param_name
-				typ: typ_param
-				pos: pos
-				has_def_val: false
-			}
+		params << ast.Param{
+			name: param_name
+			typ: typ_param
+			pos: pos
 		}
 		if p.tok.kind == .comma {
 			p.next()
@@ -370,7 +351,6 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 	}
 	p.check(.rparen)
 	p.check(.semicolon)
-	/*
 	ecmd, is_alias := p.table.exists_cmd(name)
 	if ecmd || is_alias {
 		is_builtin := name in p.table.builtins_cmds
@@ -389,17 +369,6 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 					p.table.cmds[name].pos, builtins_file)
 			} else {
 				p.error_and_warn(msg, name_pos, 'previamente declarado aquí', p.table.cmds[name].pos)
-			}
-		}
-	}
-	*/
-	// chequear el correcto uso de la declaración de parámetros
-	bad_msg := 'los parámetros opcionales deben aparecer después de todos los parámetros obligatorios'
-	for i, param in params {
-		next_n := i + 1
-		if next_n < params.len {
-			if param.has_def_val && !params[next_n].has_def_val {
-				p.error_with_pos(bad_msg, param.pos)
 			}
 		}
 	}
@@ -478,12 +447,10 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	}
 	mut stmts := p.parse_block()
 	spenp := script_pos.extend(name_pos)
-	/*
 	if p.table.exists_script(script_name) {
 		p.error_and_warn("duplicación del script '$script_name'", spenp, 'esto fue previamente declarado aquí',
 			p.table.scripts[script_name].pos)
 	}
-	*/
 	cmd := ast.ScriptDecl{
 		name: script_name
 		is_extern: is_extern
@@ -724,7 +691,6 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 	pos := p.tok.position()
 	expr := p.expr(0)
 	p.check_undefined_variables(name, expr)
-	// println('var stmt: "${name}", expr: ${expr}')
 	p.check(.semicolon)
 	if p.scope.known_var(name.name) {
 		p.error_with_pos("redefinición de '$name.name'", name.pos)
@@ -760,15 +726,6 @@ fn (mut p Parser) parse_free_stmt() ast.Stmt {
 fn (mut p Parser) parse_call_stmt() ast.Stmt {
 	cmd_pos := p.tok.position()
 	cmd_name := p.check_name()
-	/*
-	ecmd, is_alias := p.table.exists_cmd(cmd_name)
-	if !ecmd && !is_alias {
-		p.error_with_pos("no existe un comando con este nombre", cmd_pos)
-	}
-	if is_alias {
-		cmd_name = p.table.alias[cmd_name].target
-	}
-	*/
 	p.check(.lparen)
 	args := p.parse_call_args()
 	last_pos := p.tok.position()
@@ -790,26 +747,11 @@ fn (mut p Parser) parse_call_args() []ast.CallArg {
 				start_pos)
 		}
 		arg_start_pos := p.tok.position()
-		if p.tok.kind == .name && p.peek_tok.kind == .colon {
-			// optional argument
-			name := p.tok.lit
-			p.next()
-			p.check(.colon)
-			e := p.expr(0)
-			pos := arg_start_pos.extend(p.prev_tok.position())
-			args << ast.CallArg{
-				name: name
-				expr: e
-				pos: pos
-				is_opt: true
-			}
-		} else {
-			e := p.expr(0)
-			pos := arg_start_pos.extend(p.prev_tok.position())
-			args << ast.CallArg{
-				expr: e
-				pos: pos
-			}
+		e := p.expr(0)
+		pos := arg_start_pos.extend(p.prev_tok.position())
+		args << ast.CallArg{
+			expr: e
+			pos: pos
 		}
 		if p.tok.kind != .rparen {
 			p.check(.comma)

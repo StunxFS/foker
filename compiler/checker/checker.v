@@ -8,8 +8,8 @@ module checker
 import compiler.util
 import compiler.ast
 import compiler.prefs
-//import compiler.errors
 
+// import compiler.errors
 const (
 	max_nr_errors                 = 300
 	match_exhaustive_cutoff_limit = 10
@@ -20,12 +20,12 @@ const (
 pub struct Checker {
 	pref &prefs.Preferences
 pub mut:
-	table         &ast.Table
-	file          &ast.File = 0
-	nr_errors     int
-	nr_warnings   int
-	//errors        []errors.Report
-	//warnings      []errors.Report
+	table       &ast.Table
+	file        &ast.File = 0
+	nr_errors   int
+	nr_warnings int
+	// errors        []errors.Report
+	// warnings      []errors.Report
 	error_lines   []int // para evitar imprimir multiple errores para la misma linea :)
 	expected_type ast.Type
 	cur_script    &ast.ScriptDecl
