@@ -56,7 +56,7 @@ pub fn (mut c Checker) check(ast_file &ast.File) {
 	c.check_scope_vars(c.file.prog.scope)
 }
 
-pub fn (mut c Checker) check_files(ast_files []ast.File) {
+pub fn (mut c Checker) check_files(mut ast_files []ast.File) {
 	for mut ast_file in ast_files {
 		c.check(ast_file)
 	}

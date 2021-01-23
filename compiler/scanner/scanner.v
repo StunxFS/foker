@@ -50,7 +50,7 @@ pub fn new_scanner(text string, pref &prefs.Preferences) &Scanner {
 
 pub fn new_scanner_file(file_path string, pref &prefs.Preferences) &Scanner {
 	if !os.exists(file_path) {
-		util.err('$file_path no existe')
+		util.err('el archivo de scripts "$file_path" no existe')
 	}
 	raw_text := util.read_file(file_path) or {
 		util.err(err)
@@ -198,7 +198,8 @@ fn (mut s Scanner) end_of_file() token.Token {
 	s.eofs++
 	if s.eofs > 50 {
 		s.line_nr--
-		panic('el final del archivo `$s.file_path` ya se ha alcanzado 50 veces, el analizador de ZubatScript probablemente esté bloqueado.\n' +
+		panic(
+			'el final del archivo `$s.file_path` ya se ha alcanzado 50 veces, el analizador de ZubatScript probablemente esté bloqueado.\n' +
 			'Esto no debería suceder. Informe el error aquí e incluya las últimas 2-3 líneas de su código fuente:\n' +
 			'https://github.com/StunxFS/zubat/issues/new?labels=Bug')
 	}

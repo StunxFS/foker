@@ -47,8 +47,7 @@ fn (mut b Builder) compile() {
 		util.emanager.set_support_color(false)
 	}
 	mut imports := []string{}
-	b.parsed_files <<
-		parser.parse_file(parser.builtins_file, b.table, b.pref, b.global_scope)
+	b.parsed_files << parser.parse_file(parser.builtins_file, b.table, b.pref, b.global_scope)
 	b.parsed_files << parser.parse_file(b.pref.file, b.table, b.pref, b.global_scope)
 	curdir := os.getwd()
 	os.chdir(os.dir(b.pref.file))
@@ -65,7 +64,7 @@ fn (mut b Builder) compile() {
 	b.deps_graph()
 	if !b.pref.only_check_syntax {
 		mut c := checker.new_checker(b.table, b.pref)
-		c.check_files(b.parsed_files)
+		c.check_files(mut b.parsed_files)
 		mut err_count := 0
 		for file in b.parsed_files {
 			err_count += show_reports(file.reports)
@@ -76,13 +75,13 @@ fn (mut b Builder) compile() {
 		os.chdir(curdir)
 		match b.pref.backend {
 			.binary {
-				make_rbh_file := b.pref.rom == ''
+				/*make_rbh_file := b.pref.rom == ''
 				if make_rbh_file { // generar un archivo .rbh
-					mut gen := binary.new_gen(b.pref, b.table)
-					gen.gen_from_files(b.parsed_files)
+					//mut gen := binary.new_gen(b.pref, b.table)
+					//gen.gen_from_files(mut b.parsed_files)
 				} else {
 					// TODO: Inyección directa en la ROM
-				}
+				}*/
 			}
 			.decomp {
 				// TODO: decomp.generate(file)

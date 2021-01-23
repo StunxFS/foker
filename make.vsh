@@ -50,7 +50,7 @@ match cmd {
 		println('> Compilando a ZubatScript...')
 		if system('v -o $exe_name cmd/zubat.v') == 0 {
 			println('> Ejecutando el ejecutable generado para ver si funciona...')
-			system('./zubat compiler/tests/zubat_test.zs')
+			system('./zubat -verbose compiler/tests/zubat_test.zs')
 		}
 	}
 	'test' {

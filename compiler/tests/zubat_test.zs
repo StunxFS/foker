@@ -1,5 +1,5 @@
 // ZubatTest | ValenLoveForever
-import "Z2.zs";
+//import "Z2.zs";
 
 const ANIO_ACTUAL = 2020;
 const AGE = ANIO_ACTUAL - 1971;
@@ -21,5 +21,4 @@ script main {
 	if BOOLEAN {}
 	//var myvar: bool = 4;
 	//myvar = 2020;
-	call duper;
 }

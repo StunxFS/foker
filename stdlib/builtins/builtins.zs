@@ -4,9 +4,9 @@
 */
 
 #if __BINARY__
-import std:"builtins_bin.zs";
+import std:"builtins/builtins.bin.zs";
 #else
-import std:"builtins_decomp.zs"; // __DECOMP__
+import std:"builtins/builtins.decomp.zs"; // __DECOMP__
 #endif
 
 //! Comandos básicos de ROMHacking

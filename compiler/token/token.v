@@ -106,6 +106,7 @@ pub enum Kind {
 	key_alias
 	key_call // para: call my_script;
 	key_raw
+	key_pub
 	key_match
 	key_if
 	key_elif
@@ -210,6 +211,7 @@ fn build_tokenstr() []string {
 	k[Kind.key_alias] = 'alias'
 	k[Kind.key_call] = 'call'
 	k[Kind.key_raw] = 'raw'
+	k[Kind.key_pub] = 'pub'
 	k[Kind.key_match] = 'match'
 	k[Kind.key_if] = 'if'
 	k[Kind.key_elif] = 'elif'
@@ -288,12 +290,7 @@ pub fn (tok Token) is_scalar() bool {
 // is_unary returns true if the token can be in a unary expression
 pub fn (tok Token) is_unary() bool {
 	//`+` | `-` | `!` `*`
-	return tok.kind in [
-		.plus,
-		.minus,
-		.key_not,
-		.mul,
-	]
+	return tok.kind in [.plus, .minus, .key_not, .mul]
 }
 
 pub fn (kind Kind) is_relational() bool {
@@ -306,8 +303,7 @@ pub fn (kind Kind) is_prefix() bool {
 }
 
 pub fn (kind Kind) is_infix() bool {
-	return kind in
-		[.plus, .minus, .mul, .div, .eq, .neq, .gt, .lt, .gte, .lte, .key_or, .key_and]
+	return kind in [.plus, .minus, .mul, .div, .eq, .neq, .gt, .lt, .gte, .lte, .key_or, .key_and]
 }
 
 pub fn (kind Kind) is_assign() bool {

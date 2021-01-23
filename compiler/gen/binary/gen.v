@@ -34,7 +34,7 @@ pub fn new_gen(prefs &prefs.Preferences, table &ast.Table) Gen {
 	}
 }
 
-pub fn (mut g Gen) gen_from_files(files []ast.File) {
+pub fn (mut g Gen) gen_from_files(mut files []ast.File) {
 	g.header.writeln('; Generado automáticamente con ZubatScript v$about.version $about.status')
 	g.header.writeln('; Creado por: StunxFS | ADVERTENCIA: No modificar sin saber del tema')
 	for mut file in files {

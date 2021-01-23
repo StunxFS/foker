@@ -7,13 +7,15 @@ import compiler.token
 import compiler.prefs
 import compiler.scanner
 import compiler.ast
+import compiler.util
 
 pub const (
 	exepath              = os.dir(os.real_path(prefs.zsexe_path()))
-	stdlib_path          = os.join_path(exepath, 'compiler', 'stdlib')
-	builtins_file        = os.join_path(exepath, 'compiler', 'stdlib', 'builtins.zs')
-	builtins_bin_file    = os.join_path(exepath, 'compiler', 'stdlib', 'builtins_bin.zs')
-	builtins_decomp_file = os.join_path(exepath, 'compiler', 'stdlib', 'builtins_decomp.zs')
+	stdlib_path          = os.join_path(exepath, 'stdlib')
+	builtins_path        = os.join_path(stdlib_path, 'builtins')
+	builtins_file        = os.join_path(builtins_path, 'builtins.zs')
+	builtins_bin_file    = os.join_path(builtins_path, 'builtins.bin.zs')
+	builtins_decomp_file = os.join_path(builtins_path, 'builtins.decomp.zs')
 	builtins             = [builtins_file, builtins_bin_file, builtins_decomp_file]
 )
 
@@ -39,6 +41,8 @@ mut:
 	inside_for      bool
 	movs_tmp        int
 	imports         []string // importes locales, para evitar duplicación
+	is_main         bool
+	is_builtin      bool
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
@@ -79,6 +83,8 @@ pub fn (mut p Parser) parse() ast.File {
 	p.read_first_token()
 	mut stmts := []ast.Stmt{}
 	mut imports := []ast.Import{}
+	p.is_main = p.file_name == p.pref.file
+	p.is_builtin = p.file_name in builtins
 	if p.pref.is_verbose {
 		println("> Parseando archivo '$p.file_name'")
 	}
@@ -206,17 +212,22 @@ fn (mut p Parser) check_name() string {
 fn (mut p Parser) import_stmt() ast.Import {
 	p.check(.key_import)
 	mut is_std := false
+	mut pos := p.tok.position()
 	if p.tok.kind == .name {
 		if p.tok.lit != 'std' {
 			p.error("se espera 'std:'")
 		}
 		p.check(.name)
 		p.check(.colon)
+		pos = pos.extend(p.tok.position())
 		is_std = true
 	}
-	pos := p.tok.position()
 	to_import := p.tok.lit.replace('/', os.path_separator)
 	file := if is_std { os.join_path(stdlib_path, to_import) } else { to_import }
+	if file in builtins && !p.is_builtin {
+		p.error('los archivos builtins no se pueden importar')
+	}
+	pos = pos.extend(p.tok.position())
 	if file in p.imports {
 		p.error('el archivo a importar ya está importado')
 	}
@@ -415,12 +426,16 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	if is_extern {
 		p.next()
 	}
-	if p.file_name == builtins_file {
-		p.error('no se pueden declarar scripts en el archivo de builtins')
+	if p.is_builtin {
+		p.error('no se pueden declarar scripts en los archivos de builtins')
 	}
 	script_pos := p.tok.position()
 	p.check(.key_script)
 	name_pos := p.tok.position()
+	if p.pref.rom == '' && !p.is_main {
+		p.error('no se pueden declarar scripts en archivos importados, ' +
+			'esto solo está permitido en el modo de inyección directa en la ROM')
+	}
 	script_name := p.check_name()
 	p.cur_script_name = script_name
 	if is_extern { // extern script name; | extern script name2 at 0x90034;
@@ -684,7 +699,7 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 			name: name.name
 			offset: offset
 			pos: name.pos
-			is_used: p.file_name in builtins
+			is_used: p.is_builtin
 		})
 		name.obj = obj
 		p.global_scope.register(obj)
