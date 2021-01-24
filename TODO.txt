@@ -1,7 +1,3 @@
 # Una lista de tareas por hacer, en este caso, para la versión 0.1.0:
-+ = Completado
-- = Por hacer
 
-# Para la versión 0.1.0
-- Soporte completo de expresiones
 - Generación optimizada de código XSE
