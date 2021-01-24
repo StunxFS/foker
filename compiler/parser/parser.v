@@ -7,16 +7,12 @@ import compiler.token
 import compiler.prefs
 import compiler.scanner
 import compiler.ast
-import compiler.util
 
 pub const (
-	exepath              = os.dir(os.real_path(prefs.zsexe_path()))
-	stdlib_path          = os.join_path(exepath, 'stdlib')
-	builtins_path        = os.join_path(stdlib_path, 'builtins')
-	builtins_file        = os.join_path(builtins_path, 'builtins.zs')
-	builtins_bin_file    = os.join_path(builtins_path, 'builtins.bin.zs')
-	builtins_decomp_file = os.join_path(builtins_path, 'builtins.decomp.zs')
-	builtins             = [builtins_file, builtins_bin_file, builtins_decomp_file]
+	exepath       = os.dir(os.real_path(prefs.zsexe_path()))
+	stdlib_path   = os.join_path(exepath, 'stdlib')
+	builtins_path = os.join_path(stdlib_path, 'builtins')
+	builtins_file = os.join_path(builtins_path, 'builtins.zs')
 )
 
 pub struct Parser {
@@ -84,7 +80,7 @@ pub fn (mut p Parser) parse() ast.File {
 	mut stmts := []ast.Stmt{}
 	mut imports := []ast.Import{}
 	p.is_main = p.file_name == p.pref.file
-	p.is_builtin = p.file_name in builtins
+	p.is_builtin = p.file_name.starts_with(parser.builtins_path)
 	if p.pref.is_verbose {
 		println("> Parseando archivo '$p.file_name'")
 	}
@@ -209,35 +205,68 @@ fn (mut p Parser) check_name() string {
 	return name
 }
 
-fn (mut p Parser) import_stmt() ast.Import {
+fn (mut p Parser) import_stmt() []ast.Import {
 	p.check(.key_import)
 	mut is_std := false
-	mut pos := p.tok.position()
+	mut import_all := false
+	mut imports := []ast.Import{}
 	if p.tok.kind == .name {
 		if p.tok.lit != 'std' {
-			p.error("se espera 'std:'")
+			p.error("se esperaba 'std:'")
 		}
 		p.check(.name)
 		p.check(.colon)
-		pos = pos.extend(p.tok.position())
 		is_std = true
 	}
-	to_import := p.tok.lit.replace('/', os.path_separator)
-	file := if is_std { os.join_path(stdlib_path, to_import) } else { to_import }
-	if file in builtins && !p.is_builtin {
+	pos := p.tok.position()
+	mut to_import := p.tok.lit
+	p.check(.string)
+	if p.tok.kind == .colon {
+		p.next()
+		p.check(.mul)
+		import_all = true
+	}
+	$if windows {
+		to_import = to_import.replace('/', os.path_separator)
+	}
+	to_import = if is_std { os.join_path(parser.stdlib_path, to_import) } else { to_import }
+	if to_import.starts_with(parser.builtins_path) && !p.is_builtin {
 		p.error('los archivos builtins no se pueden importar')
 	}
-	pos = pos.extend(p.tok.position())
-	if file in p.imports {
-		p.error('el archivo a importar ya está importado')
+	if !import_all {
+		if to_import in p.imports {
+			p.error('este archivo ya está importado')
+		}
+		p.imports << to_import
+		imports << ast.Import{
+			pos: pos
+			file: to_import
+		}
+	} else {
+		curdir := os.getwd()
+		os.chdir(os.dir(p.pref.file))
+		if !os.is_dir(to_import) {
+			p.error_with_pos('se espera un directorio existente', pos)
+		}
+		files_to_import := os.walk_ext(to_import, '.zs')
+		os.chdir(curdir)
+		if files_to_import.len == 0 {
+			p.error_with_pos('no se encontraron archivos de scripts en esta carpeta',
+				pos)
+		}
+		for file_to_import in files_to_import {
+			if file_to_import in p.imports {
+				continue
+			}
+			p.imports << file_to_import
+			imports << ast.Import{
+				pos: pos
+				file: file_to_import
+			}
+		}
 	}
-	p.imports << file
-	p.check(.string)
 	p.check(.semicolon)
-	return ast.Import{
-		pos: pos
-		file: file
-	}
+	return imports
 }
 
 pub fn (mut p Parser) top_stmt() ast.Stmt {
@@ -249,6 +278,12 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 			}
 			.key_import {
 				p.error("'import' solo puede ir al comienzo del archivo")
+			}
+			.key_pub {
+				match p.peek_tok.kind {
+					.key_script { return p.script_stmt() }
+					else { p.error("mal uso de la palabra clave 'pub'") }
+				}
 			}
 			.key_script {
 				return p.script_stmt()
@@ -326,7 +361,7 @@ fn (mut p Parser) parse_alias_stmt() ast.Stmt {
 		p.error_with_pos('no existe un comando con este nombre', alias_target_pos)
 	}
 	p.check(.semicolon)
-	if p.file_name == builtins_file {
+	if p.file_name == parser.builtins_file {
 		p.table.builtins_cmds << alias_name
 	}
 	p.table.alias[alias_name] = ast.Alias{alias_target, alias_name_pos}
@@ -383,7 +418,7 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 			}
 		}
 	}
-	if p.file_name == builtins_file {
+	if p.is_builtin {
 		p.table.builtins_cmds << name
 	}
 	cmd := ast.CmdDecl{
@@ -432,25 +467,27 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	script_pos := p.tok.position()
 	p.check(.key_script)
 	name_pos := p.tok.position()
-	if p.pref.rom == '' && !p.is_main {
-		p.error('no se pueden declarar scripts en archivos importados, ' +
-			'esto solo está permitido en el modo de inyección directa en la ROM')
-	}
 	script_name := p.check_name()
 	p.cur_script_name = script_name
+	if !is_extern && p.pref.rom == '' && !p.is_main {
+		p.error_with_pos('no se pueden declarar scripts en archivos importados, ' +
+			'esto solo está permitido para scripts externos y en el modo de inyección directa en la ROM',
+			name_pos)
+	}
 	if is_extern { // extern script name; | extern script name2 at 0x90034;
 		mut extern_offset := ''
 		if p.pref.backend == .binary && p.tok.kind == .key_at {
 			p.next()
 			extern_offset = p.tok.lit
+			eoff_pos := p.tok.position()
 			p.check(.number)
 			if !extern_offset.to_lower().starts_with('0x') {
-				p.error('se esperaba un offset/dirección')
+				p.error_with_pos('se esperaba un offset/dirección (0xXXXXX)', eoff_pos)
 			}
-			p.next()
 		} else {
-			p.error_with_pos('esta utilidad solo está disponible para el backend de binario',
-				p.tok.position().extend(p.peek_tok.position()))
+			p.error_with_pos(
+				'solo en el backend de decomp se puede usar esta forma de declaración, ' +
+				'en el backend de binario debe proporcionar un offset', name_pos)
 		}
 		p.check(.semicolon)
 		return ast.ScriptDecl{
@@ -622,11 +659,7 @@ fn (mut p Parser) parse_type() ast.Type {
 			p.prev_tok.position())
 	}
 	t := ast.get_type_from_string(typ_name)
-	return if t != .unknown {
-		t
-	} else {
-		ast.Type.unknown
-	}
+	return t
 }
 
 fn (mut p Parser) check_undefined_variables(expr ast.Expr, val ast.Expr) {
@@ -700,6 +733,7 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 			offset: offset
 			pos: name.pos
 			is_used: p.is_builtin
+			typ: type_var
 		})
 		name.obj = obj
 		p.global_scope.register(obj)
@@ -730,16 +764,17 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 		name: name.name
 		expr: expr
 		pos: name.pos
+		typ: type_var
 	})
 	name.obj = obj
 	p.scope.register(obj)
 	return ast.AssignStmt{
 		left: name
+		left_type: type_var
 		op: token.Kind.assign
 		right: expr
 		pos: pos
 		is_decl: true
-		left_type: type_var
 	}
 }
 

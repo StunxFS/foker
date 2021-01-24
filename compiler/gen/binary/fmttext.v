@@ -37,7 +37,7 @@ pub const (
 )
 
 pub fn (fw &FontsWidthsConfig) format_text(_text string, max_width int, font_id string) ?string {
-	if !fw.is_font_id_valid(font_id) && font_id.len > 0 && font_id != test_fontid {
+	if !fw.is_font_id_valid(font_id) && font_id.len > 0 && font_id != binary.test_fontid {
 		mut valid_fontids := []string{len: fw.fonts.len}
 		mut i := 0
 		for k, _ in fw.fonts {
@@ -187,14 +187,14 @@ fn (fw &FontsWidthsConfig) process_control_codes(word string, font_id string) (s
 }
 
 fn (fw &FontsWidthsConfig) get_rune_pixel_width(r rune, font_id string) int {
-	if font_id == test_fontid {
+	if font_id == binary.test_fontid {
 		return 10
 	}
 	return fw.read_width_from_font_config(r.str(), font_id)
 }
 
 fn (fw &FontsWidthsConfig) get_control_code_pixel_width(code string, font_id string) int {
-	if font_id == test_fontid {
+	if font_id == binary.test_fontid {
 		return 100
 	}
 	return fw.read_width_from_font_config(code, font_id)
@@ -210,12 +210,12 @@ const (
 
 fn (fw &FontsWidthsConfig) read_width_from_font_config(value string, font_id string) int {
 	if font_id !in fw.fonts {
-		return fallback_width
+		return binary.fallback_width
 	}
 	font := fw.fonts[font_id]
 	if value !in font {
 		if 'default' !in font {
-			return fallback_width
+			return binary.fallback_width
 		}
 		default_width := font['default']
 		return default_width

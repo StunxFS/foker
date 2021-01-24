@@ -2,6 +2,7 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module main
 
+// import compiler.gen.binary
 import os
 import v.depgraph
 import compiler.ast
@@ -11,7 +12,6 @@ import compiler.prefs
 import compiler.parser
 import compiler.errors
 import compiler.checker
-import compiler.gen.binary
 
 fn main() {
 	if os.args.len == 1 || (os.args.len == 2 && os.args[1] in ['-h', '-a', 'help', 'ayuda']) {
@@ -47,24 +47,31 @@ fn (mut b Builder) compile() {
 		util.emanager.set_support_color(false)
 	}
 	mut imports := []string{}
+	// Primero parseamos el archivo de bultins
 	b.parsed_files << parser.parse_file(parser.builtins_file, b.table, b.pref, b.global_scope)
+	// Luego parseamos el archivo de scripts a compilar
 	b.parsed_files << parser.parse_file(b.pref.file, b.table, b.pref, b.global_scope)
-	curdir := os.getwd()
-	os.chdir(os.dir(b.pref.file))
+	// Ahora vamos con los imports
+	file_dir := os.dir(b.pref.file)
 	for i := 0; i < b.parsed_files.len; i++ {
 		ast_file := b.parsed_files[i]
 		for f in ast_file.imports {
-			if f.file in imports {
+			mut f_file := if !f.file.starts_with(parser.builtins_path) { os.join_path(file_dir,
+					f.file) } else { f.file }
+			if f_file.starts_with('.' + os.path_separator) {
+				f_file = f_file[2..]
+			}
+			if f_file in imports {
 				continue
 			}
-			b.parsed_files << parser.parse_file(f.file, b.table, b.pref, b.global_scope)
-			imports << f.file
+			b.parsed_files << parser.parse_file(f_file, b.table, b.pref, b.global_scope)
+			imports << f_file
 		}
 	}
 	b.deps_graph()
 	if !b.pref.only_check_syntax {
 		mut c := checker.new_checker(b.table, b.pref)
-		c.check_files(mut b.parsed_files)
+		c.check_files(b.parsed_files)
 		mut err_count := 0
 		for file in b.parsed_files {
 			err_count += show_reports(file.reports)
@@ -72,16 +79,17 @@ fn (mut b Builder) compile() {
 		if err_count > 0 {
 			exit(1)
 		}
-		os.chdir(curdir)
 		match b.pref.backend {
 			.binary {
-				/*make_rbh_file := b.pref.rom == ''
+				/*
+				make_rbh_file := b.pref.rom == ''
 				if make_rbh_file { // generar un archivo .rbh
-					//mut gen := binary.new_gen(b.pref, b.table)
-					//gen.gen_from_files(mut b.parsed_files)
+					mut gen := binary.new_gen(b.pref, b.table)
+					gen.gen_from_files(b.parsed_files)
 				} else {
 					// TODO: Inyección directa en la ROM
-				}*/
+				}
+				*/
 			}
 			.decomp {
 				// TODO: decomp.generate(file)
@@ -124,7 +132,7 @@ fn (mut b Builder) import_graph() &depgraph.DepGraph {
 	mut graph := depgraph.new_dep_graph()
 	for p in b.parsed_files {
 		mut deps := []string{}
-		if p.path !in parser.builtins {
+		if !p.path.starts_with(parser.builtins_path) {
 			deps << parser.builtins_file
 		}
 		for m in p.imports {

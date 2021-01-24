@@ -56,12 +56,13 @@ pub fn (mut c Checker) check(ast_file &ast.File) {
 	c.check_scope_vars(c.file.prog.scope)
 }
 
-pub fn (mut c Checker) check_files(mut ast_files []ast.File) {
-	for mut ast_file in ast_files {
-		c.check(ast_file)
+pub fn (mut c Checker) check_files(ast_files []ast.File) {
+	for i in 0 .. ast_files.len {
+		file := unsafe { &ast_files[i] }
+		c.check(file)
 	}
 	if !c.pref.is_library && !c.has_main {
-		util.err('Este script no tiene una entrada principal (script main {})')
+		util.err('este script no tiene una entrada principal (script main {})')
 	}
 }
 
@@ -81,19 +82,6 @@ pub fn (mut c Checker) check_scope_vars(sc &ast.Scope) {
 	}
 }
 
-/*
-[inline]
-fn (mut c Checker) check_loop_label(label string, pos token.Position) {
-	if label.len == 0 {
-		return
-	}
-	if c.loop_label.len != 0 {
-		c.error("nesting of labelled 'for' loops is not supported", pos)
-		return
-	}
-	c.loop_label = label
-}
-*/
 fn (mut c Checker) stmt(node ast.Stmt) {
 	match mut node {
 		ast.AssignStmt {
@@ -154,8 +142,8 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 	}
 	// izquierda
 	is_decl := assign_stmt.is_decl
-	mut left_type := c.expr(assign_stmt.left)
 	left := assign_stmt.left
+	mut left_type := c.expr(left)
 	is_blank_ident := left.is_blank_ident()
 	// derecha
 	right := assign_stmt.right
@@ -165,6 +153,8 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 	if left_type == .unknown {
 		left_type = right_type
 	}
+	// println('left_type -> $left_type')
+	// println('right_type -> $right_type')
 	if (left_type == .string || right_type == .string) && is_decl {
 		c.error("no se puede declarar variables de tipo string, use 'text' para esto",
 			assign_stmt.pos)
@@ -188,7 +178,7 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 				mut is_large := false
 				if expr.lit.len > 8 {
 					val := expr.lit.i64()
-					if (!negative && val > int_max) || (negative && -val < int_min) {
+					if (!negative && val > checker.int_max) || (negative && -val < checker.int_min) {
 						is_large = true
 					}
 				}
@@ -208,7 +198,7 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 					c.error("no se puede modificar el identificador '_' en blanco", left.pos)
 				}
 			} else if left.obj !is ast.Var {
-				c.error("no se puede asignar a $left.kind '$left.name'", left.pos)
+				c.error("no se puede asignar a la $left.kind '$left.name'", left.pos)
 			} else {
 				if assign_stmt.left_type == .unknown {
 					assign_stmt.left_type = left_type
@@ -234,14 +224,15 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 			}
 		}
 	}
-	if !is_blank_ident && (is_decl && assign_stmt.offset == '') {
-		$if debug ? {
-			println('$left_type = $right_type')
-		}
-		// Dual sides check (compatibility check)
-		c.check_expected(right_type, left_type) or {
-			name := (left as ast.Ident).name
-			c.error("no se le puede asignar un valor a '$name': $err", right.position())
-		}
+	if is_blank_ident {
+		return
+	}
+	$if debug ? {
+		println('$left_type = $right_type')
+	}
+	// Dual sides check (compatibility check)
+	c.check_expected(right_type, left_type) or {
+		name := (left as ast.Ident).name
+		c.error("no se le puede asignar un valor a '$name', $err", right.position())
 	}
 }

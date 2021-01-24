@@ -90,7 +90,7 @@ fn filter_num_sep(txt byteptr, start int, end int) string {
 		mut b := malloc(end - start + 1) // add a byte for the endstring 0
 		mut i1 := 0
 		for i := start; i < end; i++ {
-			if txt[i] != num_sep {
+			if txt[i] != scanner.num_sep {
 				b[i1] = txt[i]
 				i1++
 			}
@@ -106,15 +106,15 @@ fn (mut s Scanner) ident_hex_number() string {
 	mut first_wrong_digit := `\0`
 	start_pos := s.pos
 	s.pos += 2 // skip '0x'
-	if s.text[s.pos] == num_sep {
+	if s.text[s.pos] == scanner.num_sep {
 		s.error('el separador `_` solo es válido entre dígitos en un literal numérico')
 	}
 	for s.pos < s.text.len {
 		c := s.text[s.pos]
-		if c == num_sep && s.text[s.pos + 1] == num_sep {
+		if c == scanner.num_sep && s.text[s.pos + 1] == scanner.num_sep {
 			s.error('no se puede usar `_` consecutivamente')
 		}
-		if !c.is_hex_digit() && c != num_sep {
+		if !c.is_hex_digit() && c != scanner.num_sep {
 			if !c.is_letter() {
 				break
 			} else if !has_wrong_digit {
@@ -125,7 +125,7 @@ fn (mut s Scanner) ident_hex_number() string {
 		}
 		s.pos++
 	}
-	if s.text[s.pos - 1] == num_sep {
+	if s.text[s.pos - 1] == scanner.num_sep {
 		s.error('no se puede utilizar `_` al final de un literal numérico')
 	} else if start_pos + 2 == s.pos {
 		s.pos-- // adjust error position
@@ -147,10 +147,10 @@ fn (mut s Scanner) ident_dec_number() string {
 	// scan integer part
 	for s.pos < s.text.len {
 		c := s.text[s.pos]
-		if c == num_sep && s.text[s.pos + 1] == num_sep {
+		if c == scanner.num_sep && s.text[s.pos + 1] == scanner.num_sep {
 			s.error('no se puede usar `_` consecutivamente')
 		}
-		if !c.is_digit() && c != num_sep {
+		if !c.is_digit() && c != scanner.num_sep {
 			if !c.is_letter() {
 				break
 			} else if !has_wrong_digit {
@@ -161,7 +161,7 @@ fn (mut s Scanner) ident_dec_number() string {
 		}
 		s.pos++
 	}
-	if s.text[s.pos - 1] == num_sep {
+	if s.text[s.pos - 1] == scanner.num_sep {
 		s.error('no se puede utilizar `_` al final de un literal numérico')
 	}
 	if has_wrong_digit {
@@ -289,7 +289,7 @@ pub fn (mut s Scanner) scan() token.Token {
 				}
 				return s.new_token(.mul, '', 1)
 			}
-			single_quote, double_quote {
+			scanner.single_quote, scanner.double_quote {
 				ident_string := s.ident_string()
 				return s.new_token(.string, ident_string, ident_string.len + 2) // + two quotes
 			}
@@ -404,7 +404,7 @@ pub fn (mut s Scanner) scan() token.Token {
 			`$` {
 				return s.new_token(.dollar, '', 1)
 			}
-			single_quote2 {
+			scanner.single_quote2 {
 				raw_text := s.read_raw_text()
 				return s.new_token(.raw_text, raw_text, raw_text.len + 2)
 			}
@@ -446,7 +446,7 @@ fn (mut s Scanner) read_raw_text() string {
 			s.error('texto raw sin terminar')
 		}
 		c := s.text[s.pos]
-		if c == single_quote2 {
+		if c == scanner.single_quote2 {
 			break
 		}
 		if c == `\r` {
@@ -457,7 +457,7 @@ fn (mut s Scanner) read_raw_text() string {
 		}
 	}
 	mut lit := ''
-	if s.text[start] == single_quote2 {
+	if s.text[start] == scanner.single_quote2 {
 		start++
 	}
 	end := s.pos
@@ -477,7 +477,7 @@ fn (mut s Scanner) read_raw_text() string {
 
 fn (mut s Scanner) ident_string() string {
 	q := s.text[s.pos]
-	is_quote := q == single_quote || q == double_quote
+	is_quote := q == scanner.single_quote || q == scanner.double_quote
 	if is_quote {
 		s.quote = q
 	}

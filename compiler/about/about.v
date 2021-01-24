@@ -18,8 +18,8 @@ pub fn help() {
 ZubatScript | Mensaje de Ayuda | Work In Progress
 =================================================
 Autor: StunxFS
-Fecha de compilación: $build_time
-Versión: $version $status
+Fecha de compilación: $about.build_time
+Versión: $about.version $about.status
 
 Descripción:
     Bienvenido al compilador oficial del proyecto ZubatScript.
@@ -29,11 +29,11 @@ Uso:
     $program [opciones] archivo.zs
 
 Información básica sobre los backends:
-    Versión del backend de binario: $emitter_bin_version
+    Versión del backend de binario: $about.emitter_bin_version
     Versión del backend de decomp: Aún no disponible [WIP].
 
 Argumentos:
-    archivo-fkr
+    archivo-zs
         Este argumento no se declara, sino que recibe el archivo de script .zs que será
         compilado.
         Ejemplo de uso:

@@ -30,8 +30,8 @@ pub fn (pos Position) str() string {
 }
 
 pub fn (pos Position) extend(end Position) Position {
-	return {
-		pos |
+	return Position{
+		...pos
 		len: end.pos - pos.pos + end.len
 	}
 }
@@ -132,7 +132,7 @@ pub fn (k Kind) is_keyword() bool {
 }
 
 pub fn (k Kind) str() string {
-	return tokens_str[int(k)]
+	return token.tokens_str[int(k)]
 }
 
 const (
@@ -146,7 +146,7 @@ const (
 pub fn build_keys() map[string]Kind {
 	mut res := map[string]Kind{}
 	for t in int(Kind.keyword_begin) + 1 .. int(Kind.keyword_end) {
-		key := tokens_str[t]
+		key := token.tokens_str[t]
 		res[key] = Kind(t)
 	}
 	return res
@@ -157,7 +157,7 @@ pub const (
 )
 
 fn build_tokenstr() []string {
-	mut k := []string{len: nr_tokens}
+	mut k := []string{len: token.nr_tokens}
 	k[Kind.unknown] = 'unknown'
 	k[Kind.eof] = 'eof'
 	k[Kind.name] = 'name'
@@ -279,7 +279,7 @@ const (
 )
 
 pub fn (tok Token) precedence() int {
-	return int(precedences[tok.kind])
+	return int(token.precedences[tok.kind])
 }
 
 // is_scalar returns true if the token is a scalar
@@ -290,7 +290,7 @@ pub fn (tok Token) is_scalar() bool {
 // is_unary returns true if the token can be in a unary expression
 pub fn (tok Token) is_unary() bool {
 	//`+` | `-` | `!` `*`
-	return tok.kind in [.plus, .minus, .key_not, .mul]
+	return tok.kind in [.plus, .minus, .bang, .mul]
 }
 
 pub fn (kind Kind) is_relational() bool {

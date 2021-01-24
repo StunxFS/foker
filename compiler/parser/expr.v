@@ -172,10 +172,9 @@ fn (mut p Parser) parse_number_literal() ast.Expr {
 	lit := p.tok.lit
 	pos := p.tok.position()
 	p.next()
-	is_hex := lit.to_lower().starts_with('0x')
 	return ast.IntegerLiteral{
 		lit: lit
 		pos: pos
-		is_hex: is_hex
+		is_hex: lit.to_lower().starts_with('0x')
 	}
 }

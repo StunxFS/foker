@@ -8,7 +8,7 @@ const vars = '
 801B'
 
 fn test_get() {
-	mut fvf := new_fvf(vars)
+	mut fvf := new_fvf(binary.vars)
 	v1 := fvf.get() or { panic(err) }
 	v2 := fvf.get() or { panic(err) }
 	assert v1 == '80AB'
@@ -16,7 +16,7 @@ fn test_get() {
 }
 
 fn test_free() {
-	mut fvf := new_fvf(vars)
+	mut fvf := new_fvf(binary.vars)
 	v1 := fvf.get() or { panic(err) }
 	v2 := fvf.get() or { panic(err) }
 	assert v1 == '80AB'

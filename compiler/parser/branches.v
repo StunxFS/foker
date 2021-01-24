@@ -139,7 +139,7 @@ fn (mut p Parser) movement_expr(is_anon bool) ast.MovementExpr {
 	for p.tok.kind != .rbrace {
 		pos1 := p.tok.position()
 		move := p.check_name()
-		if move !in valid_movs {
+		if move !in parser.valid_movs {
 			p.error_with_pos('este movimiento no es válido', pos1)
 		}
 		mut count := 1
@@ -154,7 +154,7 @@ fn (mut p Parser) movement_expr(is_anon bool) ast.MovementExpr {
 		movs << ast.MovItem{
 			pos: pos1
 			count: count
-			kind: valid_movs[move]
+			kind: parser.valid_movs[move]
 		}
 	}
 	p.check(.rbrace)

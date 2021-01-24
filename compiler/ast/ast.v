@@ -26,17 +26,19 @@ pub mut:
 
 pub struct Const {
 pub:
-	name string
-	expr Expr
-	pos  token.Position
+	name   string
+	expr   Expr
+	pos    token.Position
+	is_pub bool
 pub mut:
 	typ Type
 }
 
 pub struct Var {
 pub:
-	name string
-	expr Expr
+	name   string
+	expr   Expr
+	is_pub bool
 pub mut:
 	typ     Type
 	pos     token.Position
@@ -91,7 +93,7 @@ pub:
 	extern_offset string
 	pos           token.Position
 	body_pos      token.Position
-	// file			string
+	is_pub        bool
 pub mut:
 	stmts []Stmt
 }
@@ -297,6 +299,15 @@ pub enum IdentKind {
 	blank_ident
 	variable
 	constant
+}
+
+pub fn (ik IdentKind) str() string {
+	return match ik {
+		.unresolved { 'no resolvido' }
+		.blank_ident { 'identificador blanco' }
+		.variable { 'variable' }
+		.constant { 'constante' }
+	}
 }
 
 // A single identifier

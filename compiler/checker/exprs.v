@@ -62,11 +62,12 @@ fn (mut c Checker) infix_expr(mut infix_expr ast.InfixExpr) ast.Type {
 			if infix_expr.op == .div {
 				c.check_div_by_zero(infix_expr.right, infix_expr.op)
 			}
-			if left_type == .bool || right_type == .bool {
-				c.error('estas operaciones no están permitidas con bool/flags', infix_expr.pos)
-			}
 			if left_type == .string || right_type == .string {
 				c.error('estas operaciones no están permitidas con strings', infix_expr.pos)
+			}
+			c.check_expected(right_type, left_type) or { c.error('$err', infix_expr.pos) }
+			if left_type == .bool || right_type == .bool {
+				c.error('estas operaciones no están permitidas con bool/flags', infix_expr.pos)
 			}
 		}
 		.key_and, .key_or {
@@ -169,6 +170,6 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 			else {}
 		}
 	}
-	c.error("variable o constante indefinida: '$ident.name'", ident.pos)
+	c.error("variable o constante '$ident.name' indefinida", ident.pos)
 	return .unknown
 }

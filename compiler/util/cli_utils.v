@@ -11,14 +11,14 @@ const (
 )
 
 pub fn err(msg string) {
-	eprintln(zubat_script_cli_error + msg)
+	eprintln(util.zubat_script_cli_error + msg)
 	exit(1)
 }
 
 pub fn warn(msg string) {
-	eprintln(zubat_script_cli_warning + msg)
+	eprintln(util.zubat_script_cli_warning + msg)
 }
 
 pub fn note(msg string) {
-	eprintln(zubat_script_cli_note + msg)
+	eprintln(util.zubat_script_cli_note + msg)
 }
