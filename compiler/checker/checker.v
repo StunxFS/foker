@@ -166,25 +166,15 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 	c.expected_type = left_type
 	if is_decl {
 		if left_type == ast.Type.int {
-			mut expr := right
-			mut negative := false
-			if right is ast.PrefixExpr {
-				expr = right.right
-				if right.op == .minus {
-					negative = true
-				}
-			}
-			if mut expr is ast.IntegerLiteral {
-				mut is_large := false
-				if expr.lit.len > 8 {
-					val := expr.lit.i64()
-					if (!negative && val > checker.int_max) || (negative && -val < checker.int_min) {
-						is_large = true
-					}
+			if right is ast.IntegerLiteral {
+				mut is_large := right.lit.len > 13
+				if !is_large && right.lit.len > 8 {
+					val := right.lit.i64()
+					is_large = val > checker.int_max || val < checker.int_min
 				}
 				if is_large {
 					c.error("desbordamiento en tipo implícito 'int', use el tipo 'long' en su lugar",
-						expr.pos)
+						right.pos)
 				}
 			}
 		}
@@ -224,15 +214,15 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 			}
 		}
 	}
-	if is_blank_ident {
+	if assign_stmt.is_native || is_blank_ident {
 		return
 	}
 	$if debug ? {
-		println('$left_type = $right_type')
+		println('$c.file.path: $left_type = $right_type')
 	}
 	// Dual sides check (compatibility check)
 	c.check_expected(right_type, left_type) or {
 		name := (left as ast.Ident).name
-		c.error("no se le puede asignar un valor a '$name', $err", right.position())
+		c.error("no se le puede asignar un valor a '$name': $err", right.position())
 	}
 }

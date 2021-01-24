@@ -125,6 +125,7 @@ pub:
 	op        token.Kind
 	pos       token.Position
 	offset    string
+	is_native bool
 	is_decl   bool
 	is_global bool
 pub mut:

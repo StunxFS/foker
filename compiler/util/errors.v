@@ -64,7 +64,8 @@ pub fn formatted_error(kind string, emsg string, pos token.Position) string {
 	// Get relative path
 	workdir := os.getwd() + os.path_separator
 	if path.starts_with(workdir) {
-		path = path.replace(workdir, '')
+		// path = path.replace(workdir, '')
+		path = os.real_path(path)
 	}
 	source, column := filepath_pos_to_source_and_column(pos.filepath, pos)
 	position := '$path:${pos.line_nr + 1}:${imax(1, column + 1)}:'

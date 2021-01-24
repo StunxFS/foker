@@ -744,6 +744,7 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 			left_type: type_var
 			is_decl: true
 			is_global: true
+			is_native: true
 		}
 	}
 	if p.tok.kind == .colon {

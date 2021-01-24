@@ -33,8 +33,15 @@ fn (mut p Parser) expr(precedence int) ast.Expr {
 				pos: p.tok.position()
 			}
 		}
-		.minus, .bang {
+		.bang {
 			node = p.prefix_expr()
+		}
+		.minus {
+			if p.peek_tok.kind == .number {
+				node = p.parse_number_literal()
+			} else {
+				node = p.prefix_expr()
+			}
 		}
 		.key_movement {
 			node = p.movement_expr(true)
@@ -169,11 +176,17 @@ fn (mut p Parser) string_expr() ast.StringLiteral {
 }
 
 fn (mut p Parser) parse_number_literal() ast.Expr {
+	mut pos := p.tok.position()
+	is_neg := p.tok.kind == .minus
+	if is_neg {
+		p.next()
+		pos = pos.extend(p.tok.position())
+	}
 	lit := p.tok.lit
-	pos := p.tok.position()
+	full_lit := if is_neg { '-' + lit } else { lit }
 	p.next()
 	return ast.IntegerLiteral{
-		lit: lit
+		lit: full_lit
 		pos: pos
 		is_hex: lit.to_lower().starts_with('0x')
 	}

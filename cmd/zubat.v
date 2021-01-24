@@ -10,7 +10,6 @@ import compiler.util
 import compiler.about
 import compiler.prefs
 import compiler.parser
-import compiler.errors
 import compiler.checker
 
 fn main() {
@@ -27,15 +26,17 @@ mut:
 	pref         prefs.Preferences
 	table        ast.Table
 	parsed_files []ast.File
-	global_scope &ast.Scope = &ast.Scope{
-	parent: 0
-}
+	imports      []string
+	global_scope &ast.Scope = 0
 }
 
 fn new_builder() Builder {
 	return Builder{
 		pref: prefs.parse_args_and_get_prefs()
 		table: ast.new_table()
+		global_scope: &ast.Scope{
+			parent: 0
+		}
 	}
 }
 
@@ -46,55 +47,86 @@ fn (mut b Builder) compile() {
 	if b.pref.use_color == .never {
 		util.emanager.set_support_color(false)
 	}
-	mut imports := []string{}
 	// Primero parseamos el archivo de bultins
-	b.parsed_files << parser.parse_file(parser.builtins_file, b.table, b.pref, b.global_scope)
+	b.parsed_files << b.parse_file(parser.builtins_file)
 	// Luego parseamos el archivo de scripts a compilar
-	b.parsed_files << parser.parse_file(b.pref.file, b.table, b.pref, b.global_scope)
+	b.parsed_files << b.parse_file(b.pref.file)
 	// Ahora vamos con los imports
-	file_dir := os.dir(b.pref.file)
+	b.imports()
+	// Ordenamos el orden de dependencias
+	b.deps_graph()
+	// Corremos el checker
+	b.checker()
+	// Corremos el generador
+	b.generator()
+}
+
+fn (mut b Builder) parse_file(file string) ast.File {
+	return parser.parse_file(file, b.table, b.pref, b.global_scope)
+}
+
+fn (mut b Builder) imports() {
+	// TODO: Actualmente esto tiene un comportamiento extraño al momento
+	// de importar archivos de scripts. Si el directorio actual de trabajo
+	// es donde se encuentra el archivo de scripts, esto funciona, pero no
+	// si ocurre lo contrario. :/
 	for i := 0; i < b.parsed_files.len; i++ {
 		ast_file := b.parsed_files[i]
 		for f in ast_file.imports {
-			mut f_file := if !f.file.starts_with(parser.builtins_path) { os.join_path(file_dir,
-					f.file) } else { f.file }
-			if f_file.starts_with('.' + os.path_separator) {
-				f_file = f_file[2..]
+			mut f_file := f.file
+			if !f.file.starts_with(parser.builtins_path) {
+				f_file = os.join_path(os.dir(b.pref.file), f_file)
+				if f_file.starts_with('.' + os.path_separator) {
+					f_file = f_file[2..]
+				}
 			}
-			if f_file in imports {
+			if f_file in b.imports {
 				continue
 			}
-			b.parsed_files << parser.parse_file(f_file, b.table, b.pref, b.global_scope)
-			imports << f_file
+			b.parsed_files << b.parse_file(f_file)
+			b.imports << f_file
 		}
 	}
-	b.deps_graph()
-	if !b.pref.only_check_syntax {
-		mut c := checker.new_checker(b.table, b.pref)
-		c.check_files(b.parsed_files)
-		mut err_count := 0
-		for file in b.parsed_files {
-			err_count += show_reports(file.reports)
-		}
-		if err_count > 0 {
-			exit(1)
-		}
-		match b.pref.backend {
-			.binary {
-				/*
-				make_rbh_file := b.pref.rom == ''
+}
+
+fn (mut b Builder) checker() {
+	// Corremos el checker
+	mut c := checker.new_checker(b.table, b.pref)
+	c.check_files(b.parsed_files)
+	b.check_errors()
+}
+
+fn (mut b Builder) generator() {
+	match b.pref.backend {
+		.binary {
+			/*
+			make_rbh_file := b.pref.rom == ''
 				if make_rbh_file { // generar un archivo .rbh
 					mut gen := binary.new_gen(b.pref, b.table)
 					gen.gen_from_files(b.parsed_files)
 				} else {
 					// TODO: Inyección directa en la ROM
 				}
-				*/
-			}
-			.decomp {
-				// TODO: decomp.generate(file)
-			}
+			*/
 		}
+		.decomp {
+			// TODO: decomp.generate(file)
+		}
+	}
+}
+
+fn (mut b Builder) check_errors() {
+	mut err_count := 0
+	for file in b.parsed_files {
+		for report in file.reports {
+			if report.kind == .error {
+				err_count++
+			}
+			eprintln(report.message)
+		}
+	}
+	if err_count > 0 {
+		exit(1)
 	}
 }
 
@@ -103,9 +135,9 @@ fn (mut b Builder) deps_graph() {
 	graph := b.import_graph()
 	deps_resolved := graph.resolve()
 	if b.pref.is_verbose {
-		eprintln('------ resolved dependencies graph: ------')
+		eprintln('------ dependencias de archivos resolvidas ------')
 		eprintln(deps_resolved.display())
-		eprintln('------------------------------------------')
+		eprintln('-------------------------------------------------')
 	}
 	mut mods := []string{}
 	for node in deps_resolved.nodes {
@@ -127,11 +159,14 @@ fn (mut b Builder) deps_graph() {
 	b.parsed_files = reordered_parsed_files.clone()
 }
 
-// import_graph - graph of all imported modules
+// import_graph - graph of all imported files
 fn (mut b Builder) import_graph() &depgraph.DepGraph {
 	mut graph := depgraph.new_dep_graph()
 	for p in b.parsed_files {
 		mut deps := []string{}
+		if b.pref.is_verbose {
+			println('import_graph(): $p.path')
+		}
 		if !p.path.starts_with(parser.builtins_path) {
 			deps << parser.builtins_file
 		}
@@ -144,15 +179,4 @@ fn (mut b Builder) import_graph() &depgraph.DepGraph {
 		graph.add(p.path, deps)
 	}
 	return graph
-}
-
-fn show_reports(reports []errors.Report) int {
-	mut err_count := 0
-	for report in reports {
-		if report.kind == .error {
-			err_count++
-		}
-		eprintln(report.message)
-	}
-	return err_count
 }
