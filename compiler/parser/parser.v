@@ -457,6 +457,10 @@ fn (mut p Parser) parse_dyn_custom() ast.Stmt {
 }
 
 fn (mut p Parser) script_stmt() ast.Stmt {
+	is_pub := p.tok.kind == .key_pub
+	if is_pub {
+		p.next()
+	}
 	is_extern := p.tok.kind == .key_extern
 	if is_extern {
 		p.next()
@@ -494,6 +498,7 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 			name: script_name
 			is_extern: is_extern
 			extern_offset: extern_offset
+			is_pub: is_pub
 			pos: script_pos.extend(p.prev_tok.position())
 		}
 	}
@@ -508,6 +513,7 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 		is_extern: is_extern
 		stmts: stmts
 		pos: spenp
+		is_pub: is_pub
 	}
 	p.table.scripts[script_name] = cmd
 	return cmd

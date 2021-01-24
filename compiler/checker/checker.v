@@ -62,7 +62,7 @@ pub fn (mut c Checker) check_files(ast_files []ast.File) {
 		c.check(file)
 	}
 	if !c.pref.is_library && !c.has_main {
-		util.err('este script no tiene una entrada principal (script main {})')
+		util.err('"${c.file.path}" no tiene un script de entrada principal (script main {})')
 	}
 }
 
@@ -113,8 +113,14 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 			c.expected_type = .unknown
 		}
 		ast.CallStmt { // call my_script;
-			if !c.table.exists_script(node.script) {
+			name := node.script
+			if !c.table.exists_script(name) {
 				c.error('no existe un script con este nombre', node.pos)
+			}
+			is_pub := c.table.scripts[name].is_pub
+			f := c.table.scripts[name].pos.filepath
+			if !is_pub && c.file.path != f {
+				c.error('el archivo "$f" tiene este script como privado', node.pos)
 			}
 		}
 		ast.Const {
