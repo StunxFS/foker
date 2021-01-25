@@ -39,7 +39,7 @@ mut:
 	imports         []string // importes locales, para evitar duplicación
 	is_main         bool
 	is_builtin      bool
-	mod_name	string
+	mod_name        string
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
