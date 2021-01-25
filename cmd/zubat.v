@@ -53,12 +53,16 @@ fn (mut b Builder) compile() {
 	b.parsed_files << b.parse_file(b.pref.file)
 	// Ahora vamos con los imports
 	b.imports()
-	// Ordenamos el orden de dependencias
-	b.deps_graph()
-	// Corremos el checker
-	b.checker()
-	// Corremos el generador
-	b.generator()
+	// Si el usuario solo quiere checar la sintaxis de su script, pues nos detenemos
+	// de lo contrario seguimos.
+	if !b.pref.only_check_syntax {
+		// Ordenamos el orden de dependencias
+		b.deps_graph()
+		// Corremos el checker
+		b.checker()
+		// Corremos el generador
+		b.generator()
+	}
 }
 
 fn (mut b Builder) parse_file(file string) ast.File {
@@ -66,7 +70,7 @@ fn (mut b Builder) parse_file(file string) ast.File {
 }
 
 fn (mut b Builder) imports() {
-	// TODO: Actualmente esto tiene un comportamiento extraño al momento
+	// FIXME: Actualmente esto tiene un comportamiento extraño al momento
 	// de importar archivos de scripts. Si el directorio actual de trabajo
 	// es donde se encuentra el archivo de scripts, esto funciona, pero no
 	// si ocurre lo contrario. :/
