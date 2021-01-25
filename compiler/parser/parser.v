@@ -39,6 +39,7 @@ mut:
 	imports         []string // importes locales, para evitar duplicación
 	is_main         bool
 	is_builtin      bool
+	mod_name	string
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
@@ -79,6 +80,7 @@ pub fn (mut p Parser) parse() ast.File {
 	p.read_first_token()
 	mut stmts := []ast.Stmt{}
 	mut imports := []ast.Import{}
+	p.mod_name = p.file_base[..3] // sin el ".zs"
 	p.is_main = p.file_name == p.pref.file
 	p.is_builtin = p.file_name.starts_with(parser.builtins_path)
 	if p.pref.is_verbose {
@@ -109,10 +111,11 @@ pub fn (mut p Parser) parse() ast.File {
 	return ast.File{
 		path: p.file_name
 		imports: imports
-		global_scope: p.global_scope
-		prog: ast.Program{
+		mod: ast.Module{
+			name: p.mod_name
 			stmts: stmts
 			scope: p.scope
+			global_scope: p.global_scope
 		}
 	}
 }

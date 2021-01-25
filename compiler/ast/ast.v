@@ -8,18 +8,18 @@ import compiler.errors
 // Esto representa un archivo de script ZubatScript
 pub struct File {
 pub:
-	path         string
-	prog         Program
-	global_scope &Scope
+	path string
+	mod  Module
 pub mut:
 	reports []errors.Report
 	imports []Import
 }
 
-pub struct Program {
+pub struct Module {
 pub:
-	pos   token.Position
-	stmts []Stmt
+	name         string
+	stmts        []Stmt
+	global_scope &Scope
 pub mut:
 	scope &Scope
 }

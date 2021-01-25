@@ -49,11 +49,11 @@ pub fn new_checker(table &ast.Table, pref &prefs.Preferences) Checker {
 
 pub fn (mut c Checker) check(ast_file &ast.File) {
 	c.file = ast_file
-	for stmt in ast_file.prog.stmts {
+	for stmt in ast_file.mod.stmts {
 		c.expr_level = 0
 		c.stmt(stmt)
 	}
-	c.check_scope_vars(c.file.prog.scope)
+	c.check_scope_vars(c.file.mod.scope)
 }
 
 pub fn (mut c Checker) check_files(ast_files []ast.File) {
@@ -62,7 +62,7 @@ pub fn (mut c Checker) check_files(ast_files []ast.File) {
 		c.check(file)
 	}
 	if !c.pref.is_library && !c.has_main {
-		util.err('"${c.file.path}" no tiene un script de entrada principal (script main {})')
+		util.err('"$c.file.path" no tiene un script de entrada principal (script main {})')
 	}
 }
 
