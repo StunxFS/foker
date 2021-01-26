@@ -232,7 +232,7 @@ fn (mut p Parser) import_stmt() []ast.Import {
 	$if windows {
 		to_import = to_import.replace('/', os.path_separator)
 	}
-	to_import = if is_std { os.join_path(parser.stdlib_path, to_import) } else { to_import }
+	to_import = if is_std { os.join_path(parser.stdlib_path, to_import) } else { os.join_path(p.pref.file_dir, to_import) }
 	if to_import.starts_with(parser.builtins_path) && !p.is_builtin {
 		p.error('los archivos builtins no se pueden importar')
 	}

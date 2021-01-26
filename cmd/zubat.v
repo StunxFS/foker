@@ -70,25 +70,14 @@ fn (mut b Builder) parse_file(file string) ast.File {
 }
 
 fn (mut b Builder) imports() {
-	// FIXME: Actualmente esto tiene un comportamiento extraño al momento
-	// de importar archivos de scripts. Si el directorio actual de trabajo
-	// es donde se encuentra el archivo de scripts, esto funciona, pero no
-	// si ocurre lo contrario. :/
 	for i := 0; i < b.parsed_files.len; i++ {
 		ast_file := b.parsed_files[i]
 		for f in ast_file.imports {
-			mut f_file := f.file
-			if !f.file.starts_with(parser.builtins_path) {
-				f_file = os.join_path(os.dir(b.pref.file), f_file)
-				if f_file.starts_with('.' + os.path_separator) {
-					f_file = f_file[2..]
-				}
-			}
-			if f_file in b.imports {
+			if f.file in b.imports {
 				continue
 			}
-			b.parsed_files << b.parse_file(f_file)
-			b.imports << f_file
+			b.parsed_files << b.parse_file(f.file)
+			b.imports << f.file
 		}
 	}
 }

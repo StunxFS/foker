@@ -6,6 +6,8 @@ import os
 import os.cmdline
 import compiler.util
 
+// TODO: Implementar 'enum BuildMode'
+
 // Game enumera los juegos que ZubatScript soporta actualmente.
 pub enum Game {
 	firered_leafgreen
@@ -46,6 +48,7 @@ pub mut:
 	optlevel          Optlevel = .debug
 	skip_warnings     bool   // saltarse las advertencias
 	warns_are_errors  bool   // tratar las advertencias como errores
+	file_dir 		 string // el directorio en donde se encuentra el archivo
 	file              string // archivo a compilar
 	is_verbose        bool   // el compilador debe detallar cada cosa que hace
 	use_color         UseColor
@@ -162,6 +165,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 				if arg.ends_with('.zs') {
 					if res.file == '' {
 						res.file = arg
+						res.file_dir = os.dir(arg)
 					} else {
 						util.err('solo se puede soportar un archivo de script .zs, no varios')
 					}
