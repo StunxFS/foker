@@ -208,11 +208,9 @@ fn (mut p Parser) check_name() string {
 	return name
 }
 
-fn (mut p Parser) import_stmt() []ast.Import {
+fn (mut p Parser) import_stmt() ast.Import {
 	p.check(.key_import)
 	mut is_std := false
-	mut import_all := false
-	mut imports := []ast.Import{}
 	if p.tok.kind == .name {
 		if p.tok.lit != 'std' {
 			p.error("se esperaba 'std:'")
@@ -224,11 +222,6 @@ fn (mut p Parser) import_stmt() []ast.Import {
 	pos := p.tok.position()
 	mut to_import := p.tok.lit
 	p.check(.string)
-	if p.tok.kind == .colon {
-		p.next()
-		p.check(.mul)
-		import_all = true
-	}
 	$if windows {
 		to_import = to_import.replace('/', os.path_separator)
 	}
@@ -237,37 +230,13 @@ fn (mut p Parser) import_stmt() []ast.Import {
 	if to_import.starts_with(parser.builtins_path) && !p.is_builtin {
 		p.error('los archivos builtins no se pueden importar')
 	}
-	if !import_all {
-		if to_import in p.imports {
-			p.error('este archivo ya está importado')
-		}
-		p.imports << to_import
-		imports << ast.Import{
-			pos: pos
-			file: to_import
-		}
-	} else {
-		curdir := os.getwd()
-		os.chdir(os.dir(p.pref.file))
-		if !os.is_dir(to_import) {
-			p.error_with_pos('se espera un directorio existente', pos)
-		}
-		files_to_import := os.walk_ext(to_import, '.zs')
-		os.chdir(curdir)
-		if files_to_import.len == 0 {
-			p.error_with_pos('no se encontraron archivos de scripts en esta carpeta',
-				pos)
-		}
-		for file_to_import in files_to_import {
-			if file_to_import in p.imports {
-				continue
-			}
-			p.imports << file_to_import
-			imports << ast.Import{
-				pos: pos
-				file: file_to_import
-			}
-		}
+	if to_import in p.imports {
+		p.error('este archivo ya está importado')
+	}
+	p.imports << to_import
+	imports << ast.Import{
+		pos: pos
+		file: to_import
 	}
 	p.check(.semicolon)
 	return imports
