@@ -162,11 +162,11 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 	// println('left_type -> $left_type')
 	// println('right_type -> $right_type')
 	if (left_type == .string || right_type == .string) && is_decl {
-		c.error("no se puede declarar variables de tipo string, use 'text' para esto",
+		c.error("no se puede declarar variables de tipo string, use un 'text' a nivel de módulo para esto",
 			assign_stmt.pos)
 	}
 	if right_type == .string && !is_decl {
-		c.error("no se pueden usar valores de tipo string en variables, use 'text' para esto",
+		c.error("no se pueden usar valores de tipo string en variables, use un 'text' a nivel de módulo para esto",
 			assign_stmt.pos)
 	}
 	c.expected_type = left_type
@@ -225,6 +225,11 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 	}
 	$if debug ? {
 		println('$c.file.path: $left_type = $right_type')
+	}
+	if !is_decl && left_type == .movement {
+		c.error("no se le puede cambiar el valor a una variable del tipo 'movement'",
+			left.position())
+		return
 	}
 	// Dual sides check (compatibility check)
 	c.check_expected(right_type, left_type) or {

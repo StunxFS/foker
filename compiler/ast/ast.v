@@ -358,17 +358,11 @@ pub:
 	pos  token.Position
 }
 
-pub enum MovKind {
-	walk_up
-	walk_down
-	walk_left
-	walk_right
-}
-
 pub struct MovItem {
 pub:
-	kind  MovKind
-	count int // repeat
+	val   string // valor en hex para #raw
+	name  string // nombre del movimiento
+	count int    // repeat
 	pos   token.Position
 }
 

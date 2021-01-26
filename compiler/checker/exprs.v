@@ -65,10 +65,14 @@ fn (mut c Checker) infix_expr(mut infix_expr ast.InfixExpr) ast.Type {
 			if left_type == .string || right_type == .string {
 				c.error('estas operaciones no están permitidas con strings', infix_expr.pos)
 			}
-			c.check_expected(right_type, left_type) or { c.error('$err', infix_expr.pos) }
 			if left_type == .bool || right_type == .bool {
 				c.error('estas operaciones no están permitidas con bool/flags', infix_expr.pos)
 			}
+			if left_type == .movement || right_type == .movement {
+				c.error('estas operaciones no están permitidas con los movimientos/movements',
+					infix_expr.pos)
+			}
+			c.check_expected(right_type, left_type) or { c.error('$err', infix_expr.pos) }
 		}
 		.key_and, .key_or {
 			if infix_expr.left_type != ast.Type.bool {

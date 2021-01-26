@@ -190,12 +190,14 @@ fn (mut p Parser) check(expected token.Kind) {
 			.string { 'un literal de cadena' }
 			else { "'" + expected.str() + "'" }
 		}
+		label := if p.tok.kind.is_keyword() { 'palabra clave ' } else { '' }
+		label2 := if p.tok.kind.is_keyword() { 'inesperada' } else { 'inesperado' }
 		match p.tok.kind {
 			.name { p.error("'$p.tok.lit' inesperado, se esperaba $expected_str") }
 			.number { p.error('no se esperaba un literal numérico, se esperaba $expected_str') }
 			.string { p.error('no se esperaba un literal de cadena, se esperaba $expected_str') }
 			.eof { p.error('no se esperaba el final del archivo, se esperaba $expected_str') }
-			else { p.error("palabra clave '$p.tok.kind.str()' inesperada, se esperaba $expected_str") }
+			else { p.error("$label'$p.tok.kind.str()' $label2, se esperaba $expected_str") }
 		}
 	}
 }
@@ -508,6 +510,7 @@ fn (mut p Parser) const_decl() ast.Const {
 	// start_pos := p.tok.position()
 	// end_pos := p.tok.position()
 	// const_pos := p.tok.position()
+	const_mov_err := "no se pueden declarar constantes del tipo 'movement', use una declaración 'movement' para esto"
 	p.check(.key_const)
 	pos := p.tok.position()
 	name := p.check_name()
@@ -516,8 +519,14 @@ fn (mut p Parser) const_decl() ast.Const {
 	if p.tok.kind == .colon {
 		p.next()
 		type_const = p.parse_type()
+		if type_const == .movement {
+			p.error_with_pos(const_mov_err, pos)
+		}
 	}
 	p.check(.assign)
+	if p.tok.kind == .key_movement {
+		p.error_with_pos(const_mov_err, pos)
+	}
 	expr := p.expr(0)
 	if type_const == .string {
 		p.error_with_pos("en vez de usar 'const' para strings, use 'text'", pos)
@@ -639,7 +648,13 @@ fn (mut p Parser) parser_call_script_stmt() ast.Stmt {
 }
 
 fn (mut p Parser) parse_type() ast.Type {
-	typ_name := p.check_name()
+	mut typ_name := ''
+	if p.tok.kind == .key_movement {
+		typ_name = 'movement'
+		p.next()
+	} else {
+		typ_name = p.check_name()
+	}
 	if typ_name !in ast.type_names {
 		p.error_with_pos('se esperaba uno de los siguientes tipos: ' + ast.type_names.join(', '),
 			p.prev_tok.position())
@@ -740,7 +755,11 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 	if is_top_level && p.tok.kind == .assign {
 		p.error('no se pueden definir variables en el ámbito global')
 	}
-	p.next()
+	if p.tok.kind != .assign {
+		p.error_with_pos('no puede usar esta sintaxis en variables locales, a juro se tienen que asignar',
+			name.pos)
+	}
+	p.check(.assign)
 	expr := p.expr(0)
 	p.check_undefined_variables(name, expr)
 	p.check(.semicolon)

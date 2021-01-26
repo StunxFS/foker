@@ -118,14 +118,8 @@ fn (mut p Parser) checkgender_stmt() ast.CheckgenderStmt {
 	}
 }
 
-const valid_movs = {
-		'walk_up':    ast.MovKind.walk_up
-		'walk_down':  ast.MovKind.walk_down
-		'walk_right': ast.MovKind.walk_right
-		'walk_left':  ast.MovKind.walk_left
-	}
-
 fn (mut p Parser) movement_expr(is_anon bool) ast.MovementExpr {
+	mov_pos := p.tok.position()
 	p.check(.key_movement)
 	pos := p.tok.position()
 	mut name := 'mov$p.movs_tmp'
@@ -139,23 +133,40 @@ fn (mut p Parser) movement_expr(is_anon bool) ast.MovementExpr {
 	for p.tok.kind != .rbrace {
 		pos1 := p.tok.position()
 		move := p.check_name()
-		if move !in parser.valid_movs {
-			p.error_with_pos('este movimiento no es válido', pos1)
+		match p.pref.game {
+			.firered_leafgreen {
+				if move !in ast.movements_of_frlf {
+					p.error_with_pos('este movimiento no es válido', pos1)
+				}
+			}
+			.ruby_sapphire, .emerald {
+				if move !in ast.movements_of_rse {
+					p.error_with_pos('este movimiento no es válido', pos1)
+				}
+			}
 		}
 		mut count := 1
 		if p.tok.kind == .mul {
 			p.next()
 			count = p.tok.lit.int()
 			if count == 1 {
-				p.error_with_pos('esto es innecesario', p.prev_tok.position().extend(p.tok.position()))
+				p.error_with_pos('esto es innecesario, ya que este es el valor por defecto',
+					p.prev_tok.position().extend(p.tok.position()))
 			}
 			p.check(.number)
 		}
 		movs << ast.MovItem{
 			pos: pos1
 			count: count
-			kind: parser.valid_movs[move]
+			name: move
+			val: '0x' + (match p.pref.game {
+				.firered_leafgreen { int(ast.movements_of_frlf[move]) }
+				.ruby_sapphire, .emerald { int(ast.movements_of_rse[move]) }
+			}).hex().str()
 		}
+	}
+	if movs.len == 0 {
+		p.error_with_pos("este 'movement' no tiene movimientos", mov_pos)
 	}
 	p.check(.rbrace)
 	mov := ast.MovementExpr{

@@ -9,9 +9,8 @@ const AGE = ANIO_ACTUAL - 1971;
 const AGE2 = AGE * 2;
 const BOOLEAN = true;
 
-movement Mov1 {
-	walk_up * 2
-	walk_down * 4
+movement my_movement {
+	walk_down_vslow
 }
 
 script my_script {}
@@ -23,6 +22,7 @@ script main {
 	//var myvar: bool = 4;
 	//myvar = 2020;
 	{
-		var myvar: bool = true;
+		var myvar: bool = false;
+		myvar = true;
 	}
 }
