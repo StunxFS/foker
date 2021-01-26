@@ -5,8 +5,8 @@ module prefs
 import os
 import os.cmdline
 import compiler.util
+import compiler.about
 
-// TODO: Implementar 'enum BuildMode'
 // Game enumera los juegos que ZubatScript soporta actualmente.
 pub enum Game {
 	firered_leafgreen
@@ -18,6 +18,13 @@ pub enum Game {
 pub enum Backend {
 	decomp
 	binary
+}
+
+// BuildMode enumera los 2 modos de compilación para el backend de binario
+// 'text' y 'direct'
+pub enum BuildMode {
+	text
+	direct
 }
 
 // OptLevel enumera los 2 niveles de optimización que existen
@@ -38,8 +45,9 @@ pub struct Preferences {
 pub mut:
 	// ROM en el que se usará el script generado. Esto es usado para
 	// generar código exacto sin problemas.
-	game              Game    = .firered_leafgreen
-	backend           Backend = .binary
+	game              Game      = .firered_leafgreen
+	backend           Backend   = .binary
+	build_mode        BuildMode = .text
 	rom               string // la rom en la que se insertará el script
 	flags_file        string = 'flags.data.txt'
 	vars_file         string = 'vars.data.txt'
@@ -115,6 +123,9 @@ pub fn parse_args_and_get_prefs() &Preferences {
 			}
 			'-o', '-output' {
 				res.output = cmdline.option(current_args, arg, '')
+				if os.file_ext(res.output) != '' {
+					util.err('-output solo recibe un nombre de archivo sin extensión: "$res.output"')
+				}
 				i++
 			}
 			'-g', '-game' {
@@ -143,6 +154,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 					util.err('$arg espera una ROM de GBA')
 				}
 				res.rom = target_rom
+				res.build_mode = .direct
 				i++
 			}
 			'-fast' {
@@ -173,6 +185,13 @@ pub fn parse_args_and_get_prefs() &Preferences {
 			'-library' {
 				res.is_library = true
 			}
+			'-version' {
+				if args.len > 1 {
+					util.err('la opción -version se debe usar sin opciones ni archivo .zs')
+				}
+				println('ZubatScript $about.version $about.status')
+				exit(1)
+			}
 			else {
 				if arg.ends_with('.zs') {
 					if res.file == '' {
@@ -187,8 +206,8 @@ pub fn parse_args_and_get_prefs() &Preferences {
 			}
 		}
 	}
-	if res.output != '' && res.rom != '' {
-		util.err('no puedes insertar un script en una ROM, y, a la vez, crear un archivo .rbh')
+	if res.output != '' && res.build_mode == .direct {
+		util.err('no se puede insertar un script en una ROM, y a la vez crear un archivo .rbh')
 	}
 	// TODO: Remover esto cuando el backend de decomp esté completo.
 	if res.backend == .decomp {

@@ -3,6 +3,7 @@
 module about
 
 import os
+import term
 
 const version = '0.1.0'
 
@@ -14,11 +15,9 @@ const build_time = '<unknown>'
 
 pub fn help() {
 	program := os.args[0]
-	println("ZubatScript | Mensaje de Ayuda | Work In Progress
-=================================================
-Autor: StunxFS
-Fecha de compilación: $about.build_time
-Versión: $about.version $about.status
+	println(term.header('ZubatScript | Mensaje de Ayuda | Work In Progress', '=') +
+		"
+Autor: StunxFS | Fecha de compilación: $about.build_time | Versión: $about.version $about.status
 
 Descripción:
     Bienvenido al compilador oficial del proyecto ZubatScript.
@@ -41,6 +40,9 @@ Argumentos:
 Opciones:
     -h, -a, help, ayuda
         Muestra este mensaje de ayuda.
+
+    -version
+        Muestra la versión y estado del compilador.
 
     -b, -backend
         Esta opción se usa para especificarle a ZubatScript que backend debe usar para generar
@@ -133,5 +135,7 @@ Opciones:
 Ejemplos de usos del programa:
     $program -o mi_script_perron.inc -g rs -b decomp mi_script.zs
     $program -fast -skip-warnings -g rs mi_script.zs
-    $program -debug -warns-are-errors -g rs mi_script.zs")
+    $program -debug -warns-are-errors -g rs mi_script.zs
+" +
+		term.header('', '='))
 }

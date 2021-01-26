@@ -222,8 +222,8 @@ fn (mut p Parser) import_stmt() ast.Import {
 	pos := p.tok.position()
 	mut to_import := p.tok.lit
 	p.check(.string)
-	if to_import.contains(".." + os.path_separator) {
-		p.error_with_pos("las rutas de archivos a importar no pueden ser relativas", pos)
+	if to_import.contains('..' + os.path_separator) || to_import.contains('.' + os.path_separator) {
+		p.error_with_pos('las rutas de archivos a importar no pueden ser relativas', pos)
 	}
 	$if windows {
 		to_import = to_import.replace('/', os.path_separator)
@@ -448,7 +448,7 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	name_pos := p.tok.position()
 	script_name := p.check_name()
 	p.cur_script_name = script_name
-	if !is_extern && p.pref.rom == '' && !p.is_main {
+	if !is_extern && p.pref.build_mode != .direct && !p.is_main {
 		p.error_with_pos('no se pueden declarar scripts en archivos importados, ' +
 			'esto solo está permitido para scripts externos y en el modo de inyección directa en la ROM',
 			name_pos)

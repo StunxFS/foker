@@ -63,6 +63,15 @@ fn (mut b Builder) compile() {
 		// Corremos el generador
 		b.generator()
 	}
+	// Liberamos la memoria innecesaria
+	b.go_free()
+}
+
+fn (mut b Builder) go_free() {
+	unsafe {
+		b.parsed_files.free()
+		b.imports.free()
+	}
 }
 
 fn (mut b Builder) parse_file(file string) ast.File {
