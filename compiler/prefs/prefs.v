@@ -103,7 +103,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 			'-u', '-undefine' {
 				to_undefine := cmdline.option(current_args, arg, '')
 				if to_undefine == '' {
-					util.err("no se puede indefinir una bandera vacía: $to_undefine")
+					util.err('no se puede indefinir una bandera vacía: $to_undefine')
 				}
 				if to_undefine !in res.defines {
 					util.err('no se puede indefinir una bandera no definida: $to_undefine')

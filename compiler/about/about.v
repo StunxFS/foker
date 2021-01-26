@@ -5,8 +5,11 @@ module about
 import os
 
 const version = '0.1.0'
+
 const emitter_bin_version = '0.1.0'
+
 const status = 'alpha'
+
 const build_time = '<unknown>'
 
 pub fn help() {
