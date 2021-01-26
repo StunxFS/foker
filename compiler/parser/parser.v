@@ -234,12 +234,11 @@ fn (mut p Parser) import_stmt() ast.Import {
 		p.error('este archivo ya está importado')
 	}
 	p.imports << to_import
-	imports << ast.Import{
+	p.check(.semicolon)
+	return ast.Import{
 		pos: pos
 		file: to_import
 	}
-	p.check(.semicolon)
-	return imports
 }
 
 pub fn (mut p Parser) top_stmt() ast.Stmt {
