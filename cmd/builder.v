@@ -61,15 +61,12 @@ fn (mut b Builder) go_free() {
 
 fn (b &Builder) set_support_color() {
 	match b.pref.use_color {
-		.always {
-			util.emanager.set_support_color(true)
-		}
-		.never {
-			util.emanager.set_support_color(false)
-		}
+		.always { util.emanager.set_support_color(true) }
+		.never { util.emanager.set_support_color(false) }
 	}
 }
 
+[inline]
 fn (mut b Builder) parse_file(file string) ast.File {
 	return parser.parse_file(file, b.table, b.pref, b.global_scope)
 }
@@ -182,4 +179,3 @@ fn (mut b Builder) import_graph() &depgraph.DepGraph {
 	}
 	return graph
 }
-
