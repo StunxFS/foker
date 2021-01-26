@@ -22,4 +22,7 @@ script main {
 	call my_script;
 	//var myvar: bool = 4;
 	//myvar = 2020;
+	{
+		var myvar: bool = true;
+	}
 }

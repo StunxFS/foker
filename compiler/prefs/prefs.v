@@ -189,7 +189,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 				if args.len > 1 {
 					util.err('la opción -version se debe usar sin opciones ni archivo .zs')
 				}
-				println('ZubatScript $about.version $about.status')
+				println('ZubatScript $about.complete_version')
 				exit(1)
 			}
 			else {

@@ -178,28 +178,26 @@ fn (mut p Parser) next() {
 	p.peek_tok = p.peek_tok2
 	p.peek_tok2 = p.peek_tok3
 	p.peek_tok3 = p.scanner.scan()
-	if p.tok.kind == .name && p.tok.lit == 'endif' {
-		p.next()
-	}
 }
 
 fn (mut p Parser) check(expected token.Kind) {
-	expected_str := match expected {
-		.name { 'un identificador' }
-		.number { 'un literal numérico' }
-		.string { 'un literal de cadena' }
-		else { "'" + expected.str() + "'" }
-	}
-	if p.tok.kind != expected {
+	if p.tok.kind == expected {
+		p.next()
+	} else {
+		expected_str := match expected {
+			.name { 'un identificador' }
+			.number { 'un literal numérico' }
+			.string { 'un literal de cadena' }
+			else { "'" + expected.str() + "'" }
+		}
 		match p.tok.kind {
 			.name { p.error("'$p.tok.lit' inesperado, se esperaba $expected_str") }
 			.number { p.error('no se esperaba un literal numérico, se esperaba $expected_str') }
 			.string { p.error('no se esperaba un literal de cadena, se esperaba $expected_str') }
 			.eof { p.error('no se esperaba el final del archivo, se esperaba $expected_str') }
-			else { p.error("'$p.tok.kind.str()' inesperado, se esperaba $expected_str") }
+			else { p.error("palabra clave '$p.tok.kind.str()' inesperada, se esperaba $expected_str") }
 		}
 	}
-	p.next()
 }
 
 fn (mut p Parser) check_name() string {
@@ -614,8 +612,15 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 			.key_raw {
 				return p.parse_raw_stmt()
 			}
+			.lbrace {
+				pos := p.tok.position()
+				return ast.Block{
+					stmts: p.parse_block()
+					pos: pos
+				}
+			}
 			else {
-				p.error('declaración de nivel local "' + p.tok.lit + '" desconocido')
+				p.error('declaración de nivel local "' + p.tok.lit + '" desconocida')
 			}
 		}
 	}

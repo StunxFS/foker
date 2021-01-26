@@ -5,19 +5,21 @@ module about
 import os
 import term
 
-const version = '0.1.0'
-
-const emitter_bin_version = '0.1.0'
-
-const status = 'alpha'
-
-const build_time = '<unknown>'
+pub const (
+	version             = '0.1.0'
+	status              = 'alpha'
+	complete_version    = '$version $status'
+	build_time          = '<unknown>'
+	emitter_bin_version = '0.0.0 [NO-STARTED]'
+)
 
 pub fn help() {
 	program := os.args[0]
-	println(term.header('ZubatScript | Mensaje de Ayuda | Work In Progress', '=') +
+	info := term.header('Autor: StunxFS | Fecha de compilación: $about.build_time | Versión: $about.complete_version',
+		' ')
+	println(term.header('Mensaje de Ayuda | ZubatScript | Work In Progress', ' ') +
 		"
-Autor: StunxFS | Fecha de compilación: $about.build_time | Versión: $about.version $about.status
+$info
 
 Descripción:
     Bienvenido al compilador oficial del proyecto ZubatScript.
@@ -27,7 +29,7 @@ Uso:
     $program [opciones] archivo.zs
 
 Información básica sobre los backends:
-    Versión del backend de binario: $about.emitter_bin_version
+    Versión del backend de binario: ${about.emitter_bin_version}. [WIP]
     Versión del backend de decomp: Aún no disponible [WIP].
 
 Argumentos:
@@ -135,7 +137,5 @@ Opciones:
 Ejemplos de usos del programa:
     $program -o mi_script_perron.inc -g rs -b decomp mi_script.zs
     $program -fast -skip-warnings -g rs mi_script.zs
-    $program -debug -warns-are-errors -g rs mi_script.zs
-" +
-		term.header('', '='))
+    $program -debug -warns-are-errors -g rs mi_script.zs")
 }
