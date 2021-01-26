@@ -50,7 +50,7 @@ pub fn new_scanner(text string, pref &prefs.Preferences) &Scanner {
 
 pub fn new_scanner_file(file_path string, pref &prefs.Preferences) &Scanner {
 	if !os.exists(file_path) {
-		util.err('el archivo de scripts "$file_path" no existe')
+		util.err('el archivo de código "$file_path" no existe')
 	}
 	raw_text := util.read_file(file_path) or {
 		util.err(err)

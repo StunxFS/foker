@@ -49,7 +49,7 @@ fn (mut b Builder) compile() {
 	}
 	// Primero parseamos el archivo de bultins
 	b.parsed_files << b.parse_file(parser.builtins_file)
-	// Luego parseamos el archivo de scripts a compilar
+	// Luego parseamos el archivo de código a compilar
 	b.parsed_files << b.parse_file(b.pref.file)
 	// Ahora vamos con los imports
 	b.imports()
