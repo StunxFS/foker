@@ -650,8 +650,8 @@ fn (mut p Parser) parser_call_script_stmt() ast.Stmt {
 fn (mut p Parser) parse_type() ast.Type {
 	mut typ_name := ''
 	if p.tok.kind == .key_movement {
-		typ_name = 'movement'
 		p.next()
+		return .movement
 	} else {
 		typ_name = p.check_name()
 	}
@@ -659,8 +659,7 @@ fn (mut p Parser) parse_type() ast.Type {
 		p.error_with_pos('se esperaba uno de los siguientes tipos: ' + ast.type_names.join(', '),
 			p.prev_tok.position())
 	}
-	t := ast.get_type_from_string(typ_name)
-	return t
+	return ast.get_type_from_string(typ_name)
 }
 
 fn (mut p Parser) check_undefined_variables(expr ast.Expr, val ast.Expr) {
@@ -668,7 +667,7 @@ fn (mut p Parser) check_undefined_variables(expr ast.Expr, val ast.Expr) {
 		ast.Ident {
 			if expr is ast.Ident {
 				if expr.name == val.name {
-					p.error_with_pos("variable indefinida '$val.name'", val.pos)
+					p.error_with_pos("variable '$val.name' indefinida", val.pos)
 				}
 			}
 		}
@@ -756,7 +755,7 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 		p.error('no se pueden definir variables en el ámbito global')
 	}
 	if p.tok.kind != .assign {
-		p.error_with_pos('no puede usar esta sintaxis en variables locales, a juro se tienen que asignar',
+		p.error_with_pos('no puede usar esta sintaxis en variables locales, debe asignar un valor',
 			name.pos)
 	}
 	p.check(.assign)

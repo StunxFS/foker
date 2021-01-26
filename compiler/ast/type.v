@@ -3,7 +3,7 @@
 module ast
 
 pub const (
-	type_names = ['string', 'movement', 'bool', 'byte', 'int', 'long', 'any']
+	type_names = ['string', 'movement', 'bool', 'byte', 'int', 'long', 'offset']
 )
 
 // solo tenemos disponibles los siguientes tipos
@@ -15,7 +15,12 @@ pub enum Type {
 	byte // 89
 	int // word -> 89 A1
 	long // dword -> 89 A1 89 A1
-	any // any number between a byte to a long
+	// any // any number between a byte to a long
+	offset
+}
+
+pub fn (t &Type) is_numeric() bool {
+	return t in [.int, .long]
 }
 
 pub fn type_to_str(t Type) string {
@@ -32,7 +37,8 @@ pub fn get_type_from_string(name string) Type {
 		'byte' { Type.byte }
 		'int' { Type.int }
 		'long' { Type.long }
-		'any' { Type.any }
+		//'any' { Type.any }
+		'offset' { Type.offset }
 		'bool' { Type.bool }
 		else { Type.unknown }
 	}

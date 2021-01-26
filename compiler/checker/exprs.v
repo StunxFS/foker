@@ -2,13 +2,18 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module checker
 
-import compiler.ast
-import compiler.token
-
 /*
 import compiler.prefs
 import compiler.errors
 */
+import compiler.ast
+import compiler.token
+
+const (
+	bad_types     = [ast.Type.string, .byte, .bool, .movement, .offset]
+	bad_types_str = 'string/byte/bool/movement/offset'
+)
+
 fn (mut c Checker) check_div_by_zero(expr ast.Expr, op_kind token.Kind) {
 	match mut expr {
 		ast.IntegerLiteral {
@@ -30,15 +35,40 @@ pub fn (mut c Checker) expr(node ast.Expr) ast.Type {
 		return .unknown
 	}
 	match mut node {
-		ast.BoolLiteral { return .bool }
-		ast.Ident { return c.ident(mut node) }
-		ast.IntegerLiteral { return .int }
-		ast.StringLiteral, ast.FmtStringLiteral { return .string }
-		ast.MovementExpr { return .movement }
-		ast.InfixExpr { return c.infix_expr(mut node) }
-		ast.PostfixExpr { return c.postfix_expr(mut node) }
-		ast.PrefixExpr { return c.prefix_expr(mut node) }
-		ast.ParExpr { return c.expr(node.expr) }
+		ast.BoolLiteral {
+			return .bool
+		}
+		ast.Ident {
+			return c.ident(mut node)
+		}
+		ast.IntegerLiteral {
+			val := node.lit.str()
+			// Se aconseja usar hexadecimal de 8 digitos para denotar el tipo
+			// 'offset', y literales numéricos enteros para denotar el tipo 'int'
+			if node.is_hex && val.len == 8 {
+				return .offset
+			} else {
+				return .int
+			}
+		}
+		ast.StringLiteral, ast.FmtStringLiteral {
+			return .string
+		}
+		ast.MovementExpr {
+			return .movement
+		}
+		ast.InfixExpr {
+			return c.infix_expr(mut node)
+		}
+		ast.PostfixExpr {
+			return c.postfix_expr(mut node)
+		}
+		ast.PrefixExpr {
+			return c.prefix_expr(mut node)
+		}
+		ast.ParExpr {
+			return c.expr(node.expr)
+		}
 	}
 	return .unknown
 }
@@ -62,15 +92,9 @@ fn (mut c Checker) infix_expr(mut infix_expr ast.InfixExpr) ast.Type {
 			if infix_expr.op == .div {
 				c.check_div_by_zero(infix_expr.right, infix_expr.op)
 			}
-			if left_type == .string || right_type == .string {
-				c.error('estas operaciones no están permitidas con strings', infix_expr.pos)
-			}
-			if left_type == .bool || right_type == .bool {
-				c.error('estas operaciones no están permitidas con bool/flags', infix_expr.pos)
-			}
-			if left_type == .movement || right_type == .movement {
-				c.error('estas operaciones no están permitidas con los movimientos/movements',
-					infix_expr.pos)
+			if left_type in checker.bad_types || right_type in checker.bad_types {
+				c.error('estas operaciones no están permitidas con los tipos ' +
+					checker.bad_types_str, infix_expr.pos)
 			}
 			c.check_expected(right_type, left_type) or { c.error('$err', infix_expr.pos) }
 		}
@@ -101,7 +125,7 @@ fn (mut c Checker) infix_expr(mut infix_expr ast.InfixExpr) ast.Type {
 
 pub fn (mut c Checker) postfix_expr(mut node ast.PostfixExpr) ast.Type {
 	typ := c.expr(node.expr)
-	if typ !in [.int, .long] {
+	if !typ.is_numeric() {
 		c.error("operación inválida: $node.op.str() ('$typ' no es un tipo numérico)",
 			node.pos)
 	}

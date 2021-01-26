@@ -2,12 +2,11 @@
 //import "Z2.zs";
 //import "impfolder/Z4.zs";
 
-const KAKA = 200;
-
 const ANIO_ACTUAL = 2020;
 const AGE = ANIO_ACTUAL - 1971;
 const AGE2 = AGE * 2;
-const BOOLEAN = true;
+
+const OFFSET: offset = 0x800000;
 
 movement my_movement {
 	walk_down_vslow
@@ -22,7 +21,10 @@ script main {
 	//var myvar: bool = 4;
 	//myvar = 2020;
 	{
-		var myvar: bool = false;
-		myvar = true;
+		/*var myvar = movement {
+			walk_up * 2
+		};
+		var other = ANIO_ACTUAL;
+		var milk: int = true;*/
 	}
 }

@@ -128,8 +128,15 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 				c.error("constante '$node.name' duplicada", node.pos)
 				c.warn('previamente declarada aquí', c.const_names[node.name])
 			}
+			ct := c.expr(node.expr)
+			if node.typ != .unknown {
+				c.check_expected(ct, node.typ) or {
+					c.error("no se le puede asignar un valor a la constante '$node.name': $err",
+						node.pos)
+				}
+			}
+			node.typ = ct
 			c.const_names[node.name] = node.pos
-			node.typ = c.expr(node.expr)
 		}
 		ast.IfStmt {
 			for branch in node.branches {
@@ -149,8 +156,18 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 	// izquierda
 	is_decl := assign_stmt.is_decl
 	left := assign_stmt.left
-	mut left_type := c.expr(left)
 	is_blank_ident := left.is_blank_ident()
+	mut left_type := ast.Type.unknown
+	if !is_decl && !is_blank_ident {
+		left_type = c.expr(left)
+		c.expected_type = left_type
+	} else if assign_stmt.left_type != .unknown {
+		left_type = assign_stmt.left_type
+		c.expected_type = left_type
+	}
+	if left_type == .offset && is_decl {
+		c.error("no se pueden declarar variables del tipo 'offset'", left.position())
+	}
 	// derecha
 	right := assign_stmt.right
 	mut right_type := c.expr(right)
@@ -159,15 +176,21 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 	if left_type == .unknown {
 		left_type = right_type
 	}
+	//
 	// println('left_type -> $left_type')
 	// println('right_type -> $right_type')
-	if (left_type == .string || right_type == .string) && is_decl {
-		c.error("no se puede declarar variables de tipo string, use un 'text' a nivel de módulo para esto",
-			assign_stmt.pos)
+	//
+	if right_type == .movement && !is_decl {
+		c.error("no se puede usar valores de tipo 'movement' para variables ya declaradas",
+			right.position())
 	}
 	if right_type == .string && !is_decl {
 		c.error("no se pueden usar valores de tipo string en variables, use un 'text' a nivel de módulo para esto",
-			assign_stmt.pos)
+			right.position())
+	}
+	if (left_type == .string || right_type == .string) && is_decl {
+		c.error("no se puede declarar variables de tipo string, use un 'text' a nivel de módulo para esto",
+			right.position())
 	}
 	c.expected_type = left_type
 	if is_decl {
@@ -234,6 +257,6 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 	// Dual sides check (compatibility check)
 	c.check_expected(right_type, left_type) or {
 		name := (left as ast.Ident).name
-		c.error("no se le puede asignar un valor a '$name': $err", right.position())
+		c.error("no se le puede asignar este valor a '$name': $err", right.position())
 	}
 }

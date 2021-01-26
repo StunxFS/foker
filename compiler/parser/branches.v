@@ -171,7 +171,7 @@ fn (mut p Parser) movement_expr(is_anon bool) ast.MovementExpr {
 	p.check(.rbrace)
 	mov := ast.MovementExpr{
 		name: name
-		pos: pos
+		pos: mov_pos.extend(pos)
 		is_anon: is_anon
 		movs: movs
 	}
