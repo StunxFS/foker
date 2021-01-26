@@ -5,17 +5,13 @@ module about
 import os
 
 const version = '0.1.0'
-
 const emitter_bin_version = '0.1.0'
-
 const status = 'alpha'
-
 const build_time = '<unknown>'
 
 pub fn help() {
 	program := os.args[0]
-	println("=================================================
-ZubatScript | Mensaje de Ayuda | Work In Progress
+	println("ZubatScript | Mensaje de Ayuda | Work In Progress
 =================================================
 Autor: StunxFS
 Fecha de compilación: $about.build_time
@@ -58,6 +54,12 @@ Opciones:
         código que se compila condicionalmente. (ej: #if DEFINED_2020)
         Ejemplo de uso:
             $program -d DEFINED_2020 main_def_test.zs
+            
+    -u, -undefine
+        Esta opción indefine el nombre de la bandera que se le pase, esto es muy útil para manejar
+        código que se compila condicionalmente. (ej: #if !DEFINED_2020)
+        Ejemplo de uso:
+            $program -u DEFINED_2020 main_def_test.zs
 
     -o, -output
         Esta opción le especifica al compilador cómo debería llamarse el archivo de salida

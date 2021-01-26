@@ -87,7 +87,7 @@ pub fn parse_args_and_get_prefs() &Preferences {
 					util.err('no se puede definir valores booleanos constantes (true y false)')
 				}
 				if to_define.starts_with('__') && to_define.ends_with('__') {
-					util.err('esta forma de declaración está reservada por el compilador')
+					util.err('esta forma de declaración está reservada por el compilador: $to_define')
 				}
 				if to_define != '' {
 					if to_define !in res.defines {
@@ -96,7 +96,20 @@ pub fn parse_args_and_get_prefs() &Preferences {
 						util.err('esta bandera ya está definida: $to_define')
 					}
 				} else {
-					util.err('no se puede definir una bandera vacía')
+					util.err('no se puede definir una bandera vacía: $to_define')
+				}
+				i++
+			}
+			'-u', '-undefine' {
+				to_undefine := cmdline.option(current_args, arg, '')
+				if to_undefine == '' {
+					util.err("no se puede indefinir una bandera vacía: $to_undefine")
+				}
+				if to_undefine !in res.defines {
+					util.err('no se puede indefinir una bandera no definida: $to_undefine')
+				}
+				if to_undefine.starts_with('__') && to_undefine.ends_with('__') {
+					util.err('esta tipo de banderas no se pueden indefinir: $to_undefine')
 				}
 				i++
 			}
