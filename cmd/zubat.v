@@ -2,15 +2,8 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module main
 
-// import compiler.gen.binary
 import os
-import v.depgraph
-import compiler.ast
-import compiler.util
 import compiler.about
-import compiler.prefs
-import compiler.parser
-import compiler.checker
 
 fn main() {
 	if os.args.len == 1 || (os.args.len == 2 && os.args[1] in ['-h', '-a', 'help', 'ayuda']) {

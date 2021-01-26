@@ -2,6 +2,14 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module main
 
+// import compiler.gen.binary
+import v.depgraph
+import compiler.ast
+import compiler.util
+import compiler.prefs
+import compiler.parser
+import compiler.checker
+
 struct Builder {
 mut:
 	pref         prefs.Preferences
