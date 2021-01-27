@@ -29,7 +29,7 @@ match cmd {
 	'build' {
 		if exists(exe_name) {
 			println('> Removiendo el antiguo compilador...')
-			rm(exe_name)
+			rm(exe_name)?
 		}
 		println('> Compilando a ZubatScript...')
 		system('v -cg -o $exe_name cmd/')
@@ -37,7 +37,7 @@ match cmd {
 	'build-for-release' {
 		if exists(exe_name) {
 			println('> Removiendo el antiguo compilador...')
-			rm(exe_name)
+			rm(exe_name)?
 		}
 		println('> Compilando a ZubatScript con optimizaciones...')
 		system('v -prod -o $exe_name cmd/')
@@ -45,7 +45,7 @@ match cmd {
 	'build-and-test' {
 		if exists(exe_name) {
 			println('> Removiendo el antiguo compilador...')
-			rm(exe_name)
+			rm(exe_name)?
 		}
 		println('> Compilando a ZubatScript...')
 		if system('v -cg -o $exe_name cmd/') == 0 {
@@ -70,7 +70,7 @@ match cmd {
 		}
 		println('> Ejecutando ${exe_symlink}...')
 		system(exec_symlink)
-		rm(exe_symlink)
+		rm(exe_symlink)?
 	}
 	else {
 		eprintln('make.vsh: comando `$cmd` desconocido')
