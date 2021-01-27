@@ -40,7 +40,6 @@ mut:
 	errors_details []string
 	loop_label     string // obtiene valor cuando se está dentro de un bucle for etiquetado
 	has_main       bool
-	constants      map[string]int
 }
 
 pub fn new_checker(table &ast.Table, pref &prefs.Preferences) Checker {
@@ -139,19 +138,7 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 			c.ident(mut node.ident)
 		}
 		ast.Const {
-			if node.name in c.const_names {
-				c.error("constante '${c.stripped_name(node.name)}' duplicada", node.pos)
-				c.warn('previamente declarada aquí', c.const_names[node.name])
-			}
-			ct := c.expr(node.expr)
-			if node.typ != .unknown {
-				c.check_expected(ct, node.typ) or {
-					c.error("no se le puede asignar un valor a la constante '${c.stripped_name(node.name)}': $err",
-						node.pos)
-				}
-			}
-			node.typ = ct
-			c.const_names[node.name] = node.pos
+			c.const_decl(mut node)
 		}
 		ast.IfStmt {
 			for branch in node.branches {
@@ -165,6 +152,22 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 		}
 		else {} // TODO: implementar el resto de las declaraciones
 	}
+}
+
+fn (mut c Checker) const_decl(mut node ast.Const) {
+	if node.name in c.const_names {
+		c.error("constante '${c.stripped_name(node.name)}' duplicada", node.pos)
+		c.warn('previamente declarada aquí', c.const_names[node.name])
+	}
+	ct := c.expr(node.expr)
+	if node.typ != .unknown {
+		c.check_expected(ct, node.typ) or {
+			c.error("no se le puede asignar un valor a la constante '${c.stripped_name(node.name)}': $err",
+				node.pos)
+		}
+	}
+	node.typ = ct
+	c.const_names[node.name] = node.pos
 }
 
 fn (c &Checker) stripped_name(name string) string {

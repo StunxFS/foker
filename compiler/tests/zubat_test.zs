@@ -1,6 +1,6 @@
 // ZubatTest | ValenLoveForever
 import Z3; // compiler/tests/Z3.zs
-import impfolder::Z3 as Z3_2;
+//import impfolder::Z3 as Z3_2;
 
 text Kakawate = "Dd";
 
@@ -8,6 +8,9 @@ const ANIO_ACTUAL = 2020;
 const AGE = ANIO_ACTUAL - 1971;
 const AGE2 = AGE * 2;
 const AGGE = ATK_NONE + Z3::CCC;
+
+//const DESPUES = ANTES;
+//const ANTES = 2;
 
 const OFFSET: offset = 0x800000;
 

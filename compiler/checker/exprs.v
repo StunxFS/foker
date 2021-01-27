@@ -211,6 +211,10 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 	if obj := c.file.mod.global_scope.find(name) {
 		match mut obj {
 			ast.Const {
+				if ident.mod != checker.builtins_mod && ident.pos.pos < obj.pos.pos {
+					c.error("constante '$ident.name' indefinida (usada antes de la declaración)",
+						ident.pos)
+				}
 				mut typ := obj.typ
 				if typ == .unknown {
 					typ = c.expr(obj.expr)
