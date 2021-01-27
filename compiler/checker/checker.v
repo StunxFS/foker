@@ -140,6 +140,25 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 		ast.Const {
 			c.const_decl(mut node)
 		}
+		ast.QuestionStmt {
+			if node.question.lit.len == 0 {
+				c.error('por favor, coloque una pregunta aquí', node.question.pos)
+			}
+			for stmt in node.yes.stmts {
+				c.stmt(stmt)
+			}
+			for stmt in node.no.stmts {
+				c.stmt(stmt)
+			}
+		}
+		ast.CheckgenderStmt {
+			for stmt in node.boy_stmts {
+				c.stmt(stmt)
+			}
+			for stmt in node.girl_stmts {
+				c.stmt(stmt)
+			}
+		}
 		ast.IfStmt {
 			for branch in node.branches {
 				if !branch.is_else && c.expr(branch.cond) != .bool {

@@ -318,7 +318,7 @@ fn (mut p Parser) import_stmt() ast.Import {
 	//
 	if mod_alias in p.imports {
 		p.error_with_pos('ya hay un módulo importado con este nombre, puede usar un alias para resolver esto',
-			import_node.mod_pos)
+			import_node.pos)
 	}
 	p.imports[mod_alias] = complete_mod
 	p.table.imports << mod_name

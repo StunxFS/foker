@@ -87,12 +87,10 @@ fn (mut p Parser) question_stmt() ast.Stmt {
 		yes: ast.QuestionAnswer{
 			pos: yes_pos
 			stmts: yes_stmts
-			is_yes: true
 		}
 		no: ast.QuestionAnswer{
 			pos: no_pos
 			stmts: no_stmts
-			is_yes: false
 		}
 	}
 }

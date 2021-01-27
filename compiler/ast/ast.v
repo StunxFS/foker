@@ -152,7 +152,6 @@ pub mut:
 pub struct QuestionAnswer {
 pub:
 	pos    token.Position
-	is_yes bool // false for 'no'
 pub mut:
 	stmts []Stmt
 }
