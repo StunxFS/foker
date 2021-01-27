@@ -12,6 +12,7 @@ import compiler.token
 const (
 	bad_types     = [ast.Type.string, .byte, .bool, .movement, .offset]
 	bad_types_str = 'string/byte/bool/movement/offset'
+	builtins_mod  = 'std::builtins::builtins'
 )
 
 fn (mut c Checker) check_div_by_zero(expr ast.Expr, op_kind token.Kind) {
@@ -142,6 +143,17 @@ pub fn (mut c Checker) prefix_expr(mut node ast.PrefixExpr) ast.Type {
 }
 
 pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
+	if c.const_deps.len > 0 {
+		mut name := ident.name
+		if !name.contains('::') && ident.mod != checker.builtins_mod {
+			name = '$ident.mod::$ident.name'
+		}
+		if name == c.const_decl {
+			c.error("ciclo en constante '$c.const_decl'", ident.pos)
+			return .unknown
+		}
+		c.const_deps << name
+	}
 	if ident.kind == .blank_ident {
 		if ident.tok_kind != .assign {
 			c.error("ident indefinido: '_' (solo se puede usar en asignaciones)", ident.pos)
@@ -149,9 +161,13 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 		return .unknown
 	}
 	// segundo uso
-	if ident.kind in [.constant, .variable] {
+	if ident.kind in [.constant, .variable, .movement] {
 		info := ident.obj
 		if info is ast.Var {
+			if info.is_free {
+				c.error('esta variable está liberada y por lo tanto ya no se puede usar',
+					ident.pos)
+			}
 			return info.typ
 		} else if info is ast.Const {
 			return info.typ
@@ -161,10 +177,15 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 		if obj := ident.scope.find(ident.name) {
 			match mut obj {
 				ast.Var {
+					if obj.is_global && !obj.is_builtin && !obj.is_pub && obj.mod != c.mod {
+						c.error("la variable '$ident.name' es privada", ident.pos)
+					}
 					obj.is_used = true
 					if ident.pos.pos < obj.pos.pos {
-						c.error("variable '$ident.name' indefinida (usada antes de la declaración)",
-							ident.pos)
+						if !obj.is_global {
+							c.error("variable '$ident.name' indefinida (usada antes de la declaración)",
+								ident.pos)
+						}
 					}
 					typ := obj.typ
 					if typ == .unknown {
@@ -183,20 +204,43 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 			}
 		}
 	}
-	if obj := c.file.mod.global_scope.find(ident.name) {
+	mut name := ident.name
+	if !name.contains('::') && ident.mod != checker.builtins_mod {
+		name = '$ident.mod::$ident.name'
+	}
+	if obj := c.file.mod.global_scope.find(name) {
 		match mut obj {
 			ast.Const {
 				mut typ := obj.typ
 				if typ == .unknown {
 					typ = c.expr(obj.expr)
 				}
-				ident.kind = .constant
+				ident.name = name
 				obj.typ = typ
+				ident.kind = if typ == .movement {
+					ast.IdentKind.movement
+				} else {
+					ast.IdentKind.constant
+				}
+				if !obj.is_pub && !obj.is_builtin && obj.mod != c.mod {
+					k := if obj.typ == .movement { 'el movimiento' } else { 'la constante' }
+					k1 := if obj.typ == .movement { 'privado' } else { 'privada' }
+					c.error("$k '$name' es $k1", ident.pos)
+				}
 				ident.obj = obj
 				return typ
 			}
 			else {}
 		}
+	}
+	if ident.kind == .unresolved && ident.mod != checker.builtins_mod {
+		save_mod := ident.mod
+		ident.mod = checker.builtins_mod
+		b_type := c.ident(mut ident)
+		if b_type != .unknown {
+			return b_type
+		}
+		ident.mod = save_mod
 	}
 	c.error("variable o constante '$ident.name' indefinida", ident.pos)
 	return .unknown

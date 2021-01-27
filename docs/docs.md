@@ -95,7 +95,7 @@ Podemos hacer lo siguiente:
 
 Yep, podemos hacer operaciones básicas en las expresiones. Por ejemplo: `2 + 4` suma 2 literales numéricos, `myvar + MYCONST` suma una variable y una constante. `myvar * 2 * (MYCONST * 2)` multiplica una variable por 2 y el resultado de este lo multiplica por el resultado de multiplicar una constante por 2.
 
-La única regla aquí es que los literales, las variables y constantes a usar deben ser del algún tipo numérico, no se pueden hacer estas operaciones básicas con los literales de cadena (string, "") y los booleanos (bool, true/false) y mucho menos con los movimientos, si intentamos esto, obtendremos un error similar a este:
+La única regla aquí es que los literales, las variables y constantes a usar deben ser del algún tipo numérico, no se pueden hacer estas operaciones básicas con los literales de cadena (string, ""), los booleanos (bool, true/false) y mucho menos con los movimientos; si intentamos esto, obtendremos un error similar a este:
 
 ```c
 myscript.zs:1:22: error: estas operaciones no están permitidas con bool/flags
@@ -150,14 +150,15 @@ Esto es todo lo que se puede hacer con las expresiones por ahora; hay más tipos
 
 ## Archivos e importes
 
-Comencemos pues, ya luego de haber visto todo sobre las expresiones, a aprender sobre el cómo ve ZubatScript a un archivo de código .zs. Para ZubatScript cada archivo que se importe y/o use es un módulo. Si tengo un archivo que se llama `question.zs`, el módulo importado se llamará `question`.
+Comencemos pues, ya luego de haber visto todo sobre las expresiones, a aprender sobre el cómo ve ZubatScript a un archivo .zs. Para ZubatScript cada archivo que se importe y/o use es un módulo. Si tengo un archivo que se llama `question.zs`, el módulo importado se llamará `question`.
 
 Esto nos abre caminos a una declaración muy importante en ZubatScript: `import`, la cual se usa para importar archivos. Veamos un ejemplo:
+
 ```v
-import std:"maths.zs";
-import "myfile.zs";
-import "stuffs/stuffs.zs";
-import "myfolder/myfile.zs" as myfile2;
+import std::maths;
+import myfile;
+import stuffs::stuffs;
+import myfolder::myfile as myfile2;
 
 script main {
   var square_of_2004 = math::square!(2004);
@@ -171,7 +172,7 @@ Wow, demasiadas cosas nuevas, bueno, calma, poco a poco sabrás entenderlas toda
 
 **1) Importes de archivos de la librería estandard**
 
-Además de proveer todo un sistema de compilación para facilitar el desarrollo de scripts, Zubat también provee una librería estandard que está llena de utilidades, mayormente estas son macros. Entonces, para importar un archivo de la librería estandard se debe usar la forma: `import std:"<ruta/al/archivo>"`, en donde `<ruta/al/archivo>` se reemplazará por la ruta al archivo que queramos importar; si no sabemos que archivo importar, podemos echarle un vistazo a la carpeta stdlib.
+Además de proveer todo un sistema de compilación para facilitar el desarrollo de scripts, Zubat también provee una librería estandard que está llena de utilidades, mayormente estas son macros. Entonces, para importar un archivo de la librería estandard se debe usar la forma: `import std::<ruta::al::archivo>`, en donde `<ruta::al::archivo>` se reemplazará por la ruta al archivo que queramos importar; si no sabemos que archivo importar, podemos echarle un vistazo a la carpeta `stdlib`.
 
 En este caso, se importa desde la carpeta `stdlib`, el archivo `maths.zs`, que contiene macros útiles para funciones matemáticas avanzadas que no se pueden hacer fácilmente en Zubat por medio de las expresiones.
 
@@ -179,7 +180,7 @@ En este caso, se importa desde la carpeta `stdlib`, el archivo `maths.zs`, que c
 
 Un archivo local puede ser otro archivo .zs que esté en la misma carpeta que el archivo que se está compilando, o en varias subcarpetas. Una cuestión a tener en cuenta es que no se pueden usar rutas relativas (`../ruta/relativa`), ni se permiten importes circulares (por ejemplo, `file1.zs` importa a `file2.zs`, y, a la vez, `file2.zs` importa a `file1.zs`).
 
-Además, otra cosa a tener en cuenta es que, para importar un archivo .zs, se debe comenzar desde la carpeta base del archivo .zs que se le pasó al compilador, es decir, si tenemos esta estructura de directorio dentro de la carpeta de un proyecto, para nuestro script:
+Además, otra cosa a tener en cuenta es que, para importar un archivo .zs, se debe comenzar desde la carpeta base del archivo .zs que se le pasó al compilador. Ejemplo: tenemos esta estructura de directorio, dentro de la carpeta de un proyecto, para nuestro script:
 
 ```bash
 scripts/
@@ -190,22 +191,22 @@ scripts/
         goals.zs
 ```
 
-Entonces, en `pallet_town.zs` importamos a `StunxFS/random.zs`, y en `StunxFS/random.zs` queremos hacer uso de `Rub3n/goals.zs`, pero... ¿cómo hacerlo? podriamos usar una ruta relativa así: `import "../Rub3n/goals.zs"`, pero no está permitido esta forma, entonces, podemos usar una ruta absoluta, partiendo desde la carpeta scripts, así: `import "Rub3n/goals.zs";`. Para que esto funcione, siempre se debe ejecutar a Zubat dede la carpeta raíz así: `zubat script/pallet_town.zs`, o en la misma carpeta `scripts`: `zubat pallet_town.zs`.
+Entonces, en `pallet_town.zs` importamos a `StunxFS/random.zs`, y en `StunxFS/random.zs` queremos hacer uso de `Rub3n/goals.zs`, pero... ¿cómo hacerlo? podriamos usar una ruta relativa así: `import ..::Rub3n::goals;`, pero no está permitido esta forma, entonces, podemos usar una ruta absoluta, partiendo desde la carpeta scripts, así: `import Rub3n::goals;`. Para que esto funcione, siempre se debe ejecutar a Zubat dede la carpeta raíz así: `zubat script/pallet_town.zs`, o en la misma carpeta `scripts`: `zubat pallet_town.zs`. De todas formas, el compilador nos avisará si estamos importando algo inexistente o que.
 
 **3) Importar un archivo con un alias**
 
 Puede pasar que existan 2 archivos con el mismo nombre (`stuffs.zs` y `FR/stuffs.zs`, por ejemplo), entonces, si importamos ambos:
 
 ```v
-import "stuffs.zs";
-import "FR/stuffs.zs";
+import stuffs;
+import FR::stuffs;
 ```
 
 Tendremos problemas, ¿por qué? pues el nombre del módulo del primer archivo será `stuff`, al momento de importar el módulo del segundo archivo, obtendremos un error de duplicación de módulos, entonces ¿cómo hacemos para usar los 2 sin problemas? pues haciendo uso de un alias:
 
 ```v
-import "stuffs.zs";
-import "FR/stuffs.zs" as fr_stuffs;
+import stuffs;
+import FR::stuffs as fr_stuffs;
 ```
 
 En este caso, se importa el módulo del segundo archivo sin problemas debido al alias que tiene (`fr_stuffs`). Y para hacer uso del contenido de este módulo, usamos el alias: `fr_stuffs::mymacro!();`.
@@ -224,8 +225,8 @@ Si estamos en un módulo y queremos hacer uso de un script que hemos hecho, pues
 Ejemplo de un módulo sería este:
 
 ```rust
-import std:"maths.zs";
-import std:"buffers.zs";
+import std::maths;
+import std::buffers;
 
 script square_250000 {
     var square = maths::square!(250000);
@@ -240,7 +241,7 @@ script main {
             call square_250000;
         }
         no {
-            msg!("Datos que son muy interesantes. ¡Fuera de aquí pedazo de caca!");
+            msg!("Datos que son muy interesantes. ¡Fuera de aquí, pedazo de caca!");
         }
     }
 }

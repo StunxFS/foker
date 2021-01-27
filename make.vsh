@@ -32,7 +32,7 @@ match cmd {
 			rm(exe_name)
 		}
 		println('> Compilando a ZubatScript...')
-		system('v -o $exe_name cmd/')
+		system('v -cg -o $exe_name cmd/')
 	}
 	'build-for-release' {
 		if exists(exe_name) {
@@ -48,7 +48,7 @@ match cmd {
 			rm(exe_name)
 		}
 		println('> Compilando a ZubatScript...')
-		if system('v -o $exe_name cmd/') == 0 {
+		if system('v -cg -o $exe_name cmd/') == 0 {
 			println('> Ejecutando el ejecutable generado para ver si funciona...')
 			system('./zubat compiler/tests/zubat_test.zs')
 		}

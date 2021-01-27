@@ -77,6 +77,7 @@ pub enum Kind {
 	comma
 	colon
 	semicolon
+	doblecolon // ::
 	bang
 	dot
 	dotdot
@@ -184,6 +185,7 @@ fn build_tokenstr() []string {
 	k[Kind.comma] = ','
 	k[Kind.colon] = ':'
 	k[Kind.semicolon] = ';'
+	k[Kind.doblecolon] = '::'
 	k[Kind.bang] = '!'
 	k[Kind.dot] = '.'
 	k[Kind.dotdot] = '..'

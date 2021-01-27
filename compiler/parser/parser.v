@@ -28,7 +28,6 @@ mut:
 	peek_tok2       token.Token
 	peek_tok3       token.Token
 	table           &ast.Table
-	expr_mod        string
 	scope           &ast.Scope
 	global_scope    &ast.Scope
 	have_dyn_custom bool
@@ -36,10 +35,13 @@ mut:
 	inside_if       bool
 	inside_for      bool
 	movs_tmp        int
-	imports         []string // importes locales, para evitar duplicación
 	is_main         bool
 	is_builtin      bool
 	mod_name        string
+	ast_imports     []ast.Import      // mod_names
+	used_imports    []string          // alias
+	imports         map[string]string // alias => mod_name
+	expr_mod        string
 }
 
 fn parse_text(text string, path string, table &ast.Table, pref &prefs.Preferences, global_scope &ast.Scope) ast.File {
@@ -76,13 +78,30 @@ pub fn parse_file(path string, table &ast.Table, pref &prefs.Preferences, global
 	return p.parse()
 }
 
+fn (mut p Parser) set_mod_name() {
+	if p.file_name.starts_with(parser.stdlib_path) {
+		if p.is_builtin {
+			p.mod_name = 'std::builtins::builtins'
+		} else {
+			p.mod_name = p.file_name.replace(parser.stdlib_path, 'std').all_before_last('.zs').replace(os.path_separator,
+				'::')
+		}
+	} else {
+		p.mod_name = p.file_name.all_after_last(p.file_name_dir + os.path_separator).all_before_last('.zs').replace(os.path_separator,
+			'::')
+	}
+	if p.pref.is_verbose {
+		println('Parser.set_mod_name(): $p.mod_name')
+	}
+}
+
 pub fn (mut p Parser) parse() ast.File {
 	p.read_first_token()
-	mut stmts := []ast.Stmt{}
-	mut imports := []ast.Import{}
-	p.mod_name = p.file_base[..3] // sin el ".zs"
 	p.is_main = p.file_name == p.pref.file
 	p.is_builtin = p.file_name.starts_with(parser.builtins_path)
+	p.set_mod_name()
+	mut stmts := []ast.Stmt{}
+	mut imports := []ast.Import{}
 	if p.pref.is_verbose {
 		println("> Parseando archivo '$p.file_name'")
 	}
@@ -107,6 +126,7 @@ pub fn (mut p Parser) parse() ast.File {
 	for p.tok.kind != .eof {
 		stmts << p.top_stmt()
 	}
+	p.check_unused_imports()
 	p.scope.end_pos = p.tok.pos
 	return ast.File{
 		path: p.file_name
@@ -185,7 +205,7 @@ fn (mut p Parser) check(expected token.Kind) {
 		p.next()
 	} else {
 		expected_str := match expected {
-			.name { 'un identificador' }
+			.name { 'un nombre' }
 			.number { 'un literal numérico' }
 			.string { 'un literal de cadena' }
 			else { "'" + expected.str() + "'" }
@@ -204,44 +224,107 @@ fn (mut p Parser) check(expected token.Kind) {
 
 fn (mut p Parser) check_name() string {
 	name := p.tok.lit
+	if p.peek_tok.kind == .doblecolon && name in p.imports {
+		p.register_used_import(name)
+	}
 	p.check(.name)
 	return name
 }
 
+fn (mut p Parser) check_module_name() string {
+	mod := p.check_name()
+	if !p.known_import(mod) {
+		p.error_with_pos("el módulo '$mod' no está importado", p.prev_tok.position())
+	}
+	return mod
+}
+
 fn (mut p Parser) import_stmt() ast.Import {
+	import_pos := p.tok.position()
 	p.check(.key_import)
-	mut is_std := false
-	if p.tok.kind == .name {
-		if p.tok.lit != 'std' {
-			p.error("se esperaba 'std:'")
+	mut pos := p.tok.position()
+	mut path := p.check_name()
+	mut mod_alias := path
+	mut complete_mod := mod_alias
+	mut import_node := ast.Import{
+		pos: import_pos.extend(pos)
+	}
+	path = match path {
+		'std' { parser.stdlib_path }
+		else { os.join_path(p.pref.file_dir, path) }
+	}
+	import_node = ast.Import{
+		pos: import_node.pos
+		mod_pos: import_node.mod_pos
+		alias_pos: import_node.alias_pos
+		mod: mod_alias
+		alias: mod_alias
+	}
+	for p.tok.kind == .doblecolon {
+		p.next()
+		s_pos := p.tok.position()
+		if p.tok.kind != .name {
+			p.error_with_pos("error en la sintáxis de módulo, por favor use la forma 'x::y::z'",
+				s_pos)
 		}
-		p.check(.name)
-		p.check(.colon)
-		is_std = true
+		if import_pos.line_nr != s_pos.line_nr {
+			p.error_with_pos("'import' y el submódulo deben estar en la misma línea",
+				s_pos)
+		}
+		mod_alias = p.check_name()
+		path = os.join_path(path, mod_alias)
+		pos = pos.extend(s_pos)
+		import_node = ast.Import{
+			pos: import_pos.extend(pos)
+			mod_pos: pos
+			alias_pos: s_pos
+			mod: mod_alias
+			alias: mod_alias
+		}
+		complete_mod += '::$mod_alias'
 	}
-	pos := p.tok.position()
-	mut to_import := p.tok.lit
-	p.check(.string)
-	if to_import.contains('..' + os.path_separator) || to_import.contains('.' + os.path_separator) {
-		p.error_with_pos('las rutas de archivos a importar no pueden ser relativas', pos)
+	mod_name := import_node.mod
+	if p.tok.kind == .key_as {
+		p.next()
+		alias_pos := p.tok.position()
+		mod_alias = p.check_name()
+		if mod_alias == mod_name {
+			p.error_with_pos("el alias para el importe '$complete_mod as $mod_alias' es redundante",
+				p.prev_tok.position())
+		}
+		import_node = ast.Import{
+			pos: import_node.pos.extend(alias_pos)
+			mod_pos: import_node.mod_pos
+			alias_pos: alias_pos
+			mod: import_node.mod
+			alias: mod_alias
+		}
 	}
-	$if windows {
-		to_import = to_import.replace('/', os.path_separator)
+	if os.is_dir(path) {
+		p.error_with_pos('no se pueden importar directorios', import_node.pos)
 	}
-	to_import = if is_std { os.join_path(parser.stdlib_path, to_import) } else { os.join_path(p.pref.file_dir,
-			to_import) }
-	if to_import.starts_with(parser.builtins_path) && !p.is_builtin {
-		p.error_with_pos('los archivos builtins no se pueden importar', pos)
+	path_zs := '${path}.zs'
+	if !os.exists(path_zs) {
+		p.error_with_pos('no se puede importar este módulo, ya que no existe', import_node.mod_pos)
 	}
-	if to_import in p.imports {
-		p.error_with_pos('este archivo ya está importado', pos)
+	if p.is_builtin {
+		p.register_used_import(mod_alias)
 	}
-	p.imports << to_import
+	import_node = ast.Import{
+		...import_node
+		file: path_zs
+	}
 	p.check(.semicolon)
-	return ast.Import{
-		pos: pos
-		file: to_import
+	//
+	if mod_alias in p.imports {
+		p.error_with_pos('ya hay un módulo importado con este nombre, puede usar un alias para resolver esto',
+			import_node.mod_pos)
 	}
+	p.imports[mod_alias] = complete_mod
+	p.table.imports << mod_name
+	p.ast_imports << import_node
+	//
+	return import_node
 }
 
 pub fn (mut p Parser) top_stmt() ast.Stmt {
@@ -256,7 +339,14 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 			}
 			.key_pub {
 				match p.peek_tok.kind {
+					.key_var { return p.parse_var_stmt(true) }
+					.key_const { return p.const_decl() }
+					.key_text { return p.text_decl() }
 					.key_script { return p.script_stmt() }
+					.key_movement { return ast.ExprStmt{
+							expr: p.movement_expr(false)
+						} }
+					.key_cmd { return p.parse_cmd_stmt() }
 					else { p.error("mal uso de la palabra clave 'pub'") }
 				}
 			}
@@ -297,6 +387,13 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 	return ast.Stmt{}
 }
 
+fn (mut p Parser) dont_use_name_imports(name string, pos token.Position) {
+	if name in p.imports {
+		p.error_with_pos('este nombre ya está siendo usado por un módulo importado',
+			pos)
+	}
+}
+
 fn (mut p Parser) parse_raw_stmt() ast.Stmt {
 	p.check(.key_raw)
 	mut pos := p.tok.position()
@@ -318,32 +415,33 @@ fn (mut p Parser) parse_alias_stmt() ast.Stmt {
 	p.check(.key_alias)
 	alias_name_pos := p.tok.position()
 	alias_name := p.check_name()
-	ecmd1, alias1 := p.table.exists_cmd(alias_name)
-	if alias1 {
-		p.error_with_pos('ya existe un alias con este nombre, por favor use otro', alias_name_pos)
-	}
-	if ecmd1 {
-		p.error_with_pos('ya existe un comando con este nombre, por favor use otro', alias_name_pos)
-	}
 	p.check(.assign)
-	alias_target_pos := p.tok.position()
-	alias_target := p.check_name()
-	ecmd, alias := p.table.exists_cmd(alias_target)
-	if alias {
-		p.error_with_pos('no se puede declarar un alias para otro alias', alias_target_pos)
-	}
-	if !ecmd {
-		p.error_with_pos('no existe un comando con este nombre', alias_target_pos)
+	from_mod := p.peek_tok.kind == .doblecolon
+	mut alias_target_pos := p.tok.position()
+	mut alias_target := if from_mod { p.check_module_name() } else { p.check_name() }
+	if from_mod {
+		p.next()
+		alias_target_pos = alias_target_pos.extend(p.tok.position())
+		alias_target += '::$p.check_name()'
 	}
 	p.check(.semicolon)
 	if p.file_name == parser.builtins_file {
 		p.table.builtins_cmds << alias_name
 	}
-	p.table.alias[alias_name] = ast.Alias{alias_target, alias_name_pos}
-	return ast.Stmt{}
+	return ast.Alias{
+		target: alias_target
+		target_pos: alias_target_pos
+		name: alias_name
+		pos: alias_name_pos
+		mod: p.mod_name
+	}
 }
 
 fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
+	is_pub := p.tok.kind == .key_pub
+	if is_pub {
+		p.next()
+	}
 	p.check(.key_cmd)
 	name_pos := p.tok.position()
 	name := p.check_name()
@@ -372,36 +470,13 @@ fn (mut p Parser) parse_cmd_stmt() ast.Stmt {
 	}
 	p.check(.rparen)
 	p.check(.semicolon)
-	ecmd, is_alias := p.table.exists_cmd(name)
-	if ecmd || is_alias {
-		is_builtin := name in p.table.builtins_cmds
-		if is_alias {
-			msg := "un alias contiene el nombre del comando '$name'"
-			if is_builtin {
-				p.error_and_warn2(msg, name_pos, 'el alias se encuentra en los builtins',
-					p.table.alias[name].pos)
-			} else {
-				p.error_and_warn(msg, name_pos, 'el alias se encuentra aquí', p.table.alias[name].pos)
-			}
-		} else {
-			msg := "duplicación del comando '$name'"
-			if is_builtin {
-				p.error_and_warn2(msg, name_pos, 'previamente declarado en los builtins, aquí',
-					p.table.cmds[name].pos)
-			} else {
-				p.error_and_warn(msg, name_pos, 'previamente declarado aquí', p.table.cmds[name].pos)
-			}
-		}
-	}
-	if p.is_builtin {
-		p.table.builtins_cmds << name
-	}
 	cmd := ast.CmdDecl{
-		name: name
+		name: p.prepend_mod(name)
 		params: params
 		pos: name_pos
+		mod: p.mod_name
+		is_pub: is_pub || p.is_builtin
 	}
-	p.table.cmds[name] = cmd
 	return cmd
 }
 
@@ -426,7 +501,7 @@ fn (mut p Parser) parse_dyn_custom() ast.Stmt {
 			dyn_offset: dyn_offset
 		}
 	} else {
-		p.error('esto no es soportado en el backend de decomp')
+		p.error('esto no es soportado por el backend de decomp')
 	}
 	return ast.Stmt{}
 }
@@ -446,7 +521,8 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	script_pos := p.tok.position()
 	p.check(.key_script)
 	name_pos := p.tok.position()
-	script_name := p.check_name()
+	mut script_name := p.check_name()
+	p.dont_use_name_imports(script_name, name_pos)
 	p.cur_script_name = script_name
 	if !is_extern && p.pref.build_mode != .direct && !p.is_main {
 		p.error_with_pos('no se pueden declarar scripts en archivos importados, ' +
@@ -479,41 +555,31 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	}
 	mut stmts := p.parse_block()
 	spenp := script_pos.extend(name_pos)
-	if p.table.exists_script(script_name) {
-		p.error_and_warn("duplicación del script '$script_name'", spenp, 'esto fue previamente declarado aquí',
-			p.table.scripts[script_name].pos)
-	}
-	cmd := ast.ScriptDecl{
-		name: script_name
+	nsn := p.prepend_mod(script_name)
+	script := ast.ScriptDecl{
+		name: nsn
 		is_extern: is_extern
 		stmts: stmts
 		pos: spenp
 		is_pub: is_pub
+		mod: p.mod_name
 	}
-	p.table.scripts[script_name] = cmd
-	return cmd
+	return script
 }
 
-/*
-fn (mut p Parser) check_const_name(name string, pos token.Position) {
-	mut is_pure_capital := false
-	for ch in name {
-		is_pure_capital = ch.is_capital()
-	}
-	if !is_pure_capital {
-		p.error_with_pos('los nombres de las constantes deben ser puras mayúsculas',
-			pos)
-	}
-}
-*/
 fn (mut p Parser) const_decl() ast.Const {
 	// start_pos := p.tok.position()
 	// end_pos := p.tok.position()
 	// const_pos := p.tok.position()
+	is_pub := p.tok.kind == .key_pub
+	if is_pub {
+		p.next()
+	}
 	const_mov_err := "no se pueden declarar constantes del tipo 'movement', use una declaración 'movement' para esto"
 	p.check(.key_const)
 	pos := p.tok.position()
 	name := p.check_name()
+	p.dont_use_name_imports(name, pos)
 	mut type_const := ast.Type.unknown
 	// p.check_const_name(name, pos)
 	if p.tok.kind == .colon {
@@ -532,10 +598,13 @@ fn (mut p Parser) const_decl() ast.Const {
 		p.error_with_pos("en vez de usar 'const' para strings, use 'text'", pos)
 	}
 	field := ast.Const{
-		name: name
+		name: p.prepend_mod(name)
+		mod: p.mod_name
 		expr: expr
 		pos: pos
 		typ: type_const
+		is_builtin: p.is_builtin
+		is_pub: is_pub
 	}
 	p.global_scope.register(field)
 	p.check(.semicolon)
@@ -546,17 +615,25 @@ fn (mut p Parser) const_decl() ast.Const {
 }
 
 fn (mut p Parser) text_decl() ast.Stmt {
+	is_pub := p.tok.kind == .key_pub
+	if is_pub {
+		p.next()
+	}
 	p.check(.key_text)
 	pos := p.tok.position()
 	name := p.check_name()
+	p.dont_use_name_imports(name, pos)
 	// p.check_const_name(name, pos)
 	p.check(.assign)
 	expr := p.expr(0)
 	field := ast.Const{
-		name: name
+		name: p.prepend_mod(name)
+		mod: p.mod_name
 		expr: expr
 		pos: pos
 		typ: .string
+		is_builtin: p.is_builtin
+		is_pub: is_pub
 	}
 	p.global_scope.register(field)
 	p.check(.semicolon)
@@ -566,13 +643,15 @@ fn (mut p Parser) text_decl() ast.Stmt {
 // ===== Local Statements =========================================================================
 fn (mut p Parser) local_stmt() ast.Stmt {
 	for {
+		is_ident := p.peek_tok.kind == .doblecolon && p.peek_tok2.kind == .name
 		match p.tok.kind {
 			.name {
-				if p.peek_tok.kind == .lparen {
-					// llamadas a comandos: msgbox("string", 23);
+				if p.peek_tok.kind == .lparen || (is_ident && p.peek_tok3.kind == .lparen) {
+					// llamadas a comandos: msgbox("string", 23), mymod::mycmd();
 					return p.parse_call_stmt()
-				} else if p.peek_tok.kind == .bang && p.peek_tok2.kind == .lparen {
-					// intento de usar una macro: macro!(); - TODO
+				} else if (p.peek_tok.kind == .bang && p.peek_tok2.kind == .lparen)
+					|| (is_ident && p.peek_tok3.kind == .bang) {
+					// intento de usar una macro: macro!(), mymod::macro!() - TODO
 					p.error('el soporte de macros aún no está implementado')
 				} else {
 					// myvar = newvalue;
@@ -638,12 +717,26 @@ fn (mut p Parser) local_stmt() ast.Stmt {
 
 fn (mut p Parser) parser_call_script_stmt() ast.Stmt {
 	p.check(.key_call)
-	script_pos := p.tok.position()
-	script := p.check_name()
+	mut script_pos := p.tok.position()
+	mut script := p.check_name()
+	if p.tok.kind == .doblecolon {
+		if p.pref.backend == .decomp || (p.pref.backend == .binary && p.pref.build_mode == .direct) {
+			p.next()
+			script += '::' + p.tok.lit
+			script_pos = script_pos.extend(p.tok.position())
+			p.check(.name)
+		} else {
+			p.next()
+			p.error(
+				'solo se pueden llamar scripts de otros módulos por el backend de decomp y el backend de binario en ' +
+				'modo de escritura directa')
+		}
+	}
 	p.check(.semicolon)
 	return ast.CallStmt{
 		pos: script_pos
 		script: script
+		mod: p.mod_name
 	}
 }
 
@@ -689,7 +782,7 @@ fn (mut p Parser) check_undefined_variables(expr ast.Expr, val ast.Expr) {
 }
 
 fn (mut p Parser) parse_assign_stmt() ast.Stmt {
-	left := p.parse_ident()
+	left := p.name_expr()
 	op := p.tok.kind
 	if p.tok.kind.is_assign() {
 		p.check(p.tok.kind)
@@ -706,9 +799,14 @@ fn (mut p Parser) parse_assign_stmt() ast.Stmt {
 }
 
 fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
+	is_pub := p.tok.kind == .key_pub
+	if is_pub && is_top_level {
+		p.next()
+	}
 	p.check(.key_var)
 	mut pos := p.tok.position()
 	mut name := p.parse_ident()
+	p.dont_use_name_imports(name.name, name.pos)
 	if is_top_level && p.pref.backend == .decomp {
 		p.error('no se pueden declarar variables en el ámbito global en decomp')
 	}
@@ -729,10 +827,14 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 		type_var = p.parse_type()
 		p.check(.semicolon)
 		obj := ast.ScopeObject(ast.Var{
-			name: name.name
+			name: p.prepend_mod(name.name)
+			mod: p.mod_name
 			offset: offset
 			pos: name.pos
 			is_used: p.is_builtin
+			is_global: true
+			is_builtin: p.is_builtin
+			is_pub: is_pub
 			typ: type_var
 		})
 		name.obj = obj
@@ -754,7 +856,7 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 	if is_top_level && p.tok.kind == .assign {
 		p.error('no se pueden definir variables en el ámbito global')
 	}
-	if p.tok.kind != .assign {
+	if p.tok.kind != .assign && !is_top_level {
 		p.error_with_pos('no puede usar esta sintaxis en variables locales, debe asignar un valor',
 			name.pos)
 	}
@@ -786,17 +888,24 @@ fn (mut p Parser) parse_var_stmt(is_top_level bool) ast.Stmt {
 fn (mut p Parser) parse_free_stmt() ast.Stmt {
 	p.check(.key_free)
 	pos := p.tok.position()
-	var := p.check_name()
+	var := p.name_expr()
 	p.check(.semicolon)
 	return ast.FreeStmt{
-		ident: var
+		ident: (var as ast.Ident)
 		pos: pos
 	}
 }
 
 fn (mut p Parser) parse_call_stmt() ast.Stmt {
-	cmd_pos := p.tok.position()
-	cmd_name := p.check_name()
+	mut cmd_pos := p.tok.position()
+	from_mod := p.peek_tok.kind == .doblecolon
+	mut cmd_name := if from_mod { p.check_module_name() } else { p.check_name() }
+	if from_mod {
+		p.next()
+		cmd_name += '::' + p.tok.lit
+		cmd_pos = cmd_pos.extend(p.tok.position())
+		p.check(.name)
+	}
 	p.check(.lparen)
 	args := p.parse_call_args()
 	last_pos := p.tok.position()
@@ -806,6 +915,7 @@ fn (mut p Parser) parse_call_stmt() ast.Stmt {
 		pos: cmd_pos.extend(last_pos)
 		name: cmd_name
 		args: args
+		mod: p.mod_name
 	}
 }
 

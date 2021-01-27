@@ -50,7 +50,7 @@ pub fn new_scanner(text string, pref &prefs.Preferences) &Scanner {
 
 pub fn new_scanner_file(file_path string, pref &prefs.Preferences) &Scanner {
 	if !os.exists(file_path) {
-		util.err('el archivo de código "$file_path" no existe')
+		util.err('el módulo "$file_path" no existe')
 	}
 	raw_text := util.read_file(file_path) or {
 		util.err(err)
@@ -265,101 +265,105 @@ pub fn (mut s Scanner) scan() token.Token {
 			`+` {
 				if nextc == `+` {
 					s.pos++
-					return s.new_token(.inc, '', 2)
+					return s.new_token(.inc, '++', 2)
 				} else if nextc == `=` {
 					s.pos++
-					return s.new_token(.plus_assign, '', 2)
+					return s.new_token(.plus_assign, '+=', 2)
 				}
-				return s.new_token(.plus, '', 1)
+				return s.new_token(.plus, '+', 1)
 			}
 			`-` {
 				if nextc == `-` {
 					s.pos++
-					return s.new_token(.dec, '', 2)
+					return s.new_token(.dec, '--', 2)
 				} else if nextc == `=` {
 					s.pos++
-					return s.new_token(.minus_assign, '', 2)
+					return s.new_token(.minus_assign, '-=', 2)
 				}
-				return s.new_token(.minus, '', 1)
+				return s.new_token(.minus, '-', 1)
 			}
 			`*` {
 				if nextc == `=` {
 					s.pos++
-					return s.new_token(.mul_assign, '', 2)
+					return s.new_token(.mul_assign, '*=', 2)
 				}
-				return s.new_token(.mul, '', 1)
+				return s.new_token(.mul, '*', 1)
 			}
 			scanner.single_quote, scanner.double_quote {
 				ident_string := s.ident_string()
 				return s.new_token(.string, ident_string, ident_string.len + 2) // + two quotes
 			}
 			`(` {
-				return s.new_token(.lparen, '', 1)
+				return s.new_token(.lparen, '(', 1)
 			}
 			`)` {
-				return s.new_token(.rparen, '', 1)
+				return s.new_token(.rparen, ')', 1)
 			}
 			`{` {
-				return s.new_token(.lbrace, '', 1)
+				return s.new_token(.lbrace, '(', 1)
 			}
 			`}` {
-				return s.new_token(.rbrace, '', 1)
+				return s.new_token(.rbrace, ')', 1)
 			}
 			`[` {
-				return s.new_token(.lbracket, '', 1)
+				return s.new_token(.lbracket, '[', 1)
 			}
 			`]` {
-				return s.new_token(.rbracket, '', 1)
+				return s.new_token(.rbracket, ']', 1)
 			}
 			`,` {
-				return s.new_token(.comma, '', 1)
+				return s.new_token(.comma, ',', 1)
 			}
 			`.` {
 				if nextc == `.` {
 					s.pos++
-					return s.new_token(.dotdot, '', 2)
+					return s.new_token(.dotdot, '..', 2)
 				}
-				return s.new_token(.dot, '', 1)
+				return s.new_token(.dot, '.', 1)
 			}
 			`>` {
 				if nextc == `=` {
 					s.pos++
-					return s.new_token(.gte, '', 2)
+					return s.new_token(.gte, '>=', 2)
 				}
-				return s.new_token(.gt, '', 1)
+				return s.new_token(.gt, '>', 1)
 			}
 			`<` {
 				if nextc == `=` {
 					s.pos++
-					return s.new_token(.lte, '', 2)
+					return s.new_token(.lte, '<=', 2)
 				} else {
-					return s.new_token(.lt, '', 1)
+					return s.new_token(.lt, '>', 1)
 				}
 			}
 			`=` {
 				if nextc == `=` {
 					s.pos++
-					return s.new_token(.eq, '', 2)
+					return s.new_token(.eq, '==', 2)
 				}
-				return s.new_token(.assign, '', 1)
+				return s.new_token(.assign, '=', 1)
 			}
 			`:` {
-				return s.new_token(.colon, '', 1)
+				if nextc == `:` {
+					s.pos++
+					return s.new_token(.doblecolon, '::', 2)
+				}
+				return s.new_token(.colon, ':', 1)
 			}
 			`;` {
-				return s.new_token(.semicolon, '', 1)
+				return s.new_token(.semicolon, ';', 1)
 			}
 			`!` {
 				if nextc == `=` {
 					s.pos++
-					return s.new_token(.neq, '', 2)
+					return s.new_token(.neq, '!=', 2)
 				}
-				return s.new_token(.bang, '', 1)
+				return s.new_token(.bang, '!', 1)
 			}
 			`/` {
 				if nextc == `=` {
 					s.pos++
-					return s.new_token(.div_assign, '', 2)
+					return s.new_token(.div_assign, '/=', 2)
 				}
 				if nextc == `/` {
 					s.ignore_line()
@@ -395,14 +399,14 @@ pub fn (mut s Scanner) scan() token.Token {
 					s.pos++
 					continue
 				}
-				return s.new_token(.div, '', 1)
+				return s.new_token(.div, '/', 1)
 			}
 			`#` {
 				s.pp_directive()
 				continue
 			}
 			`$` {
-				return s.new_token(.dollar, '', 1)
+				return s.new_token(.dollar, '$', 1)
 			}
 			scanner.single_quote2 {
 				raw_text := s.read_raw_text()

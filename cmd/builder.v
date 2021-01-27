@@ -34,7 +34,7 @@ fn (mut b Builder) compile() {
 	b.set_support_color()
 	// Primero parseamos el archivo de bultins
 	b.parsed_files << b.parse_file(parser.builtins_file)
-	// Luego parseamos el archivo de código a compilar
+	// Luego parseamos el módulo a compilar
 	b.parsed_files << b.parse_file(b.pref.file)
 	// Ahora vamos con los imports
 	b.imports()

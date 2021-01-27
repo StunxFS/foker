@@ -4,9 +4,9 @@
 */
 
 #if __BINARY__
-import std:"builtins/builtins.bin.zs";
+import std::builtins::builtins_bin;
 #else
-import std:"builtins/builtins.decomp.zs"; // __DECOMP__
+import std::builtins::builtins_decomp; // __DECOMP__
 #endif
 
 //! Comandos básicos de ROMHacking
@@ -21,6 +21,6 @@ alias msg = msgbox;
 /*
 TODO: Soporte de macros:
 macro msgbox6 {
-     ($msg: expr) => msgbox($msg, 6);
+     ($msg: expr) : stmt => msgbox($msg, 6);
 }
 */

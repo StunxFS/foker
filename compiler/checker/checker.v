@@ -4,8 +4,8 @@ module checker
 
 // import os
 // import strings
-import compiler.token
 import compiler.util
+import compiler.token
 import compiler.ast
 import compiler.prefs
 
@@ -26,11 +26,15 @@ pub mut:
 	nr_warnings int
 	// errors        []errors.Report
 	// warnings      []errors.Report
-	error_lines   []int // para evitar imprimir multiple errores para la misma linea :)
-	expected_type ast.Type
-	cur_script    &ast.ScriptDecl
-	const_names   map[string]token.Position
-	in_for_count  int // si checker está actualmente en un bucle for
+	error_lines    []int // para evitar imprimir multiples errores para la misma linea :)
+	expected_type  ast.Type
+	cur_script     &ast.ScriptDecl
+	const_names    map[string]token.Position
+	const_deps     []string
+	const_decl     string
+	in_for_count   int    // si checker está actualmente en un bucle for
+	mod            string // nombre del modulo actual
+	is_builtin_mod bool   // estamos en un modulo builtin
 mut:
 	expr_level     int // para evitar una recursion infinita que implique bugs en el compilador
 	errors_details []string
@@ -59,10 +63,11 @@ pub fn (mut c Checker) check(ast_file &ast.File) {
 pub fn (mut c Checker) check_files(ast_files []ast.File) {
 	for i in 0 .. ast_files.len {
 		file := unsafe { &ast_files[i] }
+		c.mod = file.mod.name
 		c.check(file)
 	}
 	if !c.pref.is_library && !c.has_main {
-		util.err('"$c.file.path" no tiene un script de entrada principal (script main {})')
+		util.err('el módulo "$c.mod" (archivo "$c.file.path") no tiene un script de entrada principal (script main {})')
 	}
 }
 
@@ -95,9 +100,21 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 			}
 			c.assign_stmt(mut node)
 		}
+		ast.Alias {
+			c.alias_stmt(mut node)
+		}
+		ast.CmdDecl {
+			c.cmd_decl(node)
+		}
 		ast.ScriptDecl {
-			if node.name == 'main' && !c.has_main {
+			if node.name == '$c.mod::main' && !c.has_main {
 				c.has_main = true
+			}
+			if c.table.exists_script(node.name) {
+				c.error("duplicación del script '$node.name'", node.pos)
+				c.warn('esto fue previamente declarado aquí', c.table.scripts[node.name].pos)
+			} else {
+				c.table.scripts[node.name] = node
 			}
 			for stmt in node.stmts {
 				c.stmt(stmt)
@@ -113,25 +130,23 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 			c.expected_type = .unknown
 		}
 		ast.CallStmt { // call my_script;
-			name := node.script
-			if !c.table.exists_script(name) {
-				c.error('no existe un script con este nombre', node.pos)
-			}
-			is_pub := c.table.scripts[name].is_pub
-			f := c.table.scripts[name].pos.filepath
-			if !is_pub && c.file.path != f {
-				c.error('el archivo "$f" tiene este script como privado', node.pos)
-			}
+			c.call_stmt(mut node)
+		}
+		ast.CallCmdStmt { // msgbox("Stunx", 6);
+			c.call_cmd_stmt(mut node)
+		}
+		ast.FreeStmt {
+			c.ident(mut node.ident)
 		}
 		ast.Const {
 			if node.name in c.const_names {
-				c.error("constante '$node.name' duplicada", node.pos)
+				c.error("constante '${c.stripped_name(node.name)}' duplicada", node.pos)
 				c.warn('previamente declarada aquí', c.const_names[node.name])
 			}
 			ct := c.expr(node.expr)
 			if node.typ != .unknown {
 				c.check_expected(ct, node.typ) or {
-					c.error("no se le puede asignar un valor a la constante '$node.name': $err",
+					c.error("no se le puede asignar un valor a la constante '${c.stripped_name(node.name)}': $err",
 						node.pos)
 				}
 			}
@@ -143,9 +158,189 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 				if !branch.is_else && c.expr(branch.cond) != .bool {
 					c.error('se espera una expresión condicional', branch.cond.position())
 				}
+				for stmt in branch.stmts {
+					c.stmt(stmt)
+				}
 			}
 		}
 		else {} // TODO: implementar el resto de las declaraciones
+	}
+}
+
+fn (c &Checker) stripped_name(name string) string {
+	if name.starts_with('$c.mod::') {
+		return name.all_after_last('$c.mod::')
+	}
+	return name
+}
+
+pub fn (mut c Checker) cmd_decl(node ast.CmdDecl) {
+	ecmd, is_alias := c.table.exists_cmd(node.name)
+	if ecmd || is_alias {
+		is_builtin := node.name in c.table.builtins_cmds
+		if is_alias {
+			msg := "un alias contiene el nombre del comando '${c.stripped_name(node.name)}'"
+			if is_builtin {
+				c.error(msg, node.pos)
+				c.warn('el alias se encuentra en los builtins', c.table.alias[node.name].pos)
+			} else {
+				c.error(msg, node.pos)
+				c.warn('el alias se encuentra aquí', c.table.alias[node.name].pos)
+			}
+		} else {
+			msg := "duplicación del comando '${c.stripped_name(node.name)}'"
+			if is_builtin {
+				c.error(msg, node.pos)
+				c.warn('previamente declarado en los builtins, aquí', c.table.cmds[node.name].pos)
+			} else {
+				c.error(msg, node.pos)
+				c.warn('previamente declarado aquí', c.table.cmds[node.name].pos)
+			}
+		}
+	}
+	c.table.cmds[node.name] = node
+	if c.is_builtin_mod {
+		c.table.builtins_cmds << node.name
+	}
+}
+
+pub fn (mut c Checker) alias_stmt(mut node ast.Alias) {
+	// chequear el nombre del alias
+	ecmd1, alias1 := c.table.exists_cmd(node.name)
+	mut all_ok := true
+	if alias1 {
+		c.error('este alias está duplicado', node.pos)
+		c.warn('previamente declarado aquí', c.table.alias[node.name].pos)
+		all_ok = false
+	}
+	if ecmd1 {
+		c.error('ya existe un comando con este nombre, por favor use otro', node.pos)
+		all_ok = false
+	}
+	// chequear el objetivo del alias
+	node.target = if !node.target.contains('::') && node.mod != builtins_mod {
+		'$c.mod::$node.target'
+	} else {
+		node.target
+	}
+	ecmd, alias := c.table.exists_cmd(node.target)
+	if alias {
+		c.error('no se puede crear un alias para otro alias', node.target_pos)
+		all_ok = false
+	}
+	if !ecmd {
+		c.error('no existe un comando con este nombre', node.target_pos)
+		all_ok = false
+	}
+	if ecmd && (node.target in c.table.cmds) {
+		target := c.table.cmds[node.target]
+		if !target.is_pub && target.mod != c.mod {
+			c.error('no se puede crear un alias para este comando porque es privado',
+				node.target_pos)
+			all_ok = false
+		}
+	}
+	if all_ok {
+		c.table.alias[node.name] = node
+	}
+}
+
+pub fn (mut c Checker) call_cmd_stmt(mut call_cmd ast.CallCmdStmt) {
+	cmd_name := call_cmd.name
+	mut cmd_alias := cmd_name
+	mut cmd := ast.CmdDecl{}
+	mut found := false
+	if !cmd_name.contains('::') && call_cmd.mod != builtins_mod {
+		name_prefixed := '$call_cmd.mod::$cmd_name'
+		exists_cmd, is_alias := c.table.exists_cmd(name_prefixed)
+		if exists_cmd {
+			if !is_alias {
+				call_cmd.name = name_prefixed
+				found = true
+				cmd = c.table.cmds[name_prefixed]
+			} else {
+				found = true
+				target := c.table.alias[name_prefixed].target
+				cmd = c.table.cmds[target]
+				cmd_alias = '$cmd_name (${c.stripped_name(target)})'
+			}
+		}
+	}
+	if !found {
+		exists_cmd, is_alias := c.table.exists_cmd(cmd_name)
+		if exists_cmd {
+			if !is_alias {
+				found = true
+				cmd = c.table.cmds[cmd_name]
+			} else {
+				found = true
+				target := c.table.alias[cmd_name].target
+				cmd = c.table.cmds[target]
+				cmd_alias = '$cmd_name (${c.stripped_name(target)})'
+			}
+		}
+	}
+	if !found {
+		c.error("el comando '$cmd_alias' no existe", call_cmd.pos)
+	}
+	if !cmd.is_pub && cmd.mod != c.mod {
+		c.error("el comando '$cmd_alias' es privado", call_cmd.pos)
+	}
+	min_required_args := cmd.params.len
+	if call_cmd.args.len < min_required_args {
+		c.error('se esperaba $min_required_args argumentos, pero se recibió $call_cmd.args.len',
+			call_cmd.pos)
+	} else if call_cmd.args.len > 0 && cmd.params.len == 0 {
+		c.error("no se esperaba ningún argumento para el comando '$cmd_alias'", call_cmd.pos)
+		return
+	} else if call_cmd.args.len > cmd.params.len {
+		unexpected_arguments := call_cmd.args[min_required_args..]
+		unexpected_arguments_pos := unexpected_arguments[0].pos.extend(unexpected_arguments.last().pos)
+		c.error('se espera $min_required_args argumentos, pero se recibió $call_cmd.args.len',
+			unexpected_arguments_pos)
+	}
+	if call_cmd.expected_arg_types.len == 0 {
+		for param in cmd.params {
+			call_cmd.expected_arg_types << param.typ
+		}
+	}
+	for i, call_arg in call_cmd.args {
+		arg := cmd.params[i]
+		c.expected_type = arg.typ
+		typ := c.expr(call_arg.expr)
+		call_cmd.args[i].typ = typ
+		c.check_expected(typ, arg.typ) or {
+			c.error("$err, en el argumento ${i + 1} del comando '$cmd_alias'", call_cmd.pos)
+		}
+	}
+}
+
+pub fn (mut c Checker) call_stmt(mut call_stmt ast.CallStmt) {
+	script_name := call_stmt.script
+	if script_name == 'main' {
+		c.error('no se puede hacer una llamada al script principal', call_stmt.pos)
+	}
+	mut s := ast.ScriptDecl{}
+	mut found := false
+	if !script_name.contains('::') && call_stmt.mod != builtins_mod {
+		name_prefixed := '$call_stmt.mod::$script_name'
+		if c.table.exists_script(name_prefixed) {
+			call_stmt.script = name_prefixed
+			found = true
+			s = c.table.scripts[name_prefixed]
+		}
+	}
+	if !found {
+		if c.table.exists_script(script_name) {
+			found = true
+			s = c.table.scripts[script_name]
+		}
+	}
+	if !found {
+		c.error("el script '$script_name' no se ha encontrado", call_stmt.pos)
+	}
+	if !s.is_pub && s.mod != c.mod {
+		c.error("el script '$script_name' es privado", call_stmt.pos)
 	}
 }
 
@@ -217,7 +412,9 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 					c.error("no se puede modificar el identificador '_' en blanco", left.pos)
 				}
 			} else if left.obj !is ast.Var {
-				c.error("no se puede asignar a la $left.kind '$left.name'", left.pos)
+				l := if left.kind == .movement { 'al movimiento' } else { 'a la constante' }
+				c.error("no se puede asignar un valor $l '${c.stripped_name(left.name)}'",
+					left.pos)
 			} else {
 				if assign_stmt.left_type == .unknown {
 					assign_stmt.left_type = left_type
@@ -256,7 +453,7 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 	}
 	// Dual sides check (compatibility check)
 	c.check_expected(right_type, left_type) or {
-		name := (left as ast.Ident).name
+		name := c.stripped_name((left as ast.Ident).name)
 		c.error("no se le puede asignar este valor a '$name': $err", right.position())
 	}
 }

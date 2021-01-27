@@ -127,9 +127,27 @@ fn (mut p Parser) name_expr() ast.Expr {
 			pos: pos
 			width: width
 		}
+	}
+	mut mod := ''
+	p.expr_mod = ''
+	if p.peek_tok.kind == .doblecolon
+		&& (p.known_import(p.tok.lit) || p.mod_name.all_after_last('::') == p.tok.lit) {
+		if p.tok.lit in p.imports {
+			p.register_used_import(p.tok.lit)
+		}
+		mod = p.imports[p.tok.lit]
+		p.next()
+		p.check(.doblecolon)
+		p.expr_mod = mod
+	}
+	same_line := p.tok.line_nr == p.peek_tok.line_nr
+	// TODO: Implementar los otros tipos de uso
+	if !same_line && p.peek_tok.kind == .lparen {
+		node = p.parse_ident()
 	} else {
 		node = p.parse_ident()
 	}
+	p.expr_mod = ''
 	return node
 }
 
@@ -146,11 +164,15 @@ pub fn (mut p Parser) parse_ident() ast.Ident {
 				scope: p.scope
 			}
 		}
+		if p.expr_mod.len > 0 {
+			name = '$p.expr_mod::$name'
+		}
 		return ast.Ident{
 			tok_kind: p.tok.kind
 			kind: .unresolved
 			name: name
 			pos: pos
+			mod: p.mod_name
 			scope: p.scope
 		}
 	}

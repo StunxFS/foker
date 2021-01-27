@@ -26,19 +26,26 @@ pub mut:
 
 pub struct Const {
 pub:
-	name   string
-	expr   Expr
-	pos    token.Position
-	is_pub bool
+	name       string
+	expr       Expr
+	mod        string
+	pos        token.Position
+	is_pub     bool
+	is_builtin bool
+	is_free    bool
 pub mut:
 	typ Type
 }
 
 pub struct Var {
 pub:
-	name   string
-	expr   Expr
-	is_pub bool
+	name       string
+	mod        string
+	expr       Expr
+	is_pub     bool
+	is_global  bool
+	is_builtin bool
+	is_free    bool
 pub mut:
 	typ     Type
 	pos     token.Position
@@ -49,7 +56,7 @@ pub mut:
 pub type ScopeObject = Const | Var
 
 // Statements
-pub type Stmt = AssignStmt | Block | BranchStmt | CallCmdStmt | CallStmt | CheckgenderStmt |
+pub type Stmt = Alias | AssignStmt | Block | BranchStmt | CallCmdStmt | CallStmt | CheckgenderStmt |
 	CmdDecl | Const | DynamicStmt | ExprStmt | ForInStmt | ForStmt | FreeStmt | GotoLabel |
 	GotoStmt | IfStmt | Import | MatchStmt | QuestionStmt | RawStmt | ScriptDecl
 
@@ -73,8 +80,12 @@ pub:
 
 pub struct Import {
 pub:
-	pos  token.Position
-	file string
+	pos       token.Position
+	mod_pos   token.Position
+	alias_pos token.Position
+	mod       string
+	alias     string
+	file      string
 }
 
 pub struct ExprStmt {
@@ -94,6 +105,7 @@ pub:
 	pos           token.Position
 	body_pos      token.Position
 	is_pub        bool
+	mod           string
 pub mut:
 	stmts []Stmt
 }
@@ -111,12 +123,15 @@ pub:
 	name   string
 	params []Param
 	pos    token.Position
+	mod    string
+	is_pub bool
 }
 
 pub struct FreeStmt {
 pub:
-	pos   token.Position
-	ident string
+	pos token.Position
+pub mut:
+	ident Ident
 }
 
 pub struct AssignStmt {
@@ -162,8 +177,10 @@ pub:
 // para: call my_script;
 pub struct CallStmt {
 pub:
-	pos    token.Position // posición de 'my_script' en 'call my_script;
+	pos token.Position // posición de 'my_script' en 'call my_script;
+pub mut:
 	script string // script a llamar
+	mod    string
 }
 
 // para: msgbox("hola", type: 6);
@@ -174,6 +191,7 @@ pub mut:
 	name               string
 	args               []CallArg
 	expected_arg_types []Type
+	mod                string
 }
 
 pub struct CallArg {
@@ -300,6 +318,7 @@ pub enum IdentKind {
 	blank_ident
 	variable
 	constant
+	movement
 }
 
 pub fn (ik IdentKind) str() string {
@@ -308,6 +327,7 @@ pub fn (ik IdentKind) str() string {
 		.blank_ident { 'identificador blanco' }
 		.variable { 'variable' }
 		.constant { 'constante' }
+		.movement { 'movimiento' }
 	}
 }
 
@@ -317,6 +337,7 @@ pub:
 	tok_kind token.Kind
 	pos      token.Position
 pub mut:
+	mod   string
 	obj   ScopeObject
 	name  string
 	kind  IdentKind
@@ -420,6 +441,6 @@ pub fn (stmt Stmt) position() token.Position {
 	match stmt {
 		AssignStmt, Block, BranchStmt, CallStmt, CallCmdStmt, Const, ExprStmt, ForStmt, ForInStmt,
 		GotoLabel, GotoStmt, IfStmt, CmdDecl, DynamicStmt, FreeStmt, Import, QuestionStmt, ScriptDecl,
-		CheckgenderStmt, MatchStmt, RawStmt { return stmt.pos }
+		CheckgenderStmt, MatchStmt, RawStmt, Alias { return stmt.pos }
 	}
 }

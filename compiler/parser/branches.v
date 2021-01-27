@@ -119,12 +119,17 @@ fn (mut p Parser) checkgender_stmt() ast.CheckgenderStmt {
 }
 
 fn (mut p Parser) movement_expr(is_anon bool) ast.MovementExpr {
+	is_pub := p.tok.kind == .key_pub
+	if is_pub && !is_anon {
+		p.next()
+	}
 	mov_pos := p.tok.position()
 	p.check(.key_movement)
 	pos := p.tok.position()
 	mut name := 'mov$p.movs_tmp'
 	if !is_anon {
 		name = p.check_name()
+		p.dont_use_name_imports(name, pos)
 	} else {
 		p.movs_tmp++
 	}
@@ -175,11 +180,18 @@ fn (mut p Parser) movement_expr(is_anon bool) ast.MovementExpr {
 		is_anon: is_anon
 		movs: movs
 	}
-	p.scope.register(ast.Const{
-		name: name
+	obj := ast.Const{
+		name: p.prepend_mod(name)
+		mod: p.mod_name
 		expr: mov
 		pos: pos
 		typ: .movement
-	})
+		is_pub: is_pub && !is_anon
+	}
+	if !is_anon {
+		p.global_scope.register(obj)
+	} else {
+		p.scope.register(obj)
+	}
 	return mov
 }

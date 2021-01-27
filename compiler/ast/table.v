@@ -6,6 +6,8 @@ import compiler.token
 
 pub struct Table {
 pub mut:
+	imports       []string // lista de los módulos importados
+	modules       []string // lista de todos los módulos
 	scripts       map[string]ScriptDecl
 	cmds          map[string]CmdDecl
 	alias         map[string]Alias
@@ -25,7 +27,11 @@ pub fn (t &Table) exists_script(name string) bool {
 // retorna -> (existe, es alias)
 [inline]
 pub fn (t &Table) exists_cmd(name string) (bool, bool) {
-	return name in t.cmds, name in t.alias
+	is_alias := t.exists_alias(name)
+	if is_alias {
+		return t.alias[name].target in t.cmds, is_alias
+	}
+	return name in t.cmds, is_alias
 }
 
 [inline]
@@ -35,6 +41,10 @@ pub fn (t &Table) exists_alias(name string) bool {
 
 pub struct Alias {
 pub:
+	target_pos token.Position
+	pos        token.Position
+pub mut:
 	target string
-	pos    token.Position
+	name   string
+	mod    string
 }
