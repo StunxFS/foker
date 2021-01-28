@@ -449,7 +449,7 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 					}
 				}
 				if is_decl {
-					full_name := '${left.mod}::$left.name'
+					full_name := '$left.mod::$left.name'
 					if obj := c.file.mod.global_scope.find(full_name) {
 						if obj is ast.Const {
 							c.error("nombre de constante duplicada '$left.name'", left.pos)

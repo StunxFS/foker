@@ -2,7 +2,6 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module main
 
-// import compiler.gen.binary
 import v.depgraph
 import compiler.ast
 import compiler.util
@@ -94,18 +93,19 @@ fn (mut b Builder) checker() {
 fn (mut b Builder) generator() {
 	match b.pref.backend {
 		.binary {
-			/*
-			make_rbh_file := b.pref.rom == ''
-				if make_rbh_file { // generar un archivo .rbh
-					mut gen := binary.new_gen(b.pref, b.table)
-					gen.gen_from_files(b.parsed_files)
-				} else {
-					// TODO: Inyección directa en la ROM
+			match b.pref.build_mode {
+				.text {
+					// mut gen := binary.new_gen(b.pref, b.table)
+					// gen.gen_from_files(b.parsed_files)
 				}
-			*/
+				.direct {
+					util.err('el backend DirectRBH aún no está implementado')
+				}
+			}
 		}
 		.decomp {
 			// TODO: decomp.generate(file)
+			util.err('el backend Poryzubat aún no está implementado')
 		}
 	}
 }
