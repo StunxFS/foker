@@ -210,7 +210,8 @@ pub fn parse_args_and_get_prefs() &Preferences {
 		util.err('no se puede insertar un script en una ROM, y a la vez crear un archivo .rbh')
 	}
 	if res.output == '' {
-		res.output = os.base(res.file).all_before_last('.') + if res.backend == .binary { '.rbh' } else { '.pory' }
+		res.output = os.base(res.file).all_before_last('.') +
+			if res.backend == .binary { '.rbh' } else { '.pory' }
 	}
 	return res
 }

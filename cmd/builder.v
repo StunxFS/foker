@@ -30,21 +30,17 @@ fn new_builder() Builder {
 }
 
 fn (b &Builder) start() {
-	mod := "'" + os.base(b.pref.file).all_before_last('.') + "' (archivo '${b.pref.file}') "
-	print("> Compilando el módulo ${mod}")
+	mod := "'" + os.base(b.pref.file).all_before_last('.') + "' (archivo '$b.pref.file') "
+	print('> Compilando el módulo $mod')
 	match b.pref.backend {
 		.binary {
 			match b.pref.build_mode {
-				.text {
-					println("con una salida de nombre '${b.pref.output}'")
-				}
-				.direct {
-					println("directamente en la ROM '${b.pref.rom}'")
-				}
+				.text { println("con una salida de nombre '$b.pref.output'") }
+				.direct { println("directamente en la ROM '$b.pref.rom'") }
 			}
 		}
 		.decomp {
-			println("con una salida de nombre '${b.pref.output}'")
+			println("con una salida de nombre '$b.pref.output'")
 		}
 	}
 }
@@ -71,8 +67,8 @@ fn (mut b Builder) compile() {
 		b.generator()
 	}
 	// avisamos sobre la correcta compilación del módulo
-	mod := "'" + os.base(b.pref.file).all_before_last('.') + "' (archivo '${b.pref.file}')"
-	println("> Se ha compilado exitósamente el módulo $mod")
+	mod := "'" + os.base(b.pref.file).all_before_last('.') + "' (archivo '$b.pref.file')"
+	println('> Se ha compilado exitósamente el módulo $mod')
 	// Liberamos la memoria innecesaria
 	b.end()
 }
