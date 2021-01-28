@@ -311,6 +311,7 @@ pub fn (mut c Checker) call_cmd_stmt(mut call_cmd ast.CallCmdStmt) {
 	if call_cmd.args.len < min_required_args {
 		c.error('se esperaba $min_required_args argumentos, pero se recibió $call_cmd.args.len',
 			call_cmd.pos)
+		return
 	} else if call_cmd.args.len > 0 && cmd.params.len == 0 {
 		c.error("no se esperaba ningún argumento para el comando '$cmd_alias'", call_cmd.pos)
 		return
@@ -319,6 +320,7 @@ pub fn (mut c Checker) call_cmd_stmt(mut call_cmd ast.CallCmdStmt) {
 		unexpected_arguments_pos := unexpected_arguments[0].pos.extend(unexpected_arguments.last().pos)
 		c.error('se espera $min_required_args argumentos, pero se recibió $call_cmd.args.len',
 			unexpected_arguments_pos)
+		return
 	}
 	if call_cmd.expected_arg_types.len == 0 {
 		for param in cmd.params {
@@ -444,6 +446,14 @@ pub fn (mut c Checker) assign_stmt(mut assign_stmt ast.AssignStmt) {
 					match mut left.obj {
 						ast.Var { left.obj.typ = left_type }
 						else {}
+					}
+				}
+				if is_decl {
+					full_name := '${left.mod}::$left.name'
+					if obj := c.file.mod.global_scope.find(full_name) {
+						if obj is ast.Const {
+							c.error("nombre de constante duplicada '$left.name'", left.pos)
+						}
 					}
 				}
 			}
