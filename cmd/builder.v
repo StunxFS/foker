@@ -2,6 +2,7 @@
 // governed by an MIT license that can be found in the LICENSE file.
 module main
 
+import os
 import v.depgraph
 import compiler.ast
 import compiler.util
@@ -28,7 +29,29 @@ fn new_builder() Builder {
 	}
 }
 
+fn (b &Builder) start() {
+	mod := "'" + os.base(b.pref.file).all_before_last('.') + "' (archivo '${b.pref.file}') "
+	print("> Compilando el módulo ${mod}")
+	match b.pref.backend {
+		.binary {
+			match b.pref.build_mode {
+				.text {
+					println("con una salida de nombre '${b.pref.output}'")
+				}
+				.direct {
+					println("directamente en la ROM '${b.pref.rom}'")
+				}
+			}
+		}
+		.decomp {
+			println("con una salida de nombre '${b.pref.output}'")
+		}
+	}
+}
+
 fn (mut b Builder) compile() {
+	// avisamos sobre el comienzo de la compilación del módulo
+	b.start()
 	// Vemos si el terminal soporta colores o no
 	b.set_support_color()
 	// Primero parseamos el archivo de bultins
@@ -47,11 +70,14 @@ fn (mut b Builder) compile() {
 		// Corremos el generador
 		b.generator()
 	}
+	// avisamos sobre la correcta compilación del módulo
+	mod := "'" + os.base(b.pref.file).all_before_last('.') + "' (archivo '${b.pref.file}')"
+	println("> Se ha compilado exitósamente el módulo $mod")
 	// Liberamos la memoria innecesaria
-	b.go_free()
+	b.end()
 }
 
-fn (mut b Builder) go_free() {
+fn (mut b Builder) end() {
 	unsafe {
 		b.parsed_files.free()
 		b.imports.free()

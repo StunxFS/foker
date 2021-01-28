@@ -30,7 +30,7 @@ script main {
 	msgbox("2020", Z3::CCC);
 	msg("Stunx", 6);
 	msg(Kakawate, 6);
-	msg(Z3::Kampo, 6, 2);
+	msg(Z3::Kampo, 6);
 	call my_script;
 	//call Z3::other_script;
 	PKMNMENU = true;
