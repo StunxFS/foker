@@ -151,7 +151,7 @@ pub mut:
 
 pub struct QuestionAnswer {
 pub:
-	pos    token.Position
+	pos token.Position
 pub mut:
 	stmts []Stmt
 }

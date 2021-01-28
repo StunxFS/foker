@@ -63,6 +63,10 @@ script main {
 	move(anon_mov1);
 	//move(true);
 	
+	// Macro - errores!
+	//Z3::macro!();
+	//macro!();
+	
 	if myvar == 4 {
 		call my_script;
 		{

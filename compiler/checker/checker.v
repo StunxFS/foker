@@ -30,8 +30,6 @@ pub mut:
 	expected_type  ast.Type
 	cur_script     &ast.ScriptDecl
 	const_names    map[string]token.Position
-	const_deps     []string
-	const_decl     string
 	in_for_count   int    // si checker está actualmente en un bucle for
 	mod            string // nombre del modulo actual
 	is_builtin_mod bool   // estamos en un modulo builtin
@@ -110,7 +108,7 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 				c.has_main = true
 			}
 			if c.table.exists_script(node.name) {
-				c.error("duplicación del script '$node.name'", node.pos)
+				c.error("duplicación del script '${c.stripped_name(node.name)}'", node.pos)
 				c.warn('esto fue previamente declarado aquí', c.table.scripts[node.name].pos)
 			} else {
 				c.table.scripts[node.name] = node
@@ -190,8 +188,9 @@ fn (mut c Checker) const_decl(mut node ast.Const) {
 }
 
 fn (c &Checker) stripped_name(name string) string {
-	if name.starts_with('$c.mod::') {
-		return name.all_after_last('$c.mod::')
+	c_mod := '$c.mod::'
+	if name.starts_with(c_mod) {
+		return name.all_after_last(c_mod)
 	}
 	return name
 }

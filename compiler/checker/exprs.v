@@ -143,17 +143,6 @@ pub fn (mut c Checker) prefix_expr(mut node ast.PrefixExpr) ast.Type {
 }
 
 pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
-	if c.const_deps.len > 0 {
-		mut name := ident.name
-		if !name.contains('::') && ident.mod != checker.builtins_mod {
-			name = '$ident.mod::$ident.name'
-		}
-		if name == c.const_decl {
-			c.error("ciclo en constante '$c.const_decl'", ident.pos)
-			return .unknown
-		}
-		c.const_deps << name
-	}
 	if ident.kind == .blank_ident {
 		if ident.tok_kind != .assign {
 			c.error("ident indefinido: '_' (solo se puede usar en asignaciones)", ident.pos)
@@ -181,11 +170,9 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 						c.error("la variable '$ident.name' es privada", ident.pos)
 					}
 					obj.is_used = true
-					if ident.pos.pos < obj.pos.pos {
-						if !obj.is_global {
-							c.error("variable '$ident.name' indefinida (usada antes de la declaración)",
-								ident.pos)
-						}
+					if ident.pos.pos < obj.pos.pos && !obj.is_global {
+						c.error("variable '$ident.name' indefinida (usada antes de la declaración)",
+							ident.pos)
 					}
 					typ := obj.typ
 					if typ == .unknown {
@@ -212,7 +199,7 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 		match mut obj {
 			ast.Const {
 				if ident.mod != checker.builtins_mod && ident.pos.pos < obj.pos.pos {
-					c.error("constante '$ident.name' indefinida (usada antes de la declaración)",
+					c.error("constante '$ident.name' usada antes de su declaración",
 						ident.pos)
 				}
 				mut typ := obj.typ

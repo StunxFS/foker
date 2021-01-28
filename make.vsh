@@ -20,6 +20,7 @@ $if macos {
 exe_name := $if windows { 'zubat.exe' } $else { 'zubat' }
 exe_symlink := $if windows { 'zubat-symlink.exe' } $else { 'zubat-symlink' }
 exec_symlink := $if windows { r'.\zubat-symlink.exe' } $else { './zubat-symlink' }
+test_path := os.join_path('compiler', 'tests', 'zubat_test.zs')
 if os.args.len > 2 || os.args.len == 1 {
 	eprintln('make.vsh necesita un comando para funcionar')
 	help()
@@ -50,13 +51,13 @@ match cmd {
 		println('> Compilando a ZubatScript...')
 		if system('v -cg -o $exe_name cmd/') == 0 {
 			println('> Ejecutando el ejecutable generado para ver si funciona...')
-			system('./zubat compiler/tests/zubat_test.zs')
+			system('./zubat $test_path')
 		}
 	}
 	'test' {
 		if exists(exe_name) {
 			println('> Ejecutando el compilador para ver si funciona...')
-			system('./zubat compiler/tests/zubat_test.zs')
+			system('./zubat $test_path')
 		} else {
 			println('> Use el comando build-and-test')
 		}
