@@ -71,15 +71,7 @@ script main {
 	//Z3::macro!();
 	//macro!();
 	
-<<<<<<< Updated upstream
-	if myvar == 0xABC {
-=======
-<<<<<<< Updated upstream
-	if myvar == 4 {
-=======
 	if 2 == 0xABC {
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 		call my_script;
 		{
 			/*var myvar = movement {

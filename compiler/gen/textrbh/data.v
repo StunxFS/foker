@@ -9,17 +9,8 @@ mut:
 	content map[string]bool
 }
 
-<<<<<<< Updated upstream:compiler/gen/textrbh/data.v
-pub fn new_data(text string) Data {
-=======
-<<<<<<< Updated upstream:compiler/gen/textrbh/fvf.v
-pub fn new_fvf(text string) FVF {
->>>>>>> Stashed changes:compiler/gen/textrbh/fvf.v
-	content_splitted := text.split('\n')
-=======
 pub fn new_data(text string) Data {
 	content_splitted := text.split_into_lines()
->>>>>>> Stashed changes:compiler/gen/textrbh/data.v
 	mut cnt := map[string]bool{}
 	for c in content_splitted {
 		if c.starts_with('#') || c == '' { // comentarios

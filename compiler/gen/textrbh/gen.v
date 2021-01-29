@@ -12,33 +12,6 @@ import compiler.prefs
 pub struct Gen {
 	prefs &prefs.Preferences
 mut:
-<<<<<<< Updated upstream
-	table       &ast.Table
-	file        &ast.File
-	header      strings.Builder
-	includes    strings.Builder
-	defines     strings.Builder
-	snippets    strings.Builder
-	strings     strings.Builder
-	strings_tmp strings.Builder
-	moves       strings.Builder
-	moves_tmp   strings.Builder
-<<<<<<< Updated upstream
-	flags       Data
-	vars        Data
-	dyn_offset string = '0x8000000'
-	main_script string
-	cur_script_name string
-	flags_map map[string]map[string]string // mapa usado para contener los offsets de cada flags
-	vars_map map[string]map[string]string // mapa usado para contener los offsets de cada variable
-	scripts_offsets map[string]string
-	label_count int
-	strings_count int
-	movs_count int
-=======
-	flags       FVF
-	vars        FVF
-=======
 	table           &ast.Table
 	file            &ast.File
 	header          strings.Builder
@@ -61,8 +34,6 @@ mut:
 	strings_count   int
 	movs_count      int
 	res             string // variable separada para las expresiones con literales
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 }
 
 pub fn new_gen(prefs &prefs.Preferences, table &ast.Table) ?Gen {
@@ -71,18 +42,8 @@ pub fn new_gen(prefs &prefs.Preferences, table &ast.Table) ?Gen {
 	return Gen{
 		prefs: prefs
 		table: table
-<<<<<<< Updated upstream
-		flags: new_data(prefs.flags_file)
-		vars: new_data(prefs.vars_file)
-=======
-<<<<<<< Updated upstream
-		flags: new_fvf(prefs.flags_file)
-		vars: new_fvf(prefs.vars_file)
-=======
 		flags: flags
 		vars: vars
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 		file: 0
 	}
 }
@@ -94,24 +55,14 @@ pub fn (mut g Gen) gen_from_files(files []ast.File) ? {
 		g.file = unsafe { &files[i] }
 		g.gen()
 	}
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-	println(g.create_content())
-=======
->>>>>>> Stashed changes
 	g.header.writeln('\n#dynamic $g.dyn_offset\n')
 	// el snippet principal que se llamará
 	g.header.writeln('; este es el script principal que se debe llamar')
 	g.header.writeln('#org @start')
 	g.header.writeln('call @$g.main_script')
 	g.header.writeln('end\n')
-<<<<<<< Updated upstream
-	os.write_file(g.prefs.output, g.create_content())?
-=======
+
 	os.write_file(g.prefs.output, g.create_content()) ?
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 }
 
 pub fn (mut g Gen) gen() {
@@ -169,7 +120,6 @@ pub fn (mut g Gen) top_stmt(node ast.Stmt) {
 			if node.typ == .int {
 				val := g.define_expr(node.expr)
 				g.table.constantes[node.name] = val
-<<<<<<< Updated upstream
 				str := to_hex(val)
 				gen_name := node.name.replace('::', '__')
 				g.defines.writeln('#define $gen_name $str')
@@ -179,28 +129,7 @@ pub fn (mut g Gen) top_stmt(node ast.Stmt) {
 			g.script_decl(mut node)
 		}
 		ast.DynamicStmt {
-			g.dyn_offset = '0x'+node.dyn_offset
-=======
-<<<<<<< Updated upstream
-				str := val.str()
-				g.defines.writeln('#define $node.name $str')
-			}
-		}
-		ast.ScriptDecl {
-			g.snippets.writeln('#org @$node.name\n')
-=======
-				str := to_hex(val)
-				gen_name := g.no_colons(node.name)
-				g.defines.writeln('#define $gen_name $str')
-			}
-		}
-		ast.ScriptDecl {
-			g.script_decl(mut node)
-		}
-		ast.DynamicStmt {
 			g.dyn_offset = '0x' + node.dyn_offset
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 		}
 		else {}
 	}
@@ -233,11 +162,6 @@ pub fn (mut g Gen) define_expr(node ast.Expr) int {
 	}
 	return res
 }
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
 
 fn (mut g Gen) make_label() string {
 	label := '${g.cur_script_name}_label_$g.label_count'
@@ -262,11 +186,7 @@ fn (mut g Gen) script_decl(mut node ast.ScriptDecl) {
 		g.scripts_offsets[node.name] = node.extern_offset
 		return
 	}
-<<<<<<< Updated upstream
-	gen_name := node.name.replace('::', '__')
-=======
 	gen_name := g.no_colons(node.name)
->>>>>>> Stashed changes
 	if node.is_main {
 		g.main_script = gen_name
 	}
@@ -280,13 +200,7 @@ fn (mut g Gen) script_decl(mut node ast.ScriptDecl) {
 
 fn (mut g Gen) stmt(node ast.Stmt) {
 	match node {
-<<<<<<< Updated upstream
-		ast.IfStmt {
-			g.if_stmt(node)
-		}
-=======
 		ast.IfStmt { g.if_stmt(node) }
->>>>>>> Stashed changes
 		else {}
 	}
 }
@@ -297,10 +211,8 @@ fn (mut g Gen) if_stmt(node ast.IfStmt) {
 			//
 		} else {
 			g.expr(branch.cond)
-<<<<<<< Updated upstream
-			g.snippets.writeln('comparevar LASTRESULT')
-=======
->>>>>>> Stashed changes
+
+			g.snippets.writeln('compare LASTRESULT')
 		}
 	}
 }
@@ -311,14 +223,6 @@ fn (mut g Gen) expr(node ast.Expr) {
 		ast.StringLiteral {
 			name := g.make_string_tmp()
 			g.strings_tmp.writeln('#org @$name')
-<<<<<<< Updated upstream
-			g.strings_tmp.writeln('= ${node.lit}\n')
-		}
-		ast.FmtStringLiteral {
-			//name := g.make_string_tmp()
-			//g.strings_tmp.writeln('#org @$name')
-			//g.strings_tmp.writeln('= $node.lit\n')
-=======
 			g.strings_tmp.writeln('= $node.lit\n')
 			g.snippets.write('@$name')
 		}
@@ -326,7 +230,6 @@ fn (mut g Gen) expr(node ast.Expr) {
 			// name := g.make_string_tmp()
 			// g.strings_tmp.writeln('#org @$name')
 			// g.strings_tmp.writeln('= $node.lit\n')
->>>>>>> Stashed changes
 		}
 		ast.IntegerLiteral {
 			val := if node.is_hex { node.lit } else { to_hex(node.lit.int()) }
@@ -335,12 +238,7 @@ fn (mut g Gen) expr(node ast.Expr) {
 				return
 			}
 			println(var)
-<<<<<<< Updated upstream
-		}
-		ast.InfixExpr {
-			g.expr(node.left)
-			g.expr(node.right)
-=======
+			println(val)
 			g.snippets.write(var)
 		}
 		ast.InfixExpr {
@@ -348,12 +246,7 @@ fn (mut g Gen) expr(node ast.Expr) {
 			g.snippets.write(' ')
 			g.expr(node.right)
 			g.snippets.writeln('')
->>>>>>> Stashed changes
 		}
 		else {}
 	}
 }
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
->>>>>>> Stashed changes

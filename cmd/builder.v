@@ -118,16 +118,6 @@ fn (mut b Builder) generator() {
 		.binary {
 			match b.pref.build_mode {
 				.text {
-<<<<<<< Updated upstream
-					mut gen := textrbh.new_gen(b.pref, b.table)
-					gen.gen_from_files(b.parsed_files) or {
-						util.err(err)
-					}
-=======
-<<<<<<< Updated upstream
-					// mut gen := binary.new_gen(b.pref, b.table)
-					// gen.gen_from_files(b.parsed_files)
-=======
 					mut gen := textrbh.new_gen(b.pref, b.table) or {
 						util.err(err)
 						textrbh.Gen{
@@ -137,8 +127,6 @@ fn (mut b Builder) generator() {
 						}
 					}
 					gen.gen_from_files(b.parsed_files) or { util.err(err) }
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 				}
 				.direct {
 					util.err('el backend DirectRBH aún no está implementado')

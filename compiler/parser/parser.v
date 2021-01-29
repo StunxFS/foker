@@ -641,7 +641,7 @@ fn (mut p Parser) text_decl() ast.Stmt {
 	return field
 }
 
-// ===== Local Statements =========================================================================
+// ===== Local Statements ===
 fn (mut p Parser) local_stmt() ast.Stmt {
 	for {
 		is_ident := p.peek_tok.kind == .doblecolon && p.peek_tok2.kind == .name
