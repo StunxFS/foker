@@ -199,8 +199,8 @@ pub struct CallArg {
 pub:
 	expr Expr
 pub mut:
-	typ    Type
-	pos    token.Position
+	typ Type
+	pos token.Position
 }
 
 pub struct ForStmt {

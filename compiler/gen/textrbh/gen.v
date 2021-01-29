@@ -210,18 +210,20 @@ fn (mut g Gen) script_decl(mut node ast.ScriptDecl) {
 
 fn (mut g Gen) stmt(node ast.Stmt) {
 	match node {
-		ast.IfStmt { g.if_stmt(node) }
+		ast.IfStmt {
+			g.if_stmt(node)
+		}
 		ast.RawStmt {
 			mut raw := node.text
-			for raw.contains("[") && raw.contains("]") {
-					var := raw.find_between('[', ']')
-					// Solo las variables se pueden usar aquí :)
-					raw = raw.replace('[$var]', g.get_var(g.cur_script_name, var))
+			for raw.contains('[') && raw.contains(']') {
+				var := raw.find_between('[', ']')
+				// Solo las variables se pueden usar aquí :)
+				raw = raw.replace('[$var]', g.get_var(g.cur_script_name, var))
 			}
 			g.snippets.writeln(raw)
 		}
 		ast.CallCmdStmt {
-			g.snippets.write(node.name.all_before_last("::"))
+			g.snippets.write(node.name.all_before_last('::'))
 			for arg in node.args {
 				g.snippets.write(' ')
 				g.expr(arg.expr)
@@ -265,8 +267,8 @@ fn (mut g Gen) expr(node ast.Expr) {
 				util.err(err)
 				return
 			}
-			//println(var)
-			//println(val)
+			// println(var)
+			// println(val)
 			g.snippets.write(var)
 		}
 		ast.InfixExpr {
@@ -281,9 +283,7 @@ fn (mut g Gen) expr(node ast.Expr) {
 				ast.Var {
 					mut name := g.no_colons(obj.name)
 					match obj.typ {
-						.movement {
-							name = '@' + name
-						}
+						.movement { name = '@' + name }
 						else {}
 					}
 					g.snippets.write(name)
@@ -291,9 +291,7 @@ fn (mut g Gen) expr(node ast.Expr) {
 				ast.Const {
 					mut name := g.no_colons(obj.name)
 					match obj.typ {
-						.movement, .string {
-							name = '@' + name
-						}
+						.movement, .string { name = '@' + name }
 						else {}
 					}
 					g.snippets.write(name)
