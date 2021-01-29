@@ -1507,11 +1507,11 @@ end
 end
 
 #org @zubat_test__main
-msgbox @string0  RES 
+msgbox @string0  0x5000 
 msgbox @string1  Z3__CCC 
-msg @string2  RES2 
-msg @zubat_test__Kakawate  RES4 
-msg @Z3__Kampo  RES5 
+msg @string2  0x5001 
+msg @zubat_test__Kakawate  0x5002 
+msg @Z3__Kampo  0x5003 
 Z3
 Z3_mycommand
 compare  OTHERVAR
@@ -1521,7 +1521,7 @@ zubat_test @anon_mov
 move @zubat_test__my_movement 
 move  
 move @anon_mov1 
-RES6 RES69
+0x5004 0x5005
 compare LASTRESULT
 end
 
