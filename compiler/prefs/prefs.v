@@ -49,8 +49,8 @@ pub mut:
 	backend           Backend   = .binary
 	build_mode        BuildMode = .text
 	rom               string // la rom en la que se insertará el script
-	flags_file        string = 'flags.data.txt'
-	vars_file         string = 'vars.data.txt'
+	flags_file        string
+	vars_file         string
 	output            string // nombre de salida del script
 	optlevel          Optlevel = .debug
 	skip_warnings     bool   // saltarse las advertencias
@@ -213,6 +213,8 @@ pub fn parse_args_and_get_prefs() &Preferences {
 		res.output = os.base(res.file).all_before_last('.') +
 			if res.backend == .binary { '.rbh' } else { '.pory' }
 	}
+	res.flags_file = os.join_path(res.file_dir, 'flags.data.txt')
+	res.vars_file = os.join_path(res.file_dir, 'vars.data.txt')
 	return res
 }
 

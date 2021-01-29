@@ -105,7 +105,15 @@ pub:
 	pos           token.Position
 	body_pos      token.Position
 	is_pub        bool
+<<<<<<< Updated upstream
 	is_main bool
+=======
+<<<<<<< Updated upstream
+=======
+	is_main       bool
+	is_used       bool
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 	mod           string
 pub mut:
 	stmts []Stmt

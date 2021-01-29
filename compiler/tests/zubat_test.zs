@@ -39,6 +39,7 @@ script main {
 	PKMNMENU = true;
 	//var Zurkillo = 200;
 	var myvar: int = 4;
+	msg("Stunx", myvar);
 	myvar = 2020;
 	free myvar;
 	myvar = 555;
@@ -70,7 +71,15 @@ script main {
 	//Z3::macro!();
 	//macro!();
 	
+<<<<<<< Updated upstream
 	if myvar == 0xABC {
+=======
+<<<<<<< Updated upstream
+	if myvar == 4 {
+=======
+	if 2 == 0xABC {
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 		call my_script;
 		{
 			/*var myvar = movement {

@@ -1506,5 +1506,9 @@ end
 end
 
 #org @zubat_test__main
+<<<<<<< Updated upstream
 comparevar LASTRESULT
+=======
+RES RES2
+>>>>>>> Stashed changes
 end

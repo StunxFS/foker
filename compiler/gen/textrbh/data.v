@@ -9,8 +9,17 @@ mut:
 	content map[string]bool
 }
 
+<<<<<<< Updated upstream:compiler/gen/textrbh/data.v
 pub fn new_data(text string) Data {
+=======
+<<<<<<< Updated upstream:compiler/gen/textrbh/fvf.v
+pub fn new_fvf(text string) FVF {
+>>>>>>> Stashed changes:compiler/gen/textrbh/fvf.v
 	content_splitted := text.split('\n')
+=======
+pub fn new_data(text string) Data {
+	content_splitted := text.split_into_lines()
+>>>>>>> Stashed changes:compiler/gen/textrbh/data.v
 	mut cnt := map[string]bool{}
 	for c in content_splitted {
 		if c.starts_with('#') || c == '' { // comentarios
@@ -39,7 +48,7 @@ pub fn (mut data Data) get() ?string {
 			return k
 		}
 	}
-	return error('no se ha podido obtener un id, ya que todos están ocupados')
+	return error('no se ha podido obtener una variable/flag, ya que todos están ocupados')
 }
 
 pub fn (mut data Data) free(id string) ? {
@@ -47,9 +56,9 @@ pub fn (mut data Data) free(id string) ? {
 		if data.content[id] { // used
 			data.content[id] = false
 		} else {
-			return error("imposible liberar el id '$id': no está en uso tal id")
+			return error("imposible liberar el variable '$id': no está en uso")
 		}
 	} else {
-		return error("imposible liberar el id '$id': no existe tal id")
+		return error("imposible liberar el la variable '$id': no existe")
 	}
 }
