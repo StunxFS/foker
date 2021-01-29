@@ -97,18 +97,23 @@ pub fn (mut g Gen) create_content() string {
 		c += g.defines.str()
 	}
 	if g.snippets.len > 0 {
+		c += '; snippets (scripts)\n'
 		c += g.snippets.str() + '\n'
 	}
 	if g.strings.len > 0 {
+		c += '; strings\n'
 		c += g.strings.str() + '\n'
 	}
 	if g.strings_tmp.len > 0 {
+		c += '; strings temporales\n'
 		c += g.strings_tmp.str() + '\n'
 	}
 	if g.moves.len > 0 {
+		c += '; movimientos\n'
 		c += g.moves.str() + '\n'
 	}
 	if g.moves_tmp.len > 0 {
+		c += '; movimientos temporales\n'
 		c += g.moves_tmp.str() + '\n'
 	}
 	return c.trim_space() + '\n'
@@ -123,6 +128,11 @@ pub fn (mut g Gen) top_stmt(node ast.Stmt) {
 				str := to_hex(val)
 				gen_name := g.no_colons(node.name)
 				g.defines.writeln('#define $gen_name $str')
+			} else if node.typ == .string {
+				name := g.no_colons(node.name)
+				g.strings.writeln('#org @$name')
+				lit := (node.expr as ast.StringLiteral).lit
+				g.strings.writeln('= $lit\n')
 			}
 		}
 		ast.ScriptDecl {
@@ -200,17 +210,24 @@ fn (mut g Gen) script_decl(mut node ast.ScriptDecl) {
 
 fn (mut g Gen) stmt(node ast.Stmt) {
 	match node {
-		ast.IfStmt {
-			g.if_stmt(node)
-		}
+		ast.IfStmt { g.if_stmt(node) }
 		ast.RawStmt {
 			mut raw := node.text
-			for raw.contains('[') && raw.contains(']') {
-				var := raw.find_between('[', ']')
-				// Solo las variables se pueden usar aquí :)
-				raw = raw.replace('[$var]', g.get_var(g.cur_script_name, var))
+			for raw.contains("[") && raw.contains("]") {
+					var := raw.find_between('[', ']')
+					// Solo las variables se pueden usar aquí :)
+					raw = raw.replace('[$var]', g.get_var(g.cur_script_name, var))
 			}
 			g.snippets.writeln(raw)
+		}
+		ast.CallCmdStmt {
+			g.snippets.write(node.name.all_before_last("::"))
+			for arg in node.args {
+				g.snippets.write(' ')
+				g.expr(arg.expr)
+				g.snippets.write(' ')
+			}
+			g.snippets.write('\n')
 		}
 		else {}
 	}
@@ -248,15 +265,40 @@ fn (mut g Gen) expr(node ast.Expr) {
 				util.err(err)
 				return
 			}
-			println(var)
-			println(val)
+			//println(var)
+			//println(val)
 			g.snippets.write(var)
 		}
 		ast.InfixExpr {
 			g.expr(node.left)
 			g.snippets.write(' ')
 			g.expr(node.right)
-			g.snippets.writeln('')
+			g.snippets.write('\n')
+		}
+		ast.Ident {
+			obj := node.obj
+			match obj {
+				ast.Var {
+					mut name := g.no_colons(obj.name)
+					match obj.typ {
+						.movement {
+							name = '@' + name
+						}
+						else {}
+					}
+					g.snippets.write(name)
+				}
+				ast.Const {
+					mut name := g.no_colons(obj.name)
+					match obj.typ {
+						.movement, .string {
+							name = '@' + name
+						}
+						else {}
+					}
+					g.snippets.write(name)
+				}
+			}
 		}
 		else {}
 	}

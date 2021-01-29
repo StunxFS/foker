@@ -197,12 +197,10 @@ pub mut:
 
 pub struct CallArg {
 pub:
-	name string // para args. opcionales.
 	expr Expr
 pub mut:
 	typ    Type
 	pos    token.Position
-	is_opt bool // es argumento opcional
 }
 
 pub struct ForStmt {

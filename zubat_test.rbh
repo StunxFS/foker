@@ -1501,12 +1501,44 @@ end
 #define zubat_test__AGE 0x31
 #define zubat_test__AGE2 0x62
 #define zubat_test__AGGE 0xC8
+; snippets (scripts)
 
 #org @zubat_test__my_script
 end
 
 #org @zubat_test__main
+msgbox @string0  RES 
+msgbox @string1  Z3__CCC 
+msg @string2  RES2 
+msg @zubat_test__Kakawate  RES4 
+msg @Z3__Kampo  RES5 
+Z3
+Z3_mycommand
 compare  OTHERVAR
-RES RES2
+zubat_test @zubat_test__my_movement 
+zubat_test  
+zubat_test @anon_mov 
+move @zubat_test__my_movement 
+move  
+move @anon_mov1 
+RES6 RES69
 compare LASTRESULT
 end
+
+; strings
+#org @Z3__Kampo
+= Kampo
+
+#org @zubat_test__Kakawate
+= Dd
+
+
+; strings temporales
+#org @string0
+= Hola mundo!
+
+#org @string1
+= 2020
+
+#org @string2
+= Stunx
