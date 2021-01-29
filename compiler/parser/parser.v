@@ -559,6 +559,7 @@ fn (mut p Parser) script_stmt() ast.Stmt {
 	script := ast.ScriptDecl{
 		name: nsn
 		is_extern: is_extern
+		is_main: script_name == 'main'
 		stmts: stmts
 		pos: spenp
 		is_pub: is_pub

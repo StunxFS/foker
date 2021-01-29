@@ -1,8 +1,10 @@
 // (C) 2020-2021 StunxFS. All rights reserved. Use of this source code is
 // governed by an MIT license that can be found in the LICENSE file.
-module binary
+module textrbh
 
+import os
 import strings
+import compiler.util
 import compiler.ast
 import compiler.about
 import compiler.prefs
@@ -20,32 +22,47 @@ mut:
 	strings_tmp strings.Builder
 	moves       strings.Builder
 	moves_tmp   strings.Builder
-	flags       FVF
-	vars        FVF
+	flags       Data
+	vars        Data
+	dyn_offset string = '0x8000000'
+	main_script string
+	cur_script_name string
+	flags_map map[string]map[string]string // mapa usado para contener los offsets de cada flags
+	vars_map map[string]map[string]string // mapa usado para contener los offsets de cada variable
+	scripts_offsets map[string]string
+	label_count int
+	strings_count int
+	movs_count int
 }
 
 pub fn new_gen(prefs &prefs.Preferences, table &ast.Table) Gen {
 	return Gen{
 		prefs: prefs
 		table: table
-		flags: new_fvf(prefs.flags_file)
-		vars: new_fvf(prefs.vars_file)
+		flags: new_data(prefs.flags_file)
+		vars: new_data(prefs.vars_file)
 		file: 0
 	}
 }
 
-pub fn (mut g Gen) gen_from_files(files []ast.File) {
-	g.header.writeln('; Generado automáticamente con ZubatScript v$about.version $about.status')
+pub fn (mut g Gen) gen_from_files(files []ast.File) ? {
+	g.header.writeln('; Generado automáticamente con ZubatScript v$about.complete_version')
 	g.header.writeln('; Creado por: StunxFS | ADVERTENCIA: No modificar sin saber del tema')
 	for i := 0; i < files.len; i++ {
 		g.file = unsafe { &files[i] }
 		g.gen()
 	}
-	println(g.create_content())
+	g.header.writeln('\n#dynamic $g.dyn_offset\n')
+	// el snippet principal que se llamará
+	g.header.writeln('; este es el script principal que se debe llamar')
+	g.header.writeln('#org @start')
+	g.header.writeln('call @$g.main_script')
+	g.header.writeln('end\n')
+	os.write_file(g.prefs.output, g.create_content())?
 }
 
 pub fn (mut g Gen) gen() {
-	for stmt in g.file.prog.stmts {
+	for stmt in g.file.mod.stmts {
 		g.top_stmt(stmt)
 	}
 }
@@ -56,7 +73,7 @@ pub fn (mut g Gen) create_content() string {
 		c += g.header.str() + '\n'
 	}
 	if g.defines.len > 0 {
-		c += g.defines.str() + '\n'
+		c += g.defines.str()
 	}
 	if g.snippets.len > 0 {
 		c += g.snippets.str() + '\n'
@@ -73,7 +90,7 @@ pub fn (mut g Gen) create_content() string {
 	if g.moves_tmp.len > 0 {
 		c += g.moves_tmp.str() + '\n'
 	}
-	return c.trim_space()
+	return c.trim_space() + '\n'
 }
 
 pub fn (mut g Gen) top_stmt(node ast.Stmt) {
@@ -82,12 +99,16 @@ pub fn (mut g Gen) top_stmt(node ast.Stmt) {
 			if node.typ == .int {
 				val := g.define_expr(node.expr)
 				g.table.constantes[node.name] = val
-				str := val.str()
-				g.defines.writeln('#define $node.name $str')
+				str := to_hex(val)
+				gen_name := node.name.replace('::', '__')
+				g.defines.writeln('#define $gen_name $str')
 			}
 		}
 		ast.ScriptDecl {
-			g.snippets.writeln('#org @$node.name\n')
+			g.script_decl(mut node)
+		}
+		ast.DynamicStmt {
+			g.dyn_offset = '0x'+node.dyn_offset
 		}
 		else {}
 	}
@@ -119,4 +140,88 @@ pub fn (mut g Gen) define_expr(node ast.Expr) int {
 		else {}
 	}
 	return res
+}
+
+fn (mut g Gen) make_label() string {
+	label := '${g.cur_script_name}_label_$g.label_count'
+	g.label_count++
+	return label
+}
+
+fn (mut g Gen) make_string_tmp() string {
+	label := 'str$g.strings_count'
+	g.strings_count++
+	return label
+}
+
+fn (mut g Gen) make_mov_tmp() string {
+	label := 'mov$g.movs_count'
+	g.movs_count++
+	return label
+}
+
+fn (mut g Gen) script_decl(mut node ast.ScriptDecl) {
+	if node.is_extern {
+		g.scripts_offsets[node.name] = node.extern_offset
+		return
+	}
+	gen_name := node.name.replace('::', '__')
+	if node.is_main {
+		g.main_script = gen_name
+	}
+	g.cur_script_name = gen_name
+	g.snippets.writeln('\n#org @$gen_name')
+	for stmt in node.stmts {
+		g.stmt(stmt)
+	}
+	g.snippets.writeln('end')
+}
+
+fn (mut g Gen) stmt(node ast.Stmt) {
+	match node {
+		ast.IfStmt {
+			g.if_stmt(node)
+		}
+		else {}
+	}
+}
+
+fn (mut g Gen) if_stmt(node ast.IfStmt) {
+	for branch in node.branches {
+		if branch.is_else {
+			//
+		} else {
+			g.expr(branch.cond)
+			g.snippets.writeln('comparevar LASTRESULT')
+		}
+	}
+}
+
+// Expresiones | De aquí a abajo le toca a todas las expresiones
+fn (mut g Gen) expr(node ast.Expr) {
+	match mut node {
+		ast.StringLiteral {
+			name := g.make_string_tmp()
+			g.strings_tmp.writeln('#org @$name')
+			g.strings_tmp.writeln('= ${node.lit}\n')
+		}
+		ast.FmtStringLiteral {
+			//name := g.make_string_tmp()
+			//g.strings_tmp.writeln('#org @$name')
+			//g.strings_tmp.writeln('= $node.lit\n')
+		}
+		ast.IntegerLiteral {
+			val := if node.is_hex { node.lit } else { to_hex(node.lit.int()) }
+			var := g.vars.get() or {
+				util.err(err)
+				return
+			}
+			println(var)
+		}
+		ast.InfixExpr {
+			g.expr(node.left)
+			g.expr(node.right)
+		}
+		else {}
+	}
 }

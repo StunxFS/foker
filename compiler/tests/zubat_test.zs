@@ -1,4 +1,7 @@
 // ZubatTest | ValenLoveForever
+
+dynamic 900000;
+
 import Z3; // compiler/tests/Z3.zs
 //import impfolder::Z3 as Z3_2;
 
@@ -67,7 +70,7 @@ script main {
 	//Z3::macro!();
 	//macro!();
 	
-	if myvar == 4 {
+	if myvar == 0xABC {
 		call my_script;
 		{
 			/*var myvar = movement {

@@ -105,6 +105,7 @@ pub:
 	pos           token.Position
 	body_pos      token.Position
 	is_pub        bool
+	is_main bool
 	mod           string
 pub mut:
 	stmts []Stmt

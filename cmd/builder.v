@@ -9,6 +9,7 @@ import compiler.util
 import compiler.prefs
 import compiler.parser
 import compiler.checker
+import compiler.gen.textrbh
 
 struct Builder {
 mut:
@@ -117,8 +118,10 @@ fn (mut b Builder) generator() {
 		.binary {
 			match b.pref.build_mode {
 				.text {
-					// mut gen := binary.new_gen(b.pref, b.table)
-					// gen.gen_from_files(b.parsed_files)
+					mut gen := textrbh.new_gen(b.pref, b.table)
+					gen.gen_from_files(b.parsed_files) or {
+						util.err(err)
+					}
 				}
 				.direct {
 					util.err('el backend DirectRBH aún no está implementado')

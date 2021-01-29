@@ -1,15 +1,15 @@
 // (C) 2020-2021 StunxFS. All rights reserved. Use of this source code is
 // governed by an MIT license that can be found in the LICENSE file.
-module binary
+module textrbh
 
 import os
 
-struct FVF {
+struct Data {
 mut:
 	content map[string]bool
 }
 
-pub fn new_fvf(text string) FVF {
+pub fn new_data(text string) Data {
 	content_splitted := text.split('\n')
 	mut cnt := map[string]bool{}
 	for c in content_splitted {
@@ -22,30 +22,30 @@ pub fn new_fvf(text string) FVF {
 		}
 		cnt[d] = false
 	}
-	return FVF{
+	return Data{
 		content: cnt
 	}
 }
 
-pub fn new_fvf_from_file(file string) ?FVF {
+pub fn new_data_from_file(file string) ?Data {
 	content := os.read_file(file) ?
-	return new_fvf(content)
+	return new_data(content)
 }
 
-pub fn (mut fvf FVF) get() ?string {
-	for k, v in fvf.content {
+pub fn (mut data Data) get() ?string {
+	for k, v in data.content {
 		if !v { // no used
-			fvf.content[k] = true
+			data.content[k] = true
 			return k
 		}
 	}
 	return error('no se ha podido obtener un id, ya que todos están ocupados')
 }
 
-pub fn (mut fvf FVF) free(id string) ? {
-	if id in fvf.content {
-		if fvf.content[id] { // used
-			fvf.content[id] = false
+pub fn (mut data Data) free(id string) ? {
+	if id in data.content {
+		if data.content[id] { // used
+			data.content[id] = false
 		} else {
 			return error("imposible liberar el id '$id': no está en uso tal id")
 		}
