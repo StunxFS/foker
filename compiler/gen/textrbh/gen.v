@@ -201,6 +201,9 @@ fn (mut g Gen) script_decl(mut node ast.ScriptDecl) {
 fn (mut g Gen) stmt(node ast.Stmt) {
 	match node {
 		ast.IfStmt { g.if_stmt(node) }
+		ast.RawStmt {
+			g.snippets.writeln(node.text)
+		}
 		else {}
 	}
 }

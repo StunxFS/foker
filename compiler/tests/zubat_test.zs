@@ -39,13 +39,14 @@ script main {
 	PKMNMENU = true;
 	//var Zurkillo = 200;
 	var myvar: int = 4;
-	msg("Stunx", myvar);
+	//msg("Stunx", myvar);
 	myvar = 2020;
 	free myvar;
 	myvar = 555;
 	Z3::OTHERVAR += 1;
 	Z3::mycommand();
 	Z3_mycommand();
+	raw `comapre MYVAR OTHERVAR`;
 
 	applymovement(my_movement);
 	applymovement(movement {
