@@ -121,7 +121,7 @@ pub fn (mut g Gen) top_stmt(node ast.Stmt) {
 				val := g.define_expr(node.expr)
 				g.table.constantes[node.name] = val
 				str := to_hex(val)
-				gen_name := node.name.replace('::', '__')
+				gen_name := g.no_colons(node.name)
 				g.defines.writeln('#define $gen_name $str')
 			}
 		}
@@ -170,13 +170,13 @@ fn (mut g Gen) make_label() string {
 }
 
 fn (mut g Gen) make_string_tmp() string {
-	label := 'str$g.strings_count'
+	label := 'string$g.strings_count'
 	g.strings_count++
 	return label
 }
 
 fn (mut g Gen) make_mov_tmp() string {
-	label := 'mov$g.movs_count'
+	label := 'movement$g.movs_count'
 	g.movs_count++
 	return label
 }
@@ -200,9 +200,17 @@ fn (mut g Gen) script_decl(mut node ast.ScriptDecl) {
 
 fn (mut g Gen) stmt(node ast.Stmt) {
 	match node {
-		ast.IfStmt { g.if_stmt(node) }
+		ast.IfStmt {
+			g.if_stmt(node)
+		}
 		ast.RawStmt {
-			g.snippets.writeln(node.text)
+			mut raw := node.text
+			for raw.contains('[') && raw.contains(']') {
+				var := raw.find_between('[', ']')
+				// Solo las variables se pueden usar aquí :)
+				raw = raw.replace('[$var]', g.get_var(g.cur_script_name, var))
+			}
+			g.snippets.writeln(raw)
 		}
 		else {}
 	}

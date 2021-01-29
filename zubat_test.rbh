@@ -1506,7 +1506,7 @@ end
 end
 
 #org @zubat_test__main
-comapre MYVAR OTHERVAR
+compare  OTHERVAR
 RES RES2
 compare LASTRESULT
 end
