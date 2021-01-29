@@ -30,6 +30,7 @@ jobs:
         run: |
           git clone https://github.com/vlang/v vsrc/
           cd vsrc && make -j4
+          ./v -cg -cflags -Werror -o v cmd/v
           ./v version
 
       # Runs a set of commands using the runners shell
