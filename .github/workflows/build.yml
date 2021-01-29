@@ -28,9 +28,8 @@ jobs:
       # Runs a single command using the runners shell
       - name: Download V's source code
         run: |
-          git clone https://github.com/vlang/v vsrc/ && cd vsrc && make
+          git clone https://github.com/vlang/v vsrc/ && cd vsrc && make -j4 && ./v -cc gcc -cg -cflags -Werror -o v cmd/v
           ./v version
-          sudo ./v symlink
 
       # Runs a set of commands using the runners shell
       - name: Compile ZubatScript
