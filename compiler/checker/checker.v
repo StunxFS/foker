@@ -140,7 +140,8 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 		}
 		ast.QuestionStmt {
 			if node.question.lit.len == 0 {
-				c.error('por favor, coloque una pregunta aquí', node.question.pos)
+				c.error('se requiere un contenido aquí, esto no puede quedar vacío',
+					node.question.pos)
 			}
 			for stmt in node.yes.stmts {
 				c.stmt(stmt)
@@ -331,6 +332,15 @@ pub fn (mut c Checker) call_cmd_stmt(mut call_cmd ast.CallCmdStmt) {
 		arg := cmd.params[i]
 		c.expected_type = arg.typ
 		typ := c.expr(call_arg.expr)
+		if call_arg.expr is ast.Ident {
+			i1 := call_arg.expr
+			if i1.obj is ast.Var {
+				if i1.obj.typ in [ast.Type.int, .long, .byte] {
+					c.error('no se pueden usar variables numéricas en llamadas a comandos',
+						i1.pos)
+				}
+			}
+		}
 		call_cmd.args[i].typ = typ
 		c.check_expected(typ, arg.typ) or {
 			c.error("$err, en el argumento ${i + 1} del comando '$cmd_alias'", call_cmd.pos)
