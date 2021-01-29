@@ -28,7 +28,7 @@ jobs:
       # Runs a single command using the runners shell
       - name: Download V's source code
         run: |
-          git clone https://github.com/vlang/v && cd v && make
+          git clone https://github.com/vlang/v vsrc/ && cd vsrc && make
           ./v version
           sudo ./v symlink
 
