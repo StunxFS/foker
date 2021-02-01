@@ -42,4 +42,12 @@ script main {
 		}
 	}
 	msgbox("Holaaa!", 6);
+	question "¿Quieres leche?" {
+		yes {
+			msgbox("Toma un poco", 6);
+		}
+		no {
+			msgbox("Cualquier cosa me dices", 6);
+		}
+	}
 }

@@ -38,7 +38,7 @@ mut:
 	movs_count       int
 	res              string // variable separada para las expresiones con literales
 	require_main_end bool
-	for_snippets2 bool
+	for_snippets2    bool
 }
 
 pub fn new_gen(prefs &prefs.Preferences, table &ast.Table) ?Gen {
@@ -208,7 +208,7 @@ pub fn (mut g Gen) create_content() string {
 
 pub fn (mut g Gen) top_stmt(node ast.Stmt) {
 	match mut node {
-		/*ast.Const {
+		ast.Const {
 			match node.typ {
 				.int {
 					val := g.define_expr(node.expr)
@@ -225,7 +225,7 @@ pub fn (mut g Gen) top_stmt(node ast.Stmt) {
 				}
 				else {}
 			}
-		}*/
+		}
 		ast.ScriptDecl {
 			g.script_decl(mut node)
 		}
@@ -335,6 +335,26 @@ fn (mut g Gen) stmt(node ast.Stmt) {
 		ast.CallStmt {
 			g.writeln('call @${g.no_colons(node.script)}')
 		}
+		ast.QuestionStmt {
+			msg := g.expr(node.question)
+			si_label := g.make_label()
+			g.writeln('faceplayer')
+			g.writeln('lock')
+			g.writeln('msgbox $msg 0x5')
+			g.writeln('if 0x1 goto @$si_label')
+			g.writeln('; lo de abajo corresponde al "No"')
+			for stmt in node.no.stmts {
+				g.stmt(stmt)
+			}
+			g.for_snippets2 = true
+			g.writeln('#org @$si_label')
+			for stmt in node.yes.stmts {
+				g.stmt(stmt)
+			}
+			g.writeln('end')
+			g.for_snippets2 = false
+			g.writeln('release')
+		}
 		ast.AssignStmt {
 			g.assign_stmt(node)
 		}
@@ -384,7 +404,7 @@ fn (mut g Gen) assign_stmt(node ast.AssignStmt) {
 }
 
 fn (mut g Gen) if_stmt(node ast.IfStmt) {
-	//g.require_main_end = true
+	// g.require_main_end = true
 	mut else_branches := []ast.Stmt{}
 	else_end := 'else_end_' + g.make_label()
 	for branch in node.branches {
@@ -394,7 +414,7 @@ fn (mut g Gen) if_stmt(node ast.IfStmt) {
 			cond := g.expr(branch.cond)
 			label := g.make_label()
 			// compare: compara una variable con un número
-			// comparevar: compara una variable con otra
+			// comparevars: compara una variable con otra
 			// La siguiente parte se compone por un: if <op> <goto|call> <label>
 			g.snippets.writeln('$cond @$label')
 			g.for_snippets2 = true
@@ -467,7 +487,7 @@ fn (mut g Gen) expr(node ast.Expr) string {
 					#define B_<> 0x5 TODO
 					*/
 					op := match node.op {
-						.eq {'0x1'}
+						.eq { '0x1' }
 						.neq { '0x5' }
 						.lt { '0x0' }
 						.gt { '0x2' }
