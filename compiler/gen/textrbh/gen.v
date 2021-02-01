@@ -463,7 +463,7 @@ fn (mut g Gen) expr(node ast.Expr) string {
 						.gte { '0x4' }
 						else { '' }
 					}
-					cmd := if g.is_var(var1) { 'comparevar' } else { 'compare' }
+					cmd := if g.is_var(var1) { 'comparevars' } else { 'compare' }
 					g.writeln('$cmd $var $var1')
 					return 'if $op goto'
 				}
