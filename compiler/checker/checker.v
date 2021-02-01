@@ -340,6 +340,9 @@ pub fn (mut c Checker) call_cmd_stmt(mut call_cmd ast.CallCmdStmt) {
 						i1.pos)
 				}
 			}
+		} else if call_arg.expr is ast.InfixExpr || call_arg.expr is ast.ParExpr {
+			c.error('no se pueden usar expresiones avanzadas en llamadas a comandos',
+				call_arg.expr.position())
 		}
 		call_cmd.args[i].typ = typ
 		c.check_expected(typ, arg.typ) or {

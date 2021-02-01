@@ -288,14 +288,6 @@ fn (mut g Gen) expr(node ast.Expr) string {
 		}
 		ast.IntegerLiteral {
 			val := if node.is_hex { node.lit } else { to_hex(node.lit.int()) }
-			/*
-			var := g.vars.get() or {
-				util.err(err)
-				return
-			}
-			*/
-			// println(var)
-			// println(val)
 			return val
 		}
 		ast.InfixExpr {

@@ -27,7 +27,7 @@ alias move = applymovement;
 
 script main {
 	var mi_variable = 100;
-	msgbox("Hola mundo!", 6 + 5);
+	msgbox("Hola mundo!", 6);
 	msgbox("2020", Z3::CCC);
 	msg("Stunx", 6);
 	msg(Kakawate, 6);
