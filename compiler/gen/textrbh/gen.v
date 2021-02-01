@@ -203,7 +203,7 @@ pub fn (mut g Gen) create_content() string {
 
 pub fn (mut g Gen) top_stmt(node ast.Stmt) {
 	match mut node {
-		ast.Const {
+		/*ast.Const {
 			match node.typ {
 				.int {
 					val := g.define_expr(node.expr)
@@ -220,7 +220,7 @@ pub fn (mut g Gen) top_stmt(node ast.Stmt) {
 				}
 				else {}
 			}
-		}
+		}*/
 		ast.ScriptDecl {
 			g.script_decl(mut node)
 		}
@@ -422,7 +422,7 @@ fn (mut g Gen) expr(node ast.Expr) string {
 		ast.InfixExpr {
 			var := g.expr(node.left)
 			var1 := g.expr(node.right)
-			var_infix := if g.is_var(var) { g.res } else { var }
+			var_infix := if g.is_var(var) { var } else { g.res }
 			match node.op {
 				.plus, .minus {
 					cmd := if node.op == .plus { 'addvar' } else { 'subvar' }
