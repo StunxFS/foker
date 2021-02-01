@@ -14,39 +14,45 @@ import compiler.prefs
 pub struct Gen {
 	prefs &prefs.Preferences
 mut:
-	table           &ast.Table
-	file            &ast.File
-	header          strings.Builder = strings.new_builder(100)
-	includes        strings.Builder = strings.new_builder(100)
-	defines         strings.Builder = strings.new_builder(100)
-	snippets        strings.Builder = strings.new_builder(100)
-	strings         strings.Builder = strings.new_builder(100)
-	strings_tmp     strings.Builder = strings.new_builder(100)
-	moves           strings.Builder = strings.new_builder(100)
-	moves_tmp       strings.Builder = strings.new_builder(100)
-	flags           Data
-	vars            Data
-	dyn_offset      string = '0x8000000'
-	main_script     string
-	cur_script_name string
-	flags_map       map[string]map[string]string // mapa usado para contener los offsets de cada flags
-	vars_map        map[string]map[string]string // mapa usado para contener los offsets de cada variable
-	scripts_offsets map[string]string
-	label_count     int
-	strings_count   int
-	movs_count      int
-	res             string // variable separada para las expresiones con literales
+	table            &ast.Table
+	file             &ast.File
+	header           strings.Builder = strings.new_builder(100)
+	includes         strings.Builder = strings.new_builder(100)
+	defines          strings.Builder = strings.new_builder(100)
+	snippets         strings.Builder = strings.new_builder(100)
+	strings          strings.Builder = strings.new_builder(100)
+	strings_tmp      strings.Builder = strings.new_builder(100)
+	moves            strings.Builder = strings.new_builder(100)
+	moves_tmp        strings.Builder = strings.new_builder(100)
+	flags            Data
+	vars             Data
+	dyn_offset       string = '0x8000000'
+	main_script      string
+	cur_script_name  string
+	flags_map        map[string]map[string]string // mapa usado para contener los offsets de cada flags
+	vars_map         map[string]map[string]string // mapa usado para contener los offsets de cada variable
+	scripts_offsets  map[string]string
+	label_count      int
+	strings_count    int
+	movs_count       int
+	res              string // variable separada para las expresiones con literales
+	require_main_end bool
 }
 
 pub fn new_gen(prefs &prefs.Preferences, table &ast.Table) ?Gen {
 	flags := new_data_from_file(prefs.flags_file) ?
-	vars := new_data_from_file(prefs.vars_file) ?
+	mut vars := new_data_from_file(prefs.vars_file) ?
+	res := vars.get() or {
+		util.err('no se pudo obtener una variable separada para "res"')
+		''
+	}
 	return Gen{
 		prefs: prefs
 		table: table
 		flags: flags
 		vars: vars
 		file: 0
+		res: res
 	}
 }
 
@@ -81,6 +87,24 @@ fn (g &Gen) no_colons(n string) string {
 }
 
 [inline]
+fn (mut g Gen) get_new_flag() string {
+	f := g.flags.get() or {
+		util.err('gen: $err')
+		return ''
+	}
+	return f
+}
+
+[inline]
+fn (mut g Gen) get_new_var() string {
+	v := g.vars.get() or {
+		util.err('gen: $err')
+		return ''
+	}
+	return v
+}
+
+[inline]
 fn (g &Gen) get_flag(flag string) string {
 	return g.flags_map[g.cur_script_name][flag]
 }
@@ -88,6 +112,29 @@ fn (g &Gen) get_flag(flag string) string {
 [inline]
 fn (g &Gen) get_var(var string) string {
 	return g.vars_map[g.cur_script_name][var]
+}
+
+[inline]
+fn (g &Gen) is_flag(flag string) bool {
+	for _, f in g.flags_map[g.cur_script_name] {
+		if f == flag {
+			return true
+		}
+	}
+	return false
+}
+
+[inline]
+fn (g &Gen) is_var(var string) bool {
+	for _, v in g.vars_map[g.cur_script_name] {
+		if v == var {
+			return true
+		}
+	}
+	if var == g.res {
+		return true
+	}
+	return false
 }
 
 [inline]
@@ -222,6 +269,9 @@ fn (mut g Gen) script_decl(mut node ast.ScriptDecl) {
 	for stmt in node.stmts {
 		g.stmt(stmt)
 	}
+	if g.require_main_end {
+		g.snippets.writeln('#org @${gen_name}_end')
+	}
 	g.snippets.writeln('end')
 }
 
@@ -251,19 +301,59 @@ fn (mut g Gen) stmt(node ast.Stmt) {
 			g.snippets.write('$args\n')
 		}
 		ast.AssignStmt {
-			//
+			g.assign_stmt(node)
 		}
 		else {}
 	}
 }
 
+fn (mut g Gen) assign_stmt(node ast.AssignStmt) {
+	lft := node.left as ast.Ident
+	if node.is_decl {
+		var := g.get_new_var()
+		g.reg_var(lft.name, var)
+		val := g.expr(node.right)
+		if g.is_var(val) {
+			g.snippets.writeln('setvar $var 0x0')
+			g.snippets.writeln('copyvar $var $val ; assign_var(true): $lft.name[$var]')
+			if val == g.res {
+				g.snippets.writeln('clearvar $val')
+			}
+		} else {
+			g.snippets.writeln('setvar $var $val ; assign_var(true): $lft.name[$var]')
+		}
+	} else {
+		var := g.get_var(lft.name)
+		val := g.expr(node.right)
+		match node.op {
+			.plus_assign {
+				g.snippets.writeln('addvar $var $val ; plus_assign')
+			}
+			.minus_assign {
+				g.snippets.writeln('subvar $var $val ; minus_assign')
+			}
+			else {
+				if g.is_var(val) {
+					g.snippets.writeln('copyvar $var $val ; assign_stmt(false): $lft.name')
+					if val == g.res {
+						g.snippets.writeln('clearvar $val')
+					}
+				} else if node.op !in [.plus_assign, .minus_assign] {
+					g.snippets.writeln('setvar $var $val ; assign_var(false): $lft.name')
+				}
+			}
+		}
+	}
+}
+
 fn (mut g Gen) if_stmt(node ast.IfStmt) {
+	g.require_main_end = true
+	else_branch_label := g.make_label()
 	for branch in node.branches {
 		if branch.is_else {
-			//
+			g.snippets.writeln('#org @$else_branch_label ; else branch')
 		} else {
-			g.expr(branch.cond)
-
+			var := g.expr(branch.cond)
 			g.snippets.writeln('compare LASTRESULT')
 		}
 	}
@@ -274,6 +364,9 @@ fn (mut g Gen) if_stmt(node ast.IfStmt) {
 // expr - retorna 2 strings, uno con pre-código y otro con el ident a usar
 fn (mut g Gen) expr(node ast.Expr) string {
 	match mut node {
+		ast.ParExpr {
+			return g.expr(node.expr)
+		}
 		ast.StringLiteral {
 			name := g.make_string_tmp()
 			g.strings_tmp.writeln('#org @$name')
@@ -291,19 +384,33 @@ fn (mut g Gen) expr(node ast.Expr) string {
 			return val
 		}
 		ast.InfixExpr {
-			mut var_infix := ''
 			var := g.expr(node.left)
 			var1 := g.expr(node.right)
+			var_infix := if g.is_var(var) { g.res } else { var }
 			match node.op {
 				.plus {
-					g.snippets.writeln('addvar $var $var1')
+					if g.is_var(var) {
+						if var != var_infix {
+							g.snippets.writeln('copyvar $var_infix $var')
+						}
+					} else {
+						g.snippets.writeln('addvar $var_infix $var')
+					}
+					g.snippets.writeln('addvar $var_infix $var1')
 				}
 				.minus {
-					g.snippets.writeln('subvar $var $var1')
+					if g.is_var(var) {
+						if var != var_infix {
+							g.snippets.writeln('copyvar $var_infix $var')
+						}
+					} else {
+						g.snippets.writeln('subvar $var_infix $var')
+					}
+					g.snippets.writeln('subvar $var_infix $var1')
 				}
 				else {}
 			}
-			return var1
+			return var_infix
 		}
 		ast.Ident {
 			obj := node.obj
@@ -313,6 +420,10 @@ fn (mut g Gen) expr(node ast.Expr) string {
 					match obj.typ {
 						.movement { name = '@' + name }
 						else {}
+					}
+					var := g.get_var(name)
+					if var != '' {
+						name = var
 					}
 					return name
 				}

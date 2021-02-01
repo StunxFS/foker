@@ -1508,20 +1508,25 @@ end
 end
 
 #org @zubat_test__main
-msgbox @string0 0x6
-msgbox @string1 Z3__CCC
-msg @string2 0x6
-msg @zubat_test__Kakawate 0x6
-msg @Z3__Kampo 0x6
-Z3
-Z3_mycommand
-zubat_test @zubat_test__my_movement
-zubat_test
-zubat_test @anon_mov
-move @zubat_test__my_movement
-move
-move @anon_mov1
+setvar 0x5001 0xC8 ; assign_var(true): mivariable[0x5001]
+copyvar 0x5000 0x5001
+addvar 0x5000 0xA
+copyvar 0x5001 0x5000 ; assign_stmt(false): mivariable
+clearvar 0x5000
+copyvar 0x5000 0x5001
+addvar 0x5000 0xC8
+subvar 0x5000 0x12C
+setvar 0x5002 0x0
+copyvar 0x5002 0x5000 ; assign_var(true): otra[0x5002]
+clearvar 0x5000
+copyvar 0x5000 0x5001
+addvar 0x5000 0x5002
+copyvar 0x5002 0x5000 ; assign_stmt(false): otra
+clearvar 0x5000
+addvar 0x5002 0x3 ; plus_assign
 compare LASTRESULT
+#org @zubat_test__main_label_0 ; else branch
+#org @zubat_test__main_end
 end
 
 ; strings
@@ -1530,14 +1535,4 @@ end
 
 #org @zubat_test__Kakawate
 = Dd
-
-; strings temporales
-#org @string0
-= Hola mundo!
-
-#org @string1
-= 2020
-
-#org @string2
-= Stunx
 

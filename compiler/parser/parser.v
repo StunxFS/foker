@@ -374,7 +374,12 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 				}
 			}
 			.key_cmd {
-				return p.parse_cmd_stmt()
+				if p.pref.backend == .decomp || p.is_builtin {
+					return p.parse_cmd_stmt()
+				} else {
+					p.error_with_pos('no se pueden declarar comandos en el backend de binario',
+						p.peek_tok.position())
+				}
 			}
 			.key_alias {
 				return p.parse_alias_stmt()

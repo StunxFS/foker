@@ -22,60 +22,16 @@ script my_script {}
 
 alias Z3_mycommand = Z3::mycommand;
 
-cmd applymovement(mov: movement);
-alias move = applymovement;
+//cmd applymovement(mov: movement);
+//alias move = applymovement;
 
 script main {
-	var mi_variable = 100;
-	msgbox("Hola mundo!", 6);
-	msgbox("2020", Z3::CCC);
-	msg("Stunx", 6);
-	msg(Kakawate, 6);
-	msg(Z3::Kampo, 6);
-	call my_script;
-	//call Z3::other_script;
-	PKMNMENU = true;
-	//var Zurkillo = 200;
-	var myvar: int = 4;
-	myvar = 2020;
-	free myvar;
-	myvar = 555;
-	Z3::OTHERVAR += 1;
-	Z3::mycommand();
-	Z3_mycommand();
-
-	applymovement(my_movement);
-	applymovement(movement {
-		walk_up * 4
-	});
-	var anon_mov = movement {
-		walk_up * 4
-	};
-	applymovement(anon_mov);
-	//applymovement(true);
-	
-	move(my_movement);
-	move(movement {
-		walk_up * 4
-	});
-	var anon_mov1 = movement {
-		walk_up * 4
-	};
-	move(anon_mov1);
-	//move(true);
-	
-	// Macro - errores!
-	//Z3::macro!();
-	//macro!();
-	
-	if myvar == 4 {
-		call my_script;
-		{
-			/*var myvar = movement {
-				walk_up * 2
-			};
-			var other = ANIO_ACTUAL;
-			var milk: int = true;*/
-		}
-	}
+	var mivariable = 200;
+	mivariable = mivariable + 10;
+	var otra = (mivariable + 200) - 300;
+	otra = mivariable + otra;
+	otra += 3;
+	if mivariable < otra {
+		//
+	} else {}
 }
