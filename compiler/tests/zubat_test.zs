@@ -14,9 +14,9 @@ const AGGE = ATK_NONE + Z3::CCC;*/
 
 const OFFSET: offset = 0x800000;
 
-/*pub movement my_movement {
-	walk_down_vslow
-}*/
+pub movement my_movement {
+	walk_down * 4
+}
 
 //script my_script {}
 
@@ -41,13 +41,15 @@ script main {
 			msgbox("b == 1000", 6);
 		}
 	}
-	msgbox("Holaaa!", 6);
 	question "¿Quieres leche?" {
 		yes {
 			msgbox("Toma un poco", 6);
 		}
 		no {
 			msgbox("Cualquier cosa me dices", 6);
+			var mymov = movement {walk_down * 9};
+			applymovement(mymov, 0x2);
+			applymovement(my_movement, 0x2);
 		}
 	}
 }

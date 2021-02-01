@@ -1514,13 +1514,16 @@ compare 0x5001 0x3E8
 if 0x1 goto @zubat_test__main_label_4
 #org @else_end_zubat_test__main_label_2
 #org @else_end_zubat_test__main_label_0
-msgbox @string4 0x6
 faceplayer
 lock
-msgbox @string5 0x5
+msgbox @string4 0x5
 if 0x1 goto @zubat_test__main_label_5
 ; lo de abajo corresponde al "No"
-msgbox @string6 0x6
+msgbox @string5 0x6
+setvar 0x5002 0x0
+copyvar 0x5002 @movement0 ; assign_var(true): mymov[0x5002]
+applymovement @movement0 0x2
+applymovement @zubat_test__my_movement 0x2
 release
 end
 
@@ -1538,7 +1541,7 @@ msgbox @string3 0x6
 goto @else_end_zubat_test__main_label_2
 
 #org @zubat_test__main_label_5
-msgbox @string7 0x6
+msgbox @string6 0x6
 end
 
 ; strings temporales
@@ -1555,14 +1558,32 @@ end
 = b == 1000
 
 #org @string4
-= Holaaa!
-
-#org @string5
 = ¿Quieres leche?
 
-#org @string6
+#org @string5
 = Cualquier cosa me dices
 
-#org @string7
+#org @string6
 = Toma un poco
+
+; movimientos
+#org @my_movement
+#raw 0x10 ; movement: walk_down
+#raw 0x10 ; movement: walk_down
+#raw 0x10 ; movement: walk_down
+#raw 0x10 ; movement: walk_down
+#raw 0xFE ; movement: end
+
+; movimientos temporales
+#org @movement0
+#raw 0x10 ; movement: walk_down
+#raw 0x10 ; movement: walk_down
+#raw 0x10 ; movement: walk_down
+#raw 0x10 ; movement: walk_down
+#raw 0x10 ; movement: walk_down
+#raw 0x10 ; movement: walk_down
+#raw 0x10 ; movement: walk_down
+#raw 0x10 ; movement: walk_down
+#raw 0x10 ; movement: walk_down
+#raw 0xFE ; movement: end
 

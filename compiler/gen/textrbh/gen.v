@@ -144,8 +144,11 @@ fn (g &Gen) is_flag(flag string) bool {
 
 [inline]
 fn (g &Gen) is_var(var string) bool {
-	for _, v in g.vars_map[g.cur_script_name] {
+	for k, v in g.vars_map[g.cur_script_name] {
 		if v == var {
+			return true
+		}
+		if k == var {
 			return true
 		}
 	}
@@ -228,6 +231,19 @@ pub fn (mut g Gen) top_stmt(node ast.Stmt) {
 		}
 		ast.ScriptDecl {
 			g.script_decl(mut node)
+		}
+		ast.ExprStmt {
+			match node.expr {
+				ast.MovementExpr {
+					name := node.expr.name
+					g.moves.writeln('#org @$name')
+					for mov in node.expr.movs {
+						g.moves.write('#raw $mov.val ; movement: $mov.name\n'.repeat(mov.count))
+					}
+					g.moves.writeln('#raw 0xFE ; movement: end')
+				}
+				else {}
+			}
 		}
 		ast.DynamicStmt {
 			g.dyn_offset = '0x' + node.dyn_offset
@@ -369,8 +385,13 @@ fn (mut g Gen) assign_stmt(node ast.AssignStmt) {
 	lft := node.left as ast.Ident
 	if node.is_decl {
 		var := g.get_new_var()
-		g.reg_var(lft.name, var)
+		if node.right !is ast.MovementExpr {
+			g.reg_var(lft.name, var)
+		}
 		val := g.expr(node.right)
+		if node.right is ast.MovementExpr {
+			g.reg_var(lft.name, val)
+		}
 		if g.is_var(val) {
 			g.writeln('setvar $var 0x0')
 			g.writeln('copyvar $var $val ; assign_var(true): $lft.name[$var]')
@@ -511,25 +532,29 @@ fn (mut g Gen) expr(node ast.Expr) string {
 			match obj {
 				ast.Var {
 					mut name := g.no_colons(obj.name)
-					match obj.typ {
-						.movement { name = '@' + name }
-						else {}
-					}
-					var := g.get_var(name)
-					if var != '' {
-						name = var
+					if g.is_var(name) {
+						name = g.get_var(name)
 					}
 					return name
 				}
 				ast.Const {
 					mut name := g.no_colons(obj.name)
 					match obj.typ {
-						.movement, .string { name = '@' + name }
+						.movement, .string { name = '@$name' }
 						else {}
 					}
 					return name
 				}
 			}
+		}
+		ast.MovementExpr {
+			name := g.make_mov_tmp()
+			g.moves_tmp.writeln('#org @$name')
+			for mov in node.movs {
+				g.moves_tmp.write('#raw $mov.val ; movement: $mov.name\n'.repeat(mov.count))
+			}
+			g.moves_tmp.writeln('#raw 0xFE ; movement: end')
+			return '@$name'
 		}
 		else {}
 	}

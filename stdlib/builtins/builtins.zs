@@ -18,6 +18,8 @@ cmd msgbox(
 );
 alias msg = msgbox;
 
+cmd applymovement(mov: movement, id: int);
+
 /*
 TODO: Soporte de macros:
 macro msgbox6 {

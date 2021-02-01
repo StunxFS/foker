@@ -34,7 +34,6 @@ mut:
 	cur_script_name string
 	inside_if       bool
 	inside_for      bool
-	movs_tmp        int
 	is_main         bool
 	is_builtin      bool
 	mod_name        string
