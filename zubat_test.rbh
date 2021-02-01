@@ -32,15 +32,15 @@ end
 ; snippets2 (labels, if, etc)
 #org @zubat_test__main_label_1
 msgbox @string1 0x6
-goto else_end_zubat_test__main_label_0
+goto @else_end_zubat_test__main_label_0
 
 #org @zubat_test__main_label_3
 msgbox @string2 0x6
-goto else_end_zubat_test__main_label_2
+goto @else_end_zubat_test__main_label_2
 
 #org @zubat_test__main_label_4
 msgbox @string3 0x6
-goto else_end_zubat_test__main_label_2
+goto @else_end_zubat_test__main_label_2
 
 ; strings temporales
 #org @string0

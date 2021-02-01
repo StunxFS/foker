@@ -402,7 +402,7 @@ fn (mut g Gen) if_stmt(node ast.IfStmt) {
 			for stmt in branch.stmts {
 				g.stmt(stmt)
 			}
-			g.writeln('goto $else_end\n')
+			g.writeln('goto @$else_end\n')
 			g.for_snippets2 = false
 		}
 	}
