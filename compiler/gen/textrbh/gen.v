@@ -165,6 +165,11 @@ fn (mut g Gen) reg_var(var string, dir string) {
 	g.vars_map[g.cur_script_name][var] = dir
 }
 
+[inline]
+fn (mut g Gen) clear_res() {
+	g.writeln('setvar $g.res 0x0')
+}
+
 pub fn (mut g Gen) create_content() string {
 	mut c := strings.new_builder(100)
 	c.writeln('$g.header.str()\n')
@@ -339,7 +344,7 @@ fn (mut g Gen) assign_stmt(node ast.AssignStmt) {
 			g.writeln('setvar $var 0x0')
 			g.writeln('copyvar $var $val ; assign_var(true): $lft.name[$var]')
 			if val == g.res {
-				g.writeln('clearvar $val')
+				g.clear_res()
 			}
 		} else {
 			g.writeln('setvar $var $val ; assign_var(true): $lft.name[$var]')
@@ -358,7 +363,7 @@ fn (mut g Gen) assign_stmt(node ast.AssignStmt) {
 				if g.is_var(val) {
 					g.writeln('copyvar $var $val ; assign_stmt(false): $lft.name')
 					if val == g.res {
-						g.writeln('clearvar $val')
+						g.clear_res()
 					}
 				} else if node.op !in [.plus_assign, .minus_assign] {
 					g.writeln('setvar $var $val ; assign_var(false): $lft.name')
