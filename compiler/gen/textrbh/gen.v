@@ -304,6 +304,9 @@ fn (mut g Gen) script_decl(mut node ast.ScriptDecl) {
 
 fn (mut g Gen) stmt(node ast.Stmt) {
 	match node {
+		ast.ExprStmt {
+			g.expr(node.expr)
+		}
 		ast.Block {
 			for stmt in node.stmts {
 				g.stmt(stmt)

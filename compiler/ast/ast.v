@@ -274,6 +274,14 @@ pub:
 	is_else bool
 }
 
+// break, continue
+pub struct BranchStmt {
+pub:
+	kind  token.Kind
+	label string
+	pos   token.Position
+}
+
 // Expressions
 pub type Expr = BoolLiteral | FmtStringLiteral | Ident | InfixExpr | IntegerLiteral |
 	MovementExpr | ParExpr | PostfixExpr | PrefixExpr | StringLiteral
@@ -302,14 +310,6 @@ pub struct BoolLiteral {
 pub:
 	pos token.Position
 	lit string
-}
-
-// break, continue
-pub struct BranchStmt {
-pub:
-	kind  token.Kind
-	label string
-	pos   token.Position
 }
 
 pub enum IdentKind {
