@@ -386,7 +386,7 @@ fn (mut g Gen) assign_stmt(node ast.AssignStmt) {
 fn (mut g Gen) if_stmt(node ast.IfStmt) {
 	//g.require_main_end = true
 	mut else_branches := []ast.Stmt{}
-	else_end := '${g.cur_script_name}_else_end_' + g.make_label()
+	else_end := 'else_end_' + g.make_label()
 	for branch in node.branches {
 		if branch.is_else {
 			else_branches = branch.stmts.clone()
