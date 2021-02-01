@@ -20,6 +20,7 @@ mut:
 	includes         strings.Builder = strings.new_builder(100)
 	defines          strings.Builder = strings.new_builder(100)
 	snippets         strings.Builder = strings.new_builder(100)
+	snippets2        strings.Builder = strings.new_builder(100) // para labels, if, etc
 	strings          strings.Builder = strings.new_builder(100)
 	strings_tmp      strings.Builder = strings.new_builder(100)
 	moves            strings.Builder = strings.new_builder(100)
@@ -37,6 +38,7 @@ mut:
 	movs_count       int
 	res              string // variable separada para las expresiones con literales
 	require_main_end bool
+	for_snippets2 bool
 }
 
 pub fn new_gen(prefs &prefs.Preferences, table &ast.Table) ?Gen {
@@ -76,6 +78,22 @@ pub fn (mut g Gen) gen_from_files(files []ast.File) ? {
 pub fn (mut g Gen) gen() {
 	for stmt in g.file.mod.stmts {
 		g.top_stmt(stmt)
+	}
+}
+
+fn (mut g Gen) write(s string) {
+	if g.for_snippets2 {
+		g.snippets2.write(s)
+	} else {
+		g.snippets.write(s)
+	}
+}
+
+fn (mut g Gen) writeln(s string) {
+	if g.for_snippets2 {
+		g.snippets2.writeln(s)
+	} else {
+		g.snippets.writeln(s)
 	}
 }
 
@@ -159,6 +177,10 @@ pub fn (mut g Gen) create_content() string {
 	if g.snippets.len > 0 {
 		c.writeln('\n; snippets (scripts)')
 		c.writeln(g.snippets.str().trim_space())
+	}
+	if g.snippets2.len > 0 {
+		c.writeln('\n; snippets2 (labels, if, etc)')
+		c.writeln(g.snippets2.str().trim_space())
 	}
 	if g.strings.len > 0 {
 		c.writeln('\n; strings')
@@ -287,7 +309,7 @@ fn (mut g Gen) stmt(node ast.Stmt) {
 				// Solo las variables se pueden usar aquí :)
 				raw = raw.replace('[$var]', g.get_var(var))
 			}
-			g.snippets.writeln(raw)
+			g.writeln(raw)
 		}
 		ast.CallCmdStmt {
 			mut args := ''
@@ -297,8 +319,8 @@ fn (mut g Gen) stmt(node ast.Stmt) {
 					args += ' $var'
 				}
 			}
-			g.snippets.write(node.name.all_before_last('::'))
-			g.snippets.write('$args\n')
+			g.write(node.name.all_before_last('::'))
+			g.write('$args\n')
 		}
 		ast.AssignStmt {
 			g.assign_stmt(node)
@@ -314,32 +336,32 @@ fn (mut g Gen) assign_stmt(node ast.AssignStmt) {
 		g.reg_var(lft.name, var)
 		val := g.expr(node.right)
 		if g.is_var(val) {
-			g.snippets.writeln('setvar $var 0x0')
-			g.snippets.writeln('copyvar $var $val ; assign_var(true): $lft.name[$var]')
+			g.writeln('setvar $var 0x0')
+			g.writeln('copyvar $var $val ; assign_var(true): $lft.name[$var]')
 			if val == g.res {
-				g.snippets.writeln('clearvar $val')
+				g.writeln('clearvar $val')
 			}
 		} else {
-			g.snippets.writeln('setvar $var $val ; assign_var(true): $lft.name[$var]')
+			g.writeln('setvar $var $val ; assign_var(true): $lft.name[$var]')
 		}
 	} else {
 		var := g.get_var(lft.name)
 		val := g.expr(node.right)
 		match node.op {
 			.plus_assign {
-				g.snippets.writeln('addvar $var $val ; plus_assign')
+				g.writeln('addvar $var $val ; plus_assign')
 			}
 			.minus_assign {
-				g.snippets.writeln('subvar $var $val ; minus_assign')
+				g.writeln('subvar $var $val ; minus_assign')
 			}
 			else {
 				if g.is_var(val) {
-					g.snippets.writeln('copyvar $var $val ; assign_stmt(false): $lft.name')
+					g.writeln('copyvar $var $val ; assign_stmt(false): $lft.name')
 					if val == g.res {
-						g.snippets.writeln('clearvar $val')
+						g.writeln('clearvar $val')
 					}
 				} else if node.op !in [.plus_assign, .minus_assign] {
-					g.snippets.writeln('setvar $var $val ; assign_var(false): $lft.name')
+					g.writeln('setvar $var $val ; assign_var(false): $lft.name')
 				}
 			}
 		}
@@ -347,15 +369,29 @@ fn (mut g Gen) assign_stmt(node ast.AssignStmt) {
 }
 
 fn (mut g Gen) if_stmt(node ast.IfStmt) {
-	g.require_main_end = true
-	else_branch_label := g.make_label()
+	//g.require_main_end = true
+	mut else_branches := []ast.Stmt{}
 	for branch in node.branches {
 		if branch.is_else {
-			g.snippets.writeln('#org @$else_branch_label ; else branch')
+			else_branches = branch.stmts.clone()
 		} else {
-			var := g.expr(branch.cond)
-			g.snippets.writeln('compare LASTRESULT')
+			cond := g.expr(branch.cond)
+			label := g.make_label()
+			// compare: compara una variable con un número
+			// comparevar: compara una variable con otra
+			// La siguiente parte se compone por un: if <op> <goto|call> <label>
+			g.snippets.writeln('$cond @$label')
+			g.for_snippets2 = true
+			g.writeln('#org @$label')
+			for stmt in branch.stmts {
+				g.stmt(stmt)
+			}
+			g.writeln('end\n')
+			g.for_snippets2 = false
 		}
+	}
+	for stmt in else_branches {
+		g.stmt(stmt)
 	}
 }
 
@@ -388,25 +424,43 @@ fn (mut g Gen) expr(node ast.Expr) string {
 			var1 := g.expr(node.right)
 			var_infix := if g.is_var(var) { g.res } else { var }
 			match node.op {
-				.plus {
+				.plus, .minus {
+					cmd := if node.op == .plus { 'addvar' } else { 'subvar' }
 					if g.is_var(var) {
 						if var != var_infix {
-							g.snippets.writeln('copyvar $var_infix $var')
+							g.writeln('copyvar $var_infix $var')
 						}
 					} else {
-						g.snippets.writeln('addvar $var_infix $var')
+						g.writeln('$cmd $var_infix $var')
 					}
-					g.snippets.writeln('addvar $var_infix $var1')
+					g.writeln('$cmd $var_infix $var1')
 				}
-				.minus {
-					if g.is_var(var) {
-						if var != var_infix {
-							g.snippets.writeln('copyvar $var_infix $var')
-						}
-					} else {
-						g.snippets.writeln('subvar $var_infix $var')
+				// Comparaciones
+				.eq, .neq, .lt, .gt, .lte, .gte {
+					/*
+					#define B_< 0x0
+					#define B_<< 0x0 TODO
+					#define B_= 0x1 TODO (really?)
+					#define B_== 0x1
+					#define B_> 0x2
+					#define B_>> 0x2 TODO
+					#define B_<= 0x3
+					#define B_>= 0x4
+					#define B_!= 0x5
+					#define B_<> 0x5 TODO
+					*/
+					op := match node.op {
+						.eq {'0x1'}
+						.neq { '0x5' }
+						.lt { '0x0' }
+						.gt { '0x2' }
+						.lte { '0x3' }
+						.gte { '0x4' }
+						else { '' }
 					}
-					g.snippets.writeln('subvar $var_infix $var1')
+					cmd := if g.is_var(var1) { 'comparevar' } else { 'compare' }
+					g.writeln('$cmd $var $var1')
+					return 'if $op goto'
 				}
 				else {}
 			}

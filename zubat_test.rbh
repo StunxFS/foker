@@ -1508,25 +1508,20 @@ end
 end
 
 #org @zubat_test__main
-setvar 0x5001 0xC8 ; assign_var(true): mivariable[0x5001]
-copyvar 0x5000 0x5001
-addvar 0x5000 0xA
-copyvar 0x5001 0x5000 ; assign_stmt(false): mivariable
-clearvar 0x5000
-copyvar 0x5000 0x5001
-addvar 0x5000 0xC8
-subvar 0x5000 0x12C
-setvar 0x5002 0x0
-copyvar 0x5002 0x5000 ; assign_var(true): otra[0x5002]
-clearvar 0x5000
-copyvar 0x5000 0x5001
-addvar 0x5000 0x5002
-copyvar 0x5002 0x5000 ; assign_stmt(false): otra
-clearvar 0x5000
-addvar 0x5002 0x3 ; plus_assign
-compare LASTRESULT
-#org @zubat_test__main_label_0 ; else branch
-#org @zubat_test__main_end
+setvar 0x5001 0x64 ; assign_var(true): a[0x5001]
+addvar 0x5 0x5
+addvar 0x5 0x5
+addvar 0x5 0x5
+addvar 0x5 0x5A
+setvar 0x5002 0x5 ; assign_var(true): b[0x5002]
+comparevar 0x5001 0x5002
+if 0x1 goto @zubat_test__main_label_0
+msgbox @string1 0x6
+end
+
+; snippets2 (labels, if, etc)
+#org @zubat_test__main_label_0
+msgbox @string0 0x6
 end
 
 ; strings
@@ -1535,4 +1530,11 @@ end
 
 #org @zubat_test__Kakawate
 = Dd
+
+; strings temporales
+#org @string0
+= a y b son iguales! 100
+
+#org @string1
+= a y b no son iguales
 

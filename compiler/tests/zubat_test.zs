@@ -26,12 +26,11 @@ alias Z3_mycommand = Z3::mycommand;
 //alias move = applymovement;
 
 script main {
-	var mivariable = 200;
-	mivariable = mivariable + 10;
-	var otra = (mivariable + 200) - 300;
-	otra = mivariable + otra;
-	otra += 3;
-	if mivariable < otra {
-		//
-	} else {}
+	var a = 100;
+	var b = (5 + 5) + 90;
+	if a == b {
+		msgbox("a y b son iguales! 100", 6);
+	} else {
+		msgbox("a y b no son iguales", 6);
+	}
 }
