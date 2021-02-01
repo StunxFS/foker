@@ -16,14 +16,14 @@ pub struct Gen {
 mut:
 	table           &ast.Table
 	file            &ast.File
-	header          strings.Builder
-	includes        strings.Builder
-	defines         strings.Builder
-	snippets        strings.Builder
-	strings         strings.Builder
-	strings_tmp     strings.Builder
-	moves           strings.Builder
-	moves_tmp       strings.Builder
+	header          strings.Builder = strings.new_builder(100)
+	includes        strings.Builder = strings.new_builder(100)
+	defines         strings.Builder = strings.new_builder(100)
+	snippets        strings.Builder = strings.new_builder(100)
+	strings         strings.Builder = strings.new_builder(100)
+	strings_tmp     strings.Builder = strings.new_builder(100)
+	moves           strings.Builder = strings.new_builder(100)
+	moves_tmp       strings.Builder = strings.new_builder(100)
 	flags           Data
 	vars            Data
 	dyn_offset      string = '0x8000000'
@@ -62,7 +62,7 @@ pub fn (mut g Gen) gen_from_files(files []ast.File) ? {
 	g.header.writeln('; este es el script principal que se debe llamar')
 	g.header.writeln('#org @start')
 	g.header.writeln('call @$g.main_script')
-	g.header.writeln('end\n')
+	g.header.writeln('end')
 
 	os.write_file(g.prefs.output, g.create_content()) ?
 }
@@ -91,44 +91,45 @@ fn (g &Gen) get_var(var string) string {
 }
 
 [inline]
-fn (mut g Gen) reg_flag(flag string, dir string) string {
+fn (mut g Gen) reg_flag(flag string, dir string) {
 	g.flags_map[g.cur_script_name][flag] = dir
 }
 
 [inline]
-fn (mut g Gen) reg_var(var string, dir string) string {
-	rg.vars_map[g.cur_script_name][var] = dir
+fn (mut g Gen) reg_var(var string, dir string) {
+	g.vars_map[g.cur_script_name][var] = dir
 }
 
 pub fn (mut g Gen) create_content() string {
-	mut c := g.header.str()
+	mut c := strings.new_builder(100)
+	c.writeln('$g.header.str()\n')
 	if g.includes.len > 0 {
-		c += g.header.str() + '\n'
+		c.writeln(g.header.str().trim_space())
 	}
 	if g.defines.len > 0 {
-		c += g.defines.str()
+		c.writeln(g.defines.str().trim_space())
 	}
 	if g.snippets.len > 0 {
-		c += '; snippets (scripts)\n'
-		c += g.snippets.str() + '\n'
+		c.writeln('\n; snippets (scripts)')
+		c.writeln(g.snippets.str().trim_space())
 	}
 	if g.strings.len > 0 {
-		c += '; strings\n'
-		c += g.strings.str() + '\n'
+		c.writeln('\n; strings')
+		c.writeln(g.strings.str().trim_space())
 	}
 	if g.strings_tmp.len > 0 {
-		c += '; strings temporales\n'
-		c += g.strings_tmp.str() + '\n'
+		c.writeln('\n; strings temporales')
+		c.writeln(g.strings_tmp.str().trim_space())
 	}
 	if g.moves.len > 0 {
-		c += '; movimientos\n'
-		c += g.moves.str() + '\n'
+		c.writeln('\n; movimientos')
+		c.writeln(g.moves.str().trim_space())
 	}
 	if g.moves_tmp.len > 0 {
-		c += '; movimientos temporales\n'
-		c += g.moves_tmp.str() + '\n'
+		c.writeln('\n; movimientos temporales')
+		c.writeln(g.moves_tmp.str().trim_space())
 	}
-	return c.trim_space() + '\n'
+	return '$c.str()\n'
 }
 
 pub fn (mut g Gen) top_stmt(node ast.Stmt) {
@@ -241,10 +242,7 @@ fn (mut g Gen) stmt(node ast.Stmt) {
 		ast.CallCmdStmt {
 			mut args := ''
 			for arg in node.args {
-				code, var := g.expr(arg.expr)
-				if code != '' {
-					g.snippets.writeln(code)
-				}
+				var := g.expr(arg.expr)
 				if var != '' {
 					args += ' $var'
 				}
@@ -274,19 +272,19 @@ fn (mut g Gen) if_stmt(node ast.IfStmt) {
 // Expresiones | De aquí a abajo le toca a todas las expresiones
 
 // expr - retorna 2 strings, uno con pre-código y otro con el ident a usar
-fn (mut g Gen) expr(node ast.Expr) (string, string) {
+fn (mut g Gen) expr(node ast.Expr) string {
 	match mut node {
 		ast.StringLiteral {
 			name := g.make_string_tmp()
 			g.strings_tmp.writeln('#org @$name')
 			g.strings_tmp.writeln('= $node.lit\n')
-			return '', '@$name'
+			return '@$name'
 		}
 		ast.FmtStringLiteral {
 			// name := g.make_string_tmp()
 			// g.strings_tmp.writeln('#org @$name')
 			// g.strings_tmp.writeln('= $node.lit\n')
-			return '', ''
+			return ''
 		}
 		ast.IntegerLiteral {
 			val := if node.is_hex { node.lit } else { to_hex(node.lit.int()) }
@@ -298,29 +296,22 @@ fn (mut g Gen) expr(node ast.Expr) (string, string) {
 			*/
 			// println(var)
 			// println(val)
-			return '', val
+			return val
 		}
 		ast.InfixExpr {
-			mut code_infix := ''
 			mut var_infix := ''
-			code, var := g.expr(node.left)
-			if code != '' {
-				code_infix += code + '\n'
-			}
-			code1, var1 := g.expr(node.right)
-			if code1 != '' {
-				code_infix += code1 + '\n'
-			}
+			var := g.expr(node.left)
+			var1 := g.expr(node.right)
 			match node.op {
 				.plus {
-					code_infix += 'addvar $var $var1\n'
+					g.snippets.writeln('addvar $var $var1')
 				}
 				.minus {
-					code_infix += 'subvar $var $var1\n'
+					g.snippets.writeln('subvar $var $var1')
 				}
 				else {}
 			}
-			return code_infix, var1
+			return var1
 		}
 		ast.Ident {
 			obj := node.obj
@@ -331,7 +322,7 @@ fn (mut g Gen) expr(node ast.Expr) (string, string) {
 						.movement { name = '@' + name }
 						else {}
 					}
-					return '', name
+					return name
 				}
 				ast.Const {
 					mut name := g.no_colons(obj.name)
@@ -339,11 +330,11 @@ fn (mut g Gen) expr(node ast.Expr) (string, string) {
 						.movement, .string { name = '@' + name }
 						else {}
 					}
-					return '', name
+					return name
 				}
 			}
 		}
 		else {}
 	}
-	return '', ''
+	return ''
 }
