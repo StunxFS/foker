@@ -304,6 +304,11 @@ fn (mut g Gen) script_decl(mut node ast.ScriptDecl) {
 
 fn (mut g Gen) stmt(node ast.Stmt) {
 	match node {
+		ast.Block {
+			for stmt in node.stmts {
+				g.stmt(stmt)
+			}
+		}
 		ast.IfStmt {
 			g.if_stmt(node)
 		}
@@ -356,11 +361,13 @@ fn (mut g Gen) assign_stmt(node ast.AssignStmt) {
 		var := g.get_var(lft.name)
 		val := g.expr(node.right)
 		match node.op {
-			.plus_assign {
-				g.writeln('addvar $var $val ; plus_assign')
-			}
-			.minus_assign {
-				g.writeln('subvar $var $val ; minus_assign')
+			.plus_assign, .minus_assign {
+				cmd := if node.op == .plus_assign { 'addvar' } else { 'subvar' }
+				if g.is_var(val) {
+					g.writeln('setvar $var $val ; plus_assign')
+				} else {
+					g.writeln('$cmd $var $val ; plus_assign')
+				}
 			}
 			else {
 				if g.is_var(val) {
@@ -379,6 +386,7 @@ fn (mut g Gen) assign_stmt(node ast.AssignStmt) {
 fn (mut g Gen) if_stmt(node ast.IfStmt) {
 	//g.require_main_end = true
 	mut else_branches := []ast.Stmt{}
+	else_end := '${g.cur_script_name}_else_end_' + g.make_label()
 	for branch in node.branches {
 		if branch.is_else {
 			else_branches = branch.stmts.clone()
@@ -394,13 +402,14 @@ fn (mut g Gen) if_stmt(node ast.IfStmt) {
 			for stmt in branch.stmts {
 				g.stmt(stmt)
 			}
-			g.writeln('end\n')
+			g.writeln('goto $else_end\n')
 			g.for_snippets2 = false
 		}
 	}
 	for stmt in else_branches {
 		g.stmt(stmt)
 	}
+	g.writeln('#org @$else_end')
 }
 
 // Expresiones | De aquí a abajo le toca a todas las expresiones

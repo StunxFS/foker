@@ -31,10 +31,15 @@ script con_script {
 
 script main {
 	var a = 100;
-	var b = (5 + 5) + 90;
-	if a == b {
+	if a == 100 {
 		msgbox("a y b son iguales! 100", 6);
 	} else {
 		call con_script;
+		if a > 100 {
+			msgbox("a > 100", 6);
+		} elif a == 1000 {
+			msgbox("b == 1000", 6);
+		}
 	}
+	msgbox("Holaaa!", 6);
 }
