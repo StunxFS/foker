@@ -403,7 +403,8 @@ pub fn (expr Expr) is_blank_ident() bool {
 }
 
 pub fn (expr Expr) position() token.Position {
-	match expr { // /*ConcatExpr, */  /*RangeExpr, */ 
+	match expr {
+		// /*ConcatExpr, */  /*RangeExpr, */ 
 		BoolLiteral, Ident, IntegerLiteral, ParExpr, PostfixExpr, PrefixExpr, StringLiteral, FmtStringLiteral,
 		MovementExpr {
 			return expr.pos
@@ -440,6 +441,8 @@ pub fn (stmt Stmt) position() token.Position {
 	match stmt {
 		AssignStmt, Block, BranchStmt, CallStmt, CallCmdStmt, Const, ExprStmt, ForStmt, ForInStmt,
 		GotoLabel, GotoStmt, IfStmt, CmdDecl, DynamicStmt, FreeStmt, Import, QuestionStmt, ScriptDecl,
-		CheckgenderStmt, MatchStmt, RawStmt, Alias { return stmt.pos }
+		CheckgenderStmt, MatchStmt, RawStmt, Alias {
+			return stmt.pos
+		}
 	}
 }

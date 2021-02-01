@@ -1,7 +1,4 @@
 // ZubatTest | ValenLoveForever
-
-dynamic 900000;
-
 import Z3; // compiler/tests/Z3.zs
 //import impfolder::Z3 as Z3_2;
 
@@ -29,7 +26,8 @@ cmd applymovement(mov: movement);
 alias move = applymovement;
 
 script main {
-	msgbox("Hola mundo!", 6);
+	var mi_variable = 100;
+	msgbox("Hola mundo!", 6 + 5);
 	msgbox("2020", Z3::CCC);
 	msg("Stunx", 6);
 	msg(Kakawate, 6);
@@ -39,14 +37,12 @@ script main {
 	PKMNMENU = true;
 	//var Zurkillo = 200;
 	var myvar: int = 4;
-	//msg("Stunx", myvar);
 	myvar = 2020;
 	free myvar;
 	myvar = 555;
 	Z3::OTHERVAR += 1;
 	Z3::mycommand();
 	Z3_mycommand();
-	raw `compare [MYVAR] OTHERVAR`;
 
 	applymovement(my_movement);
 	applymovement(movement {
@@ -72,7 +68,7 @@ script main {
 	//Z3::macro!();
 	//macro!();
 	
-	if 2 == 0xABC {
+	if myvar == 4 {
 		call my_script;
 		{
 			/*var myvar = movement {

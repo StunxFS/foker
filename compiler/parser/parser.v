@@ -339,15 +339,29 @@ pub fn (mut p Parser) top_stmt() ast.Stmt {
 			}
 			.key_pub {
 				match p.peek_tok.kind {
-					.key_var { return p.parse_var_stmt(true) }
-					.key_const { return p.const_decl() }
-					.key_text { return p.text_decl() }
-					.key_script { return p.script_stmt() }
-					.key_movement { return ast.ExprStmt{
+					.key_var {
+						return p.parse_var_stmt(true)
+					}
+					.key_const {
+						return p.const_decl()
+					}
+					.key_text {
+						return p.text_decl()
+					}
+					.key_script {
+						return p.script_stmt()
+					}
+					.key_movement {
+						return ast.ExprStmt{
 							expr: p.movement_expr(false)
-						} }
-					.key_cmd { return p.parse_cmd_stmt() }
-					else { p.error("mal uso de la palabra clave 'pub'") }
+						}
+					}
+					.key_cmd {
+						return p.parse_cmd_stmt()
+					}
+					else {
+						p.error("mal uso de la palabra clave 'pub'")
+					}
 				}
 			}
 			.key_script {

@@ -9,6 +9,8 @@ import compiler.ast
 import compiler.about
 import compiler.prefs
 
+// import compiler.gen.fmttxt
+
 pub struct Gen {
 	prefs &prefs.Preferences
 mut:
@@ -79,13 +81,23 @@ fn (g &Gen) no_colons(n string) string {
 }
 
 [inline]
-fn (g &Gen) get_flag(script string, flag string) string {
-	return g.flags_map[script][flag]
+fn (g &Gen) get_flag(flag string) string {
+	return g.flags_map[g.cur_script_name][flag]
 }
 
 [inline]
-fn (g &Gen) get_var(script string, var string) string {
-	return g.vars_map[script][var]
+fn (g &Gen) get_var(var string) string {
+	return g.vars_map[g.cur_script_name][var]
+}
+
+[inline]
+fn (mut g Gen) reg_flag(flag string, dir string) string {
+	g.flags_map[g.cur_script_name][flag] = dir
+}
+
+[inline]
+fn (mut g Gen) reg_var(var string, dir string) string {
+	rg.vars_map[g.cur_script_name][var] = dir
 }
 
 pub fn (mut g Gen) create_content() string {
@@ -122,17 +134,21 @@ pub fn (mut g Gen) create_content() string {
 pub fn (mut g Gen) top_stmt(node ast.Stmt) {
 	match mut node {
 		ast.Const {
-			if node.typ == .int {
-				val := g.define_expr(node.expr)
-				g.table.constantes[node.name] = val
-				str := to_hex(val)
-				gen_name := g.no_colons(node.name)
-				g.defines.writeln('#define $gen_name $str')
-			} else if node.typ == .string {
-				name := g.no_colons(node.name)
-				g.strings.writeln('#org @$name')
-				lit := (node.expr as ast.StringLiteral).lit
-				g.strings.writeln('= $lit\n')
+			match node.typ {
+				.int {
+					val := g.define_expr(node.expr)
+					g.table.constantes[node.name] = val
+					str := to_hex(val)
+					gen_name := g.no_colons(node.name)
+					g.defines.writeln('#define $gen_name $str')
+				}
+				.string {
+					name := g.no_colons(node.name)
+					g.strings.writeln('#org @$name')
+					lit := (node.expr as ast.StringLiteral).lit
+					g.strings.writeln('= $lit\n')
+				}
+				else {}
 			}
 		}
 		ast.ScriptDecl {
@@ -218,18 +234,26 @@ fn (mut g Gen) stmt(node ast.Stmt) {
 			for raw.contains('[') && raw.contains(']') {
 				var := raw.find_between('[', ']')
 				// Solo las variables se pueden usar aquí :)
-				raw = raw.replace('[$var]', g.get_var(g.cur_script_name, var))
+				raw = raw.replace('[$var]', g.get_var(var))
 			}
 			g.snippets.writeln(raw)
 		}
 		ast.CallCmdStmt {
-			g.snippets.write(node.name.all_before_last('::'))
+			mut args := ''
 			for arg in node.args {
-				g.snippets.write(' ')
-				g.expr(arg.expr)
-				g.snippets.write(' ')
+				code, var := g.expr(arg.expr)
+				if code != '' {
+					g.snippets.writeln(code)
+				}
+				if var != '' {
+					args += ' $var'
+				}
 			}
-			g.snippets.write('\n')
+			g.snippets.write(node.name.all_before_last('::'))
+			g.snippets.write('$args\n')
+		}
+		ast.AssignStmt {
+			//
 		}
 		else {}
 	}
@@ -248,34 +272,55 @@ fn (mut g Gen) if_stmt(node ast.IfStmt) {
 }
 
 // Expresiones | De aquí a abajo le toca a todas las expresiones
-fn (mut g Gen) expr(node ast.Expr) {
+
+// expr - retorna 2 strings, uno con pre-código y otro con el ident a usar
+fn (mut g Gen) expr(node ast.Expr) (string, string) {
 	match mut node {
 		ast.StringLiteral {
 			name := g.make_string_tmp()
 			g.strings_tmp.writeln('#org @$name')
 			g.strings_tmp.writeln('= $node.lit\n')
-			g.snippets.write('@$name')
+			return '', '@$name'
 		}
 		ast.FmtStringLiteral {
 			// name := g.make_string_tmp()
 			// g.strings_tmp.writeln('#org @$name')
 			// g.strings_tmp.writeln('= $node.lit\n')
+			return '', ''
 		}
 		ast.IntegerLiteral {
 			val := if node.is_hex { node.lit } else { to_hex(node.lit.int()) }
+			/*
 			var := g.vars.get() or {
 				util.err(err)
 				return
 			}
+			*/
 			// println(var)
 			// println(val)
-			g.snippets.write(var)
+			return '', val
 		}
 		ast.InfixExpr {
-			g.expr(node.left)
-			g.snippets.write(' ')
-			g.expr(node.right)
-			g.snippets.write('\n')
+			mut code_infix := ''
+			mut var_infix := ''
+			code, var := g.expr(node.left)
+			if code != '' {
+				code_infix += code + '\n'
+			}
+			code1, var1 := g.expr(node.right)
+			if code1 != '' {
+				code_infix += code1 + '\n'
+			}
+			match node.op {
+				.plus {
+					code_infix += 'addvar $var $var1\n'
+				}
+				.minus {
+					code_infix += 'subvar $var $var1\n'
+				}
+				else {}
+			}
+			return code_infix, var1
 		}
 		ast.Ident {
 			obj := node.obj
@@ -286,7 +331,7 @@ fn (mut g Gen) expr(node ast.Expr) {
 						.movement { name = '@' + name }
 						else {}
 					}
-					g.snippets.write(name)
+					return '', name
 				}
 				ast.Const {
 					mut name := g.no_colons(obj.name)
@@ -294,10 +339,11 @@ fn (mut g Gen) expr(node ast.Expr) {
 						.movement, .string { name = '@' + name }
 						else {}
 					}
-					g.snippets.write(name)
+					return '', name
 				}
 			}
 		}
 		else {}
 	}
+	return '', ''
 }
