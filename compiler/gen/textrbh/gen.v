@@ -27,7 +27,7 @@ mut:
 	moves_tmp        strings.Builder = strings.new_builder(100)
 	flags            Data
 	vars             Data
-	dyn_offset       string = '0x8000000'
+	dyn_offset       string = '0x800000'
 	main_script      string
 	cur_script_name  string
 	flags_map        map[string]map[string]string // mapa usado para contener los offsets de cada flags
