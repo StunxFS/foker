@@ -327,6 +327,9 @@ fn (mut g Gen) stmt(node ast.Stmt) {
 			g.write(node.name.all_before_last('::'))
 			g.write('$args\n')
 		}
+		ast.CallStmt {
+			g.writeln('call @${g.no_colons(node.script)}')
+		}
 		ast.AssignStmt {
 			g.assign_stmt(node)
 		}

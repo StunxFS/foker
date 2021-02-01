@@ -11,6 +11,10 @@ end
 
 
 ; snippets (scripts)
+#org @zubat_test__con_script
+msgbox @string0 0x6
+end
+
 #org @zubat_test__main
 setvar 0x5001 0x64 ; assign_var(true): a[0x5001]
 addvar 0x5000 0x5
@@ -21,18 +25,18 @@ copyvar 0x5002 0x5000 ; assign_var(true): b[0x5002]
 setvar 0x5000 0x0
 comparevars 0x5001 0x5002
 if 0x1 goto @zubat_test__main_label_0
-msgbox @string1 0x6
+call @zubat_test__con_script
 end
 
 ; snippets2 (labels, if, etc)
 #org @zubat_test__main_label_0
-msgbox @string0 0x6
+msgbox @string1 0x6
 end
 
 ; strings temporales
 #org @string0
-= a y b son iguales! 100
+= a y b no son iguales
 
 #org @string1
-= a y b no son iguales
+= a y b son iguales! 100
 

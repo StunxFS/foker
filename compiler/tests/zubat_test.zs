@@ -25,12 +25,16 @@ const OFFSET: offset = 0x800000;
 //cmd applymovement(mov: movement);
 //alias move = applymovement;
 
+script con_script {
+	msgbox("a y b no son iguales", 6);
+}
+
 script main {
 	var a = 100;
 	var b = (5 + 5) + 90;
 	if a == b {
 		msgbox("a y b son iguales! 100", 6);
 	} else {
-		msgbox("a y b no son iguales", 6);
+		call con_script;
 	}
 }
