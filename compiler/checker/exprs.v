@@ -115,13 +115,12 @@ fn (mut c Checker) infix_expr(mut infix_expr ast.InfixExpr) ast.Type {
 				}
 			}
 		}
-		else {}
+		else {
+			// TODO: Check cmp ops
+			c.check_expected(right_type, left_type) or { c.error('$err', right_pos) }
+		}
 	}
-	return if infix_expr.op.is_relational() {
-		ast.Type.bool
-	} else {
-		return_type
-	}
+	return if infix_expr.op.is_relational() { ast.Type.bool } else { return_type }
 }
 
 pub fn (mut c Checker) postfix_expr(mut node ast.PostfixExpr) ast.Type {
@@ -145,7 +144,7 @@ pub fn (mut c Checker) prefix_expr(mut node ast.PrefixExpr) ast.Type {
 pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 	if ident.kind == .blank_ident {
 		if ident.tok_kind != .assign {
-			c.error("ident indefinido: '_' (solo se puede usar en asignaciones)", ident.pos)
+			c.error("'_' (solo se puede usar en asignaciones)", ident.pos)
 		}
 		return .unknown
 	}
@@ -154,7 +153,7 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 		info := ident.obj
 		if info is ast.Var {
 			if info.is_free {
-				c.error('esta variable está liberada y por lo tanto ya no se puede usar',
+				c.error('no se puede hacer uso de una variable liberada',
 					ident.pos)
 			}
 			return info.typ

@@ -15,4 +15,3 @@ for cf in cmd_c {
 	println('>>> Formateando $cf desde "compiler/"')
 	system('v fmt -w $cf')
 }
-

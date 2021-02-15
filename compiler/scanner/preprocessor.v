@@ -171,8 +171,8 @@ fn (mut s Scanner) parse_pp_if() {
 	condition := s.parse_pp_expression()
 	s.pp_eol()
 	s.conditional_stack << Conditional{}
-	if condition
-		&& (s.conditional_stack.len == 1 || !s.conditional_stack[s.conditional_stack.len - 2].skip_section) {
+	if condition && (s.conditional_stack.len == 1
+		|| !s.conditional_stack[s.conditional_stack.len - 2].skip_section) {
 		// condition true => process code within if
 		s.conditional_stack[s.conditional_stack.len - 1].matched = true
 	} else {
@@ -190,7 +190,8 @@ fn (mut s Scanner) parse_pp_elif() {
 		return
 	}
 	if condition && !s.conditional_stack[s.conditional_stack.len - 1].matched
-		&& (s.conditional_stack.len == 1 || !s.conditional_stack[s.conditional_stack.len - 2].skip_section) {
+		&& (s.conditional_stack.len == 1
+		|| !s.conditional_stack[s.conditional_stack.len - 2].skip_section) {
 		// condition true => process code within if
 		s.conditional_stack[s.conditional_stack.len - 1].matched = true
 		s.conditional_stack[s.conditional_stack.len - 1].skip_section = false
@@ -205,8 +206,8 @@ fn (mut s Scanner) parse_pp_else() {
 	if s.conditional_stack.len == 0 || s.conditional_stack[s.conditional_stack.len - 1].else_found {
 		s.error_with_len('no se esperaba #else', 5)
 	}
-	if !s.conditional_stack[s.conditional_stack.len - 1].matched
-		&& (s.conditional_stack.len == 1 || !s.conditional_stack[s.conditional_stack.len - 2].skip_section) {
+	if !s.conditional_stack[s.conditional_stack.len - 1].matched && (s.conditional_stack.len == 1
+		|| !s.conditional_stack[s.conditional_stack.len - 2].skip_section) {
 		// condition true => process code within if
 		s.conditional_stack[s.conditional_stack.len - 1].matched = true
 		s.conditional_stack[s.conditional_stack.len - 1].skip_section = false

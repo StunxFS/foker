@@ -133,7 +133,23 @@ fn (mut c Checker) stmt(node ast.Stmt) {
 			c.call_cmd_stmt(mut node)
 		}
 		ast.FreeStmt {
-			c.ident(mut node.ident)
+			typ := c.expr(node.ident)
+			mut ident := node.ident as ast.Ident
+			if mut ident.obj is ast.Var {
+				if typ in [ast.Type.movement, .string] {
+					c.error('no se pueden liberar variables de los tipos movement y string',
+						node.pos)
+				} else {
+					if !ident.obj.is_free {
+						ident.obj.is_free = true
+					} else {
+						c.error('esta variable ya está liberada', node.pos)
+					}
+				}
+			} else {
+				c.error('solo las variables pueden ser liberadas', node.pos)
+			}
+			node.ident = ident
 		}
 		ast.Const {
 			c.const_decl(mut node)
