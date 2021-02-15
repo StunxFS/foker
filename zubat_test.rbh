@@ -1505,10 +1505,15 @@ end
 
 #org @zubat_test__main
 setvar 0x5001  ; assign_var(true): a[0x5001]
+setvar 0x5001  ; assign_var(false): a
+compare 0x5001 
+if 0x1 goto @zubat_test__main_label_1
+#org @else_end_zubat_test__main_label_0
+setvar 0x5001  ; assign_var(false): a
 faceplayer
 lock
 msgbox @string1 0x5
-if 0x1 goto @zubat_test__main_label_0
+if 0x1 goto @zubat_test__main_label_2
 ; lo de abajo corresponde al "No"
 msgbox @string2 0x6
 setvar 0x5002 0x0
@@ -1519,7 +1524,10 @@ release
 end
 
 ; snippets2 (labels, if, etc)
-#org @zubat_test__main_label_0
+#org @zubat_test__main_label_1
+goto @else_end_zubat_test__main_label_0
+
+#org @zubat_test__main_label_2
 msgbox @string3 0x6
 end
 

@@ -31,9 +31,8 @@ script con_script {
 
 script main {
 	var a = true;
-	free a;
 	a = false;
-	free a;
+	//free a;
 	if a == true {}
 	/*if a == 100 {
 		msgbox("a y b son iguales! 100", 6);
@@ -45,6 +44,8 @@ script main {
 			msgbox("b == 1000", 6);
 		}
 	}*/
+	free a;
+	a = true;
 	question "¿Quieres leche?" {
 		yes {
 			msgbox("Toma un poco", 6);

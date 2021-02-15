@@ -150,15 +150,17 @@ pub fn (mut c Checker) ident(mut ident ast.Ident) ast.Type {
 	}
 	// segundo uso
 	if ident.kind in [.constant, .variable, .movement] {
-		info := ident.obj
-		if info is ast.Var {
-			if info.is_free {
-				c.error('no se puede hacer uso de una variable liberada',
-					ident.pos)
+		// info := ident.obj
+		match mut ident.obj {
+			ast.Var {
+				if ident.obj.is_free {
+					c.error('no se puede hacer uso de una variable liberada', ident.pos)
+				}
+				return ident.obj.typ
 			}
-			return info.typ
-		} else if info is ast.Const {
-			return info.typ
+			ast.Const {
+				return ident.obj.typ
+			}
 		}
 	} else if ident.kind == .unresolved {
 		// primer uso
