@@ -142,7 +142,7 @@ enum MovementsOfRSE {
 	move_end = 0xfe
 }
 
-pub const movements_of_frlf = {
+pub const movements_of_frlf = map{
 		'look_up':              MovementsOfFRLF.look_up
 		'look_left':            MovementsOfFRLF.look_left
 		'look_right':           MovementsOfFRLF.look_right
@@ -239,7 +239,7 @@ pub const movements_of_frlf = {
 		'move_end':             MovementsOfFRLF.move_end
 	}
 
-pub const movements_of_rse = {
+pub const movements_of_rse = map{
 		'hide':             MovementsOfRSE.hide
 		'show':             MovementsOfRSE.show
 		'alert':            MovementsOfRSE.alert

@@ -30,8 +30,12 @@ script con_script {
 }
 
 script main {
-	var a = 100;
-	if a == 100 {
+	var a = true;
+	free a;
+	a = false;
+	free a;
+	if a == true {}
+	/*if a == 100 {
 		msgbox("a y b son iguales! 100", 6);
 	} else {
 		call con_script;
@@ -40,14 +44,16 @@ script main {
 		} elif a == 1000 {
 			msgbox("b == 1000", 6);
 		}
-	}
+	}*/
 	question "¿Quieres leche?" {
 		yes {
 			msgbox("Toma un poco", 6);
 		}
 		no {
 			msgbox("Cualquier cosa me dices", 6);
-			var mymov = movement {walk_down * 9};
+			var mymov = movement {
+				walk_down * 9
+			};
 			applymovement(mymov, 0x2);
 			applymovement(my_movement, 0x2);
 		}

@@ -1504,22 +1504,13 @@ msgbox @string0 0x6
 end
 
 #org @zubat_test__main
-setvar 0x5001 0x64 ; assign_var(true): a[0x5001]
-compare 0x5001 0x64
-if 0x1 goto @zubat_test__main_label_1
-call @zubat_test__con_script
-compare 0x5001 0x64
-if 0x2 goto @zubat_test__main_label_3
-compare 0x5001 0x3E8
-if 0x1 goto @zubat_test__main_label_4
-#org @else_end_zubat_test__main_label_2
-#org @else_end_zubat_test__main_label_0
+setvar 0x5001  ; assign_var(true): a[0x5001]
 faceplayer
 lock
-msgbox @string4 0x5
-if 0x1 goto @zubat_test__main_label_5
+msgbox @string1 0x5
+if 0x1 goto @zubat_test__main_label_0
 ; lo de abajo corresponde al "No"
-msgbox @string5 0x6
+msgbox @string2 0x6
 setvar 0x5002 0x0
 copyvar 0x5002 @movement0 ; assign_var(true): mymov[0x5002]
 applymovement @movement0 0x2
@@ -1528,20 +1519,8 @@ release
 end
 
 ; snippets2 (labels, if, etc)
-#org @zubat_test__main_label_1
-msgbox @string1 0x6
-goto @else_end_zubat_test__main_label_0
-
-#org @zubat_test__main_label_3
-msgbox @string2 0x6
-goto @else_end_zubat_test__main_label_2
-
-#org @zubat_test__main_label_4
+#org @zubat_test__main_label_0
 msgbox @string3 0x6
-goto @else_end_zubat_test__main_label_2
-
-#org @zubat_test__main_label_5
-msgbox @string6 0x6
 end
 
 ; strings temporales
@@ -1549,21 +1528,12 @@ end
 = a y b no son iguales
 
 #org @string1
-= a y b son iguales! 100
-
-#org @string2
-= a > 100
-
-#org @string3
-= b == 1000
-
-#org @string4
 = ¿Quieres leche?
 
-#org @string5
+#org @string2
 = Cualquier cosa me dices
 
-#org @string6
+#org @string3
 = Toma un poco
 
 ; movimientos

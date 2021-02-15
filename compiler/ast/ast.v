@@ -45,8 +45,8 @@ pub:
 	is_pub     bool
 	is_global  bool
 	is_builtin bool
-	is_free    bool
 pub mut:
+	is_free bool
 	typ     Type
 	pos     token.Position
 	is_used bool
@@ -133,7 +133,7 @@ pub struct FreeStmt {
 pub:
 	pos token.Position
 pub mut:
-	ident Ident
+	ident Expr
 }
 
 pub struct AssignStmt {
