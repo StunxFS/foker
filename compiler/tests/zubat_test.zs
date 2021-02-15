@@ -1,5 +1,5 @@
 // ZubatTest | ValenLoveForever
-import Z3; // compiler/tests/Z3.zs
+/*import Z3; // compiler/tests/Z3.zs
 //import impfolder::Z3 as Z3_2;
 
 text Kakawate = "Dd";
@@ -7,7 +7,7 @@ text Kakawate = "Dd";
 const ANIO_ACTUAL = 2020;
 const AGE = ANIO_ACTUAL - 1971;
 const AGE2 = AGE * 2;
-const AGGE = ATK_NONE + Z3::CCC;
+const AGGE = ATK_NONE + Z3::CCC;*/
 
 //const DESPUES = ANTES;
 //const ANTES = 2;
@@ -15,66 +15,41 @@ const AGGE = ATK_NONE + Z3::CCC;
 const OFFSET: offset = 0x800000;
 
 pub movement my_movement {
-	walk_down_vslow
+	walk_down * 4
 }
 
-script my_script {}
+//script my_script {}
 
-alias Z3_mycommand = Z3::mycommand;
+//alias Z3_mycommand = Z3::mycommand;
 
-cmd applymovement(mov: movement);
-alias move = applymovement;
+//cmd applymovement(mov: movement);
+//alias move = applymovement;
+
+script con_script {
+	msgbox("a y b no son iguales", 6);
+}
 
 script main {
-	msgbox("Hola mundo!", 6);
-	msgbox("2020", Z3::CCC);
-	msg("Stunx", 6);
-	msg(Kakawate, 6);
-	msg(Z3::Kampo, 6);
-	call my_script;
-	//call Z3::other_script;
-	PKMNMENU = true;
-	//var Zurkillo = 200;
-	var myvar: int = 4;
-	myvar = 2020;
-	free myvar;
-	myvar = 555;
-	Z3::OTHERVAR += 1;
-	Z3::mycommand();
-	Z3_mycommand();
-
-	applymovement(my_movement);
-	applymovement(movement {
-		walk_up * 4
-	});
-	var anon_mov = movement {
-		walk_up * 4
-	};
-	applymovement(anon_mov);
-	//applymovement(true);
-	
-	move(my_movement);
-	move(movement {
-		walk_up * 4
-	});
-	var anon_mov1 = movement {
-		walk_up * 4
-	};
-	move(anon_mov1);
-	//move(true);
-	
-	// Macro - errores!
-	//Z3::macro!();
-	//macro!();
-	
-	if myvar == 4 {
-		call my_script;
-		{
-			/*var myvar = movement {
-				walk_up * 2
-			};
-			var other = ANIO_ACTUAL;
-			var milk: int = true;*/
+	var a = 100;
+	if a == 100 {
+		msgbox("a y b son iguales! 100", 6);
+	} else {
+		call con_script;
+		if a > 100 {
+			msgbox("a > 100", 6);
+		} elif a == 1000 {
+			msgbox("b == 1000", 6);
+		}
+	}
+	question "¿Quieres leche?" {
+		yes {
+			msgbox("Toma un poco", 6);
+		}
+		no {
+			msgbox("Cualquier cosa me dices", 6);
+			var mymov = movement {walk_down * 9};
+			applymovement(mymov, 0x2);
+			applymovement(my_movement, 0x2);
 		}
 	}
 }

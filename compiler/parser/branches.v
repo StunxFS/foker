@@ -124,12 +124,10 @@ fn (mut p Parser) movement_expr(is_anon bool) ast.MovementExpr {
 	mov_pos := p.tok.position()
 	p.check(.key_movement)
 	pos := p.tok.position()
-	mut name := 'mov$p.movs_tmp'
+	mut name := ''
 	if !is_anon {
 		name = p.check_name()
 		p.dont_use_name_imports(name, pos)
-	} else {
-		p.movs_tmp++
 	}
 	p.check(.lbrace)
 	mut movs := []ast.MovItem{}

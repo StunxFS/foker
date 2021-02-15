@@ -105,6 +105,8 @@ pub:
 	pos           token.Position
 	body_pos      token.Position
 	is_pub        bool
+	is_main       bool
+	is_used       bool
 	mod           string
 pub mut:
 	stmts []Stmt
@@ -195,12 +197,10 @@ pub mut:
 
 pub struct CallArg {
 pub:
-	name string // para args. opcionales.
 	expr Expr
 pub mut:
-	typ    Type
-	pos    token.Position
-	is_opt bool // es argumento opcional
+	typ Type
+	pos token.Position
 }
 
 pub struct ForStmt {
@@ -274,6 +274,14 @@ pub:
 	is_else bool
 }
 
+// break, continue
+pub struct BranchStmt {
+pub:
+	kind  token.Kind
+	label string
+	pos   token.Position
+}
+
 // Expressions
 pub type Expr = BoolLiteral | FmtStringLiteral | Ident | InfixExpr | IntegerLiteral |
 	MovementExpr | ParExpr | PostfixExpr | PrefixExpr | StringLiteral
@@ -302,14 +310,6 @@ pub struct BoolLiteral {
 pub:
 	pos token.Position
 	lit string
-}
-
-// break, continue
-pub struct BranchStmt {
-pub:
-	kind  token.Kind
-	label string
-	pos   token.Position
 }
 
 pub enum IdentKind {
@@ -403,7 +403,8 @@ pub fn (expr Expr) is_blank_ident() bool {
 }
 
 pub fn (expr Expr) position() token.Position {
-	match expr { // /*ConcatExpr, */  /*RangeExpr, */ 
+	match expr {
+		// /*ConcatExpr, */  /*RangeExpr, */ 
 		BoolLiteral, Ident, IntegerLiteral, ParExpr, PostfixExpr, PrefixExpr, StringLiteral, FmtStringLiteral,
 		MovementExpr {
 			return expr.pos
@@ -440,6 +441,8 @@ pub fn (stmt Stmt) position() token.Position {
 	match stmt {
 		AssignStmt, Block, BranchStmt, CallStmt, CallCmdStmt, Const, ExprStmt, ForStmt, ForInStmt,
 		GotoLabel, GotoStmt, IfStmt, CmdDecl, DynamicStmt, FreeStmt, Import, QuestionStmt, ScriptDecl,
-		CheckgenderStmt, MatchStmt, RawStmt, Alias { return stmt.pos }
+		CheckgenderStmt, MatchStmt, RawStmt, Alias {
+			return stmt.pos
+		}
 	}
 }

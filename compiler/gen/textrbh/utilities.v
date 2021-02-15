@@ -1,6 +1,6 @@
 // (C) 2020-2021 StunxFS. All rights reserved. Use of this source code is
 // governed by an MIT license that can be found in the LICENSE file.
-module binary
+module textrbh
 
 // TODO: Organizar este archivo en un lugar adecuado
 pub fn to_hex(val int) string {
