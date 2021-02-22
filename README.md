@@ -1,5 +1,3 @@
-# CANCELADO. POR FAVOR USE DECOMP
-
 <img src="https://github.com/StunxFS/zubatscript/blob/master/logo.png?raw=true" alt="ZubatScript logo" width=200 align="left"/>
 
 <!--[![Discord][DiscordBadge]][DiscordUrl]-->
